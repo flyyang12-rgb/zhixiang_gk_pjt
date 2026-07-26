@@ -1,0 +1,10 @@
+[
+  {
+    "name": "获得许可后填写的公开招聘源",
+    "sourceType": "public_platform",
+    "baseUrl": "https://example.org/jobs",
+    "termsUrl": "https://example.org/terms",
+    "collectionPolicy": "仅采集无需登录且明确允许自动读取的 JSON-LD JobPosting；每日一次。",
+    "enabled": false
+  }
+]

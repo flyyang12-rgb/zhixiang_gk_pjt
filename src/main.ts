@@ -1,0 +1,15 @@
+import { createApp } from 'vue'
+import App from './App.vue'
+import './styles.css'
+import './map.css'
+import './map-layout.css'
+import './recommendations.css'
+import './rank-required.css'
+import './advisor.css'
+import './history.css'
+import './profession-dashboard.css'
+import './school-detail.css'
+import './school-major-evidence.css'
+import './admin.css'
+
+createApp(App).mount('#app')

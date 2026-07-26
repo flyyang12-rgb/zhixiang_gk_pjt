@@ -1,0 +1,26 @@
+@echo off
+chcp 65001 >nul
+title 知向 - 首次安装
+echo [1/8] 安装项目依赖...
+call npm install || goto :error
+echo [2/8] 初始化本地 MySQL...
+call npm run db:init || goto :error
+echo [3/8] 导入教育部全国高校名单...
+call npm run data:schools || goto :error
+echo [4/8] 导入已核验院校官网与招生网...
+call npm run data:school-links || goto :error
+echo [5/8] 导入已核验优势专业证据...
+call npm run data:featured-majors || goto :error
+echo [6/8] 导入山东 2023-2025 官方投档数据...
+call npm run data:shandong || goto :error
+echo [7/8] 导入河南 2023-2025 投档数据...
+call npm run data:henan || goto :error
+echo [8/8] 导入河北 2023-2025 投档数据...
+call npm run data:hebei || goto :error
+echo 安装完成，请双击 start-local.cmd 启动。
+pause
+exit /b 0
+:error
+echo 安装失败，请查看上方错误信息。
+pause
+exit /b 1

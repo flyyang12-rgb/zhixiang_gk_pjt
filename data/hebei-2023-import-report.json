@@ -1,0 +1,1438 @@
+{
+  "year": 2023,
+  "imported": 23297,
+  "unmatched": 238,
+  "missingRanks": 0,
+  "unmatchedRows": [
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "数字经济",
+      "score": 433
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "金融学",
+      "score": 463
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "金融工程",
+      "score": 435
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "金融科技",
+      "score": 441
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "会计学",
+      "score": 450
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "财务管理",
+      "score": 444
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "国际商务",
+      "score": 455
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "审计学",
+      "score": 443
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京理工大学珠海学院[独立学院]",
+      "majorName": "英语",
+      "score": 472
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京理工大学珠海学院[独立学院]",
+      "majorName": "财务管理",
+      "score": 492
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "经济学(中外合作办学)",
+      "score": 539
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "社会学(中外合作办学)",
+      "score": 537
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "外国语言文学类(中外合作办学)",
+      "score": 534
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "新闻传播学类(中外合作办学)",
+      "score": 534
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "会计学(中外合作办学)",
+      "score": 540
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "工商管理类(中外合作办学)",
+      "score": 536
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "英语",
+      "score": 456
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "日语",
+      "score": 448
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "广播电视学",
+      "score": 465
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "网络与新媒体",
+      "score": 486
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "工商管理",
+      "score": 461
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "市场营销",
+      "score": 458
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "物流管理",
+      "score": 472
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "跨境电子商务",
+      "score": 464
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "阜阳师范大学信息工程学院[独立学院]",
+      "majorName": "英语",
+      "score": 464
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "阜阳师范大学信息工程学院[独立学院]",
+      "majorName": "财务管理",
+      "score": 468
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "湖南理工学院南湖学院[独立学院]",
+      "majorName": "国际经济与贸易",
+      "score": 466
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "湖南理工学院南湖学院[独立学院]",
+      "majorName": "新闻学",
+      "score": 475
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "湖南师范大学树达学院[独立学院]",
+      "majorName": "汉语言文学",
+      "score": 482
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "湖南师范大学树达学院[独立学院]",
+      "majorName": "英语",
+      "score": 464
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "湖南文理学院芙蓉学院(常德市)[独立学院]",
+      "majorName": "汉语言文学",
+      "score": 478
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "吉首大学张家界学院[独立学院]",
+      "majorName": "日语",
+      "score": 469
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "吉首大学张家界学院[独立学院]",
+      "majorName": "旅游管理",
+      "score": 462
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "法学",
+      "score": 539
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "政治学与行政学",
+      "score": 502
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "思想政治教育",
+      "score": 526
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "小学教育(语文)",
+      "score": 504
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "汉语言文学",
+      "score": 526
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "历史学",
+      "score": 516
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "应用心理学",
+      "score": 498
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "人力资源管理",
+      "score": 488
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "图书馆学",
+      "score": 490
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "法学",
+      "score": 483
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "中国语言文学类",
+      "score": 477
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "英语",
+      "score": 467
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "翻译",
+      "score": 455
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "护理学",
+      "score": 464
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "工商管理",
+      "score": 461
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "电子商务",
+      "score": 469
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "国际经济与贸易",
+      "score": 486
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "学前教育",
+      "score": 494
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "汉语言文学",
+      "score": 496
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "汉语国际教育",
+      "score": 478
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "英语",
+      "score": 487
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "俄语",
+      "score": 444
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "德语",
+      "score": 474
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "法语",
+      "score": 484
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "西班牙语",
+      "score": 455
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "日语",
+      "score": 458
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "朝鲜语",
+      "score": 443
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "泰语",
+      "score": 451
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "波兰语",
+      "score": 443
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "捷克语",
+      "score": 450
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "葡萄牙语",
+      "score": 431
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "匈牙利语",
+      "score": 449
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "意大利语",
+      "score": 451
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "翻译",
+      "score": 477
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "商务英语",
+      "score": 472
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "网络与新媒体",
+      "score": 481
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "国际新闻与传播",
+      "score": 478
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "财务管理",
+      "score": 488
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "物流管理",
+      "score": 463
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "跨境电子商务",
+      "score": 464
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "会展经济与管理",
+      "score": 466
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "香港珠海学院[香港]",
+      "majorName": "商学院",
+      "score": 477
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "香港珠海学院[香港]",
+      "majorName": "文学与社会科学院",
+      "score": 466
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "经济学",
+      "score": 457
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "数字经济",
+      "score": 453
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "金融学",
+      "score": 456
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "国际经济与贸易",
+      "score": 451
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "法学",
+      "score": 472
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "社会工作",
+      "score": 450
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "汉语言文学",
+      "score": 468
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "汉语国际教育",
+      "score": 459
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "英语",
+      "score": 459
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "日语",
+      "score": 450
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "新闻传播学类",
+      "score": 459
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "建筑学",
+      "score": 453
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "城乡规划",
+      "score": 451
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "工商管理",
+      "score": 454
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "市场营销",
+      "score": 435
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "会计学",
+      "score": 459
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "财务管理",
+      "score": 458
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "人力资源管理",
+      "score": 451
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "行政管理",
+      "score": 452
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "物流管理",
+      "score": 451
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "学前教育",
+      "score": 444
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "小学教育",
+      "score": 447
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "汉语言文学",
+      "score": 453
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "网络与新媒体",
+      "score": 439
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "文化产业管理",
+      "score": 437
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "数字经济",
+      "score": 441
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "金融学",
+      "score": 439
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "金融工程",
+      "score": 446
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "金融科技",
+      "score": 455
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "计算机科学与技术",
+      "score": 442
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "数据科学与大数据技术",
+      "score": 439
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "大数据管理与应用",
+      "score": 442
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "会计学",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "财务管理",
+      "score": 445
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "国际商务",
+      "score": 439
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京工商大学嘉华学院[独立学院]",
+      "majorName": "审计学",
+      "score": 443
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京理工大学珠海学院[独立学院]",
+      "majorName": "计算机类",
+      "score": 533
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京理工大学珠海学院[独立学院]",
+      "majorName": "智能科学与技术",
+      "score": 512
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京理工大学珠海学院[独立学院]",
+      "majorName": "飞行器制造工程",
+      "score": 511
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "经济学(中外合作办学)",
+      "score": 537
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "金融数学(中外合作办学)",
+      "score": 534
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "新闻传播学类(中外合作办学)",
+      "score": 531
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "数学与应用数学(中外合作办学)",
+      "score": 537
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "应用心理学(中外合作办学)",
+      "score": 527
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "统计学(中外合作办学)",
+      "score": 536
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "人工智能(中外合作办学)",
+      "score": 536
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "计算机类(中外合作办学)",
+      "score": 537
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "食品科学与工程(中外合作办学)",
+      "score": 533
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "会计学(中外合作办学)",
+      "score": 541
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "北京师范大学-香港浸会大学联合国际学院(珠海市)[内地与港澳台地区合作办学]",
+      "majorName": "工商管理类(中外合作办学)",
+      "score": 531
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "英语",
+      "score": 465
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "日语",
+      "score": 455
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "广播电视学",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "网络与新媒体",
+      "score": 474
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "电气工程及其自动化",
+      "score": 472
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "电子信息工程",
+      "score": 465
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "通信工程",
+      "score": 467
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "自动化",
+      "score": 464
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "计算机科学与技术",
+      "score": 474
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "软件工程",
+      "score": 469
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "网络工程",
+      "score": 467
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "物联网工程",
+      "score": 465
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "数字媒体技术",
+      "score": 474
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "数据科学与大数据技术",
+      "score": 466
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "虚拟现实技术",
+      "score": 466
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "土木工程",
+      "score": 464
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "测绘工程",
+      "score": 457
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "地理空间信息工程",
+      "score": 459
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "建筑学",
+      "score": 472
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "风景园林",
+      "score": 465
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "信息管理与信息系统",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "工程造价",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "大数据管理与应用",
+      "score": 466
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "工商管理",
+      "score": 471
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "市场营销",
+      "score": 456
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "物流管理",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "跨境电子商务",
+      "score": 452
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "临床医学(高级临床医师)",
+      "score": 643
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "临床医学(临床医师)",
+      "score": 617
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "麻醉学(临床麻醉医师)",
+      "score": 625
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "医学影像学(临床影像医师)",
+      "score": 616
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "中医学(中医临床医师)",
+      "score": 607
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "药学(药剂师)",
+      "score": 607
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "护理学(护师)",
+      "score": 595
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "湖南理工学院南湖学院[独立学院]",
+      "majorName": "应用化学",
+      "score": 466
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "湖南理工学院南湖学院[独立学院]",
+      "majorName": "机械电子工程",
+      "score": 492
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "湖南理工学院南湖学院[独立学院]",
+      "majorName": "电子信息工程",
+      "score": 485
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "湖南师范大学树达学院[独立学院]",
+      "majorName": "英语",
+      "score": 471
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "湖南师范大学树达学院[独立学院]",
+      "majorName": "数学与应用数学",
+      "score": 471
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "湖南文理学院芙蓉学院(常德市)[独立学院]",
+      "majorName": "电子信息科学与技术",
+      "score": 476
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "湖南文理学院芙蓉学院(常德市)[独立学院]",
+      "majorName": "计算机科学与技术",
+      "score": 470
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "吉首大学张家界学院[独立学院]",
+      "majorName": "电子信息工程",
+      "score": 474
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "吉首大学张家界学院[独立学院]",
+      "majorName": "计算机科学与技术",
+      "score": 488
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "吉首大学张家界学院[独立学院]",
+      "majorName": "软件工程",
+      "score": 483
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "吉首大学张家界学院[独立学院]",
+      "majorName": "土木工程",
+      "score": 463
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "吉首大学张家界学院[独立学院]",
+      "majorName": "旅游管理",
+      "score": 466
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "生物技术",
+      "score": 602
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "生物医学工程",
+      "score": 600
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "基础医学(本硕博连读)",
+      "score": 619
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "临床医学(本硕博连读)",
+      "score": 645
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "临床医学",
+      "score": 618
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "口腔医学(本硕博连读)",
+      "score": 654
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "口腔医学",
+      "score": 633
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "药学",
+      "score": 601
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "新闻学",
+      "score": 495
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "数学与应用数学",
+      "score": 508
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "物理学",
+      "score": 494
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "化学",
+      "score": 495
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "应用化学",
+      "score": 487
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "地理科学",
+      "score": 499
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "生物科学",
+      "score": 495
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "生物技术",
+      "score": 496
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "电子信息科学与技术",
+      "score": 508
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "临床医学",
+      "score": 527
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "麻醉学",
+      "score": 524
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "医学检验技术",
+      "score": 502
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "卫生检验与检疫",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "护理学",
+      "score": 499
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "法学",
+      "score": 490
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "中国语言文学类",
+      "score": 471
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "机械类",
+      "score": 461
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "电子信息工程",
+      "score": 459
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "计算机类",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "数据科学与大数据技术",
+      "score": 478
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "土木工程",
+      "score": 451
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "药学",
+      "score": 459
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "护理学",
+      "score": 463
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "管理科学与工程类",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "绍兴文理学院元培学院[独立学院]",
+      "majorName": "电子商务",
+      "score": 462
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "国际经济与贸易",
+      "score": 468
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "汉语言文学",
+      "score": 513
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "汉语国际教育",
+      "score": 481
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "英语",
+      "score": 497
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "日语",
+      "score": 482
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "翻译",
+      "score": 478
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "商务英语",
+      "score": 474
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "四川外国语大学成都学院[独立学院]",
+      "majorName": "国际新闻与传播",
+      "score": 481
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "香港珠海学院[香港]",
+      "majorName": "商学院",
+      "score": 482
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "香港珠海学院[香港]",
+      "majorName": "理工学院",
+      "score": 491
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "新乡医学院三全学院[独立学院]",
+      "majorName": "临床医学",
+      "score": 501
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "经济学",
+      "score": 455
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "金融学",
+      "score": 455
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "国际经济与贸易",
+      "score": 453
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "法学",
+      "score": 482
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "社会工作",
+      "score": 445
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "英语",
+      "score": 465
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "电子信息工程",
+      "score": 458
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "计算机科学与技术",
+      "score": 463
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "软件工程",
+      "score": 461
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "物联网工程",
+      "score": 457
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "数字媒体技术",
+      "score": 478
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "土木工程",
+      "score": 455
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "建筑学",
+      "score": 456
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "工程管理",
+      "score": 459
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "会计学",
+      "score": 464
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "财务管理",
+      "score": 464
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "人力资源管理",
+      "score": 454
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南大学滇池学院[独立学院]",
+      "majorName": "电子商务",
+      "score": 453
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "学前教育",
+      "score": 447
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "小学教育",
+      "score": 445
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "网络与新媒体",
+      "score": 446
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "云南艺术学院文华学院[独立学院]",
+      "majorName": "文化产业管理",
+      "score": 444
+    }
+  ],
+  "missingRankRows": [],
+  "rankSourceUrl": "https://file.hebeea.edu.cn/files/article/2023/06/20230624203549_178.pdf"
+}

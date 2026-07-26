@@ -1,0 +1,49 @@
+{
+  "name": "zhixiang-volunteer-planner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c green,blue \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "tsx watch server/index.ts",
+    "dev:web": "vite",
+    "db:init": "tsx scripts/init-database.ts",
+    "data:schools": "tsx scripts/import-moe-schools.ts",
+    "data:school-links": "tsx scripts/import-school-links.ts",
+    "data:school-links:auto": "tsx scripts/collect-school-links.ts",
+    "data:featured-majors": "tsx scripts/import-featured-majors.ts data/featured-majors.json",
+    "data:employment-sources": "tsx scripts/import-employment-sources.ts",
+    "data:shandong": "tsx scripts/import-shandong-admissions.ts",
+    "data:henan": "tsx scripts/import-henan-admissions.ts",
+    "data:henan-group-majors": "tsx scripts/import-henan-group-majors.ts",
+    "data:hebei": "tsx scripts/import-hebei-admissions.ts",
+    "build": "vue-tsc --noEmit && vite build && tsc -p server/tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "echarts": "^6.1.0",
+    "express": "^5.1.0",
+    "multer": "^2.2.0",
+    "mysql2": "^3.14.2",
+    "playwright": "^1.61.1",
+    "vue": "^3.5.17",
+    "xlsx": "^0.18.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/multer": "^2.2.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "concurrently": "^9.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.5",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^3.0.1"
+  }
+}

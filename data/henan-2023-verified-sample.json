@@ -1,0 +1,9 @@
+[
+  { "schoolCode": "1115", "schoolName": "清华大学", "score": 685, "rank": 10, "subjectGroup": "文科" },
+  { "schoolCode": "1105", "schoolName": "北京大学", "score": 672, "rank": 46, "subjectGroup": "文科" },
+  { "schoolCode": "1290", "schoolName": "上海交通大学", "score": 668, "rank": 76, "subjectGroup": "文科" },
+  { "schoolCode": "1130", "schoolName": "复旦大学", "score": 665, "rank": 108, "subjectGroup": "文科" },
+  { "schoolCode": "1110", "schoolName": "中国人民大学", "score": 661, "rank": 162, "subjectGroup": "文科" },
+  { "schoolCode": "1115", "schoolName": "清华大学", "score": 698, "rank": 94, "subjectGroup": "理科" },
+  { "schoolCode": "1105", "schoolName": "北京大学", "score": 696, "rank": 109, "subjectGroup": "理科" }
+]

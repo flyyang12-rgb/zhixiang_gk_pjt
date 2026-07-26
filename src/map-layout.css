@@ -1,0 +1,7 @@
+.map-workspace {
+  grid-template-columns: 1fr !important;
+}
+
+.map-canvas {
+  overflow: auto;
+}

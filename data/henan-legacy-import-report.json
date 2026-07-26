@@ -1,0 +1,2585 @@
+{
+  "warning": "2023-2024 为改革前文理科历史参考，不与 2025 物理/历史类直接平均。2023 仅为已核验重点院校样本。",
+  "years": [
+    {
+      "year": 2023,
+      "imported": 7,
+      "unmatched": 0,
+      "total": 7,
+      "unmatchedRows": []
+    },
+    {
+      "year": 2024,
+      "imported": 493,
+      "unmatched": 285,
+      "total": 778,
+      "unmatchedRows": [
+        {
+          "schoolCode": "1400",
+          "schoolName": "|北京帅范大学（其他单列)",
+          "score": 603,
+          "rank": 1723,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.6366551220417023
+        },
+        {
+          "schoolCode": "1173",
+          "schoolName": "山东大学威海分校",
+          "score": 598,
+          "rank": 2188,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9431209564208984
+        },
+        {
+          "schoolCode": "2030",
+          "schoolName": "四南政汕大学（较高收费）",
+          "score": 597,
+          "rank": 2288,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.7165112644433975
+        },
+        {
+          "schoolCode": "1205",
+          "schoolName": "大连海中大学（较高收费）",
+          "score": 592,
+          "rank": 2855,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9258818542584777
+        },
+        {
+          "schoolCode": "1310",
+          "schoolName": "同济大学（其他单列)",
+          "score": 591,
+          "rank": 2990,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9496588323797498
+        },
+        {
+          "schoolCode": "1180",
+          "schoolName": "武汉大学（特殊类）",
+          "score": 591,
+          "rank": 2990,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9268854141235352
+        },
+        {
+          "schoolCode": "1180",
+          "schoolName": "武汉人学（医护类）",
+          "score": 591,
+          "rank": 2990,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9056882491478553
+        },
+        {
+          "schoolCode": "1175",
+          "schoolName": "四川大学（其他单列",
+          "score": 588,
+          "rank": 3378,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.987432062625885
+        },
+        {
+          "schoolCode": "1330",
+          "schoolName": "中国海洋大学（较高收费）",
+          "score": 588,
+          "rank": 3378,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9590397834777832
+        },
+        {
+          "schoolCode": "1258",
+          "schoolName": "东北大学秦皇岛分校",
+          "score": 584,
+          "rank": 4004,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9668993170444782
+        },
+        {
+          "schoolCode": "1455",
+          "schoolName": "西南财经大学（较高收费）",
+          "score": 583,
+          "rank": 4196,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9174481511116028
+        },
+        {
+          "schoolCode": "1470",
+          "schoolName": "中国传媒大学（具他单列",
+          "score": 583,
+          "rank": 4196,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9569832960764567
+        },
+        {
+          "schoolCode": "1315",
+          "schoolName": "武汉理工大学（较高收费）",
+          "score": 582,
+          "rank": 4356,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.980198297649622
+        },
+        {
+          "schoolCode": "1135",
+          "schoolName": "湖南大学（其他单列)",
+          "score": 582,
+          "rank": 4356,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.957893580198288
+        },
+        {
+          "schoolCode": "1410",
+          "schoolName": "华东师范大学（其他单列)",
+          "score": 581,
+          "rank": 4526,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.9297907818108797
+        },
+        {
+          "schoolCode": "1175",
+          "schoolName": "四川大学（特殊类）",
+          "score": 580,
+          "rank": 4709,
+          "subjectGroup": "文科",
+          "sourceImage": "liberal.png",
+          "confidence": 0.8077079951763153
+        },
+        {
+          "schoolCode": "1130",
+          "schoolName": "京旦大学（特外类）",
+          "score": 684,
+          "rank": 408,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.758808821439743
+        },
+        {
+          "schoolCode": "1290",
+          "schoolName": "上海交通大学（其他单列",
+          "score": 683,
+          "rank": 444,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9690590798854828
+        },
+        {
+          "schoolCode": "1106",
+          "schoolName": "北京大学医学部（其他单列）",
+          "score": 682,
+          "rank": 491,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9497830638518701
+        },
+        {
+          "schoolCode": "1106",
+          "schoolName": "北京大学医学部（医护类）",
+          "score": 674,
+          "rank": 958,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9407566239436468
+        },
+        {
+          "schoolCode": "2260",
+          "schoolName": "上海交通大学医学院（医护类）",
+          "score": 666,
+          "rank": 1604,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9760808774403164
+        },
+        {
+          "schoolCode": "1290",
+          "schoolName": "上海交通大学（农林矿）",
+          "score": 663,
+          "rank": 1942,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9579824100841176
+        },
+        {
+          "schoolCode": "1131",
+          "schoolName": "复旦人学医学院（其他单列）",
+          "score": 661,
+          "rank": 2157,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8466514647006989
+        },
+        {
+          "schoolCode": "1490",
+          "schoolName": "北京理工大学（其他单列)",
+          "score": 654,
+          "rank": 3120,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9291090220212936
+        },
+        {
+          "schoolCode": "1310",
+          "schoolName": "同济大学（较高收费）",
+          "score": 646,
+          "rank": 4551,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9704213619232178
+        },
+        {
+          "schoolCode": "1310",
+          "schoolName": "同济大学（医护类）",
+          "score": 646,
+          "rank": 4551,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9553986191749573
+        },
+        {
+          "schoolCode": "1485",
+          "schoolName": "北京航空航天大学（较高收费）",
+          "score": 643,
+          "rank": 5177,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8964295029640198
+        },
+        {
+          "schoolCode": "1165",
+          "schoolName": "南升大学（其他单列)",
+          "score": 643,
+          "rank": 5177,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8585200905799866
+        },
+        {
+          "schoolCode": "1120",
+          "schoolName": "北京交通大学（其他单列)",
+          "score": 642,
+          "rank": 5385,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.954701378941536
+        },
+        {
+          "schoolCode": "1125",
+          "schoolName": "东南大学（医护类）",
+          "score": 642,
+          "rank": 5385,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9503974517186483
+        },
+        {
+          "schoolCode": "1180",
+          "schoolName": "击汉人学（殊类）",
+          "score": 641,
+          "rank": 5635,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8449715450406075
+        },
+        {
+          "schoolCode": "1185",
+          "schoolName": "西安交通人学（具他单列）",
+          "score": 640,
+          "rank": 5855,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8720602095127106
+        },
+        {
+          "schoolCode": "1305",
+          "schoolName": "天津大学（医护类）",
+          "score": 640,
+          "rank": 5855,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9270989365047879
+        },
+        {
+          "schoolCode": "1120",
+          "schoolName": "北京交通大学（特殊类)",
+          "score": 638,
+          "rank": 6413,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.910130343653939
+        },
+        {
+          "schoolCode": "1500",
+          "schoolName": "哈尔滨工程大学（软件类）",
+          "score": 638,
+          "rank": 6413,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9564769913752874
+        },
+        {
+          "schoolCode": "1160",
+          "schoolName": "南京大学（较高收费）",
+          "score": 638,
+          "rank": 6413,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8628867864608765
+        },
+        {
+          "schoolCode": "1500",
+          "schoolName": "哈尔滨工程大学（异地校区）",
+          "score": 637,
+          "rank": 6669,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8475793898105621
+        },
+        {
+          "schoolCode": "1495",
+          "schoolName": "哈尔滨T业大学（较高收费）",
+          "score": 634,
+          "rank": 7548,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9657857555609483
+        },
+        {
+          "schoolCode": "1145",
+          "schoolName": "吉林大学（软件类）",
+          "score": 633,
+          "rank": 7831,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9233238498369852
+        },
+        {
+          "schoolCode": "1125",
+          "schoolName": "东南大学（其他单列",
+          "score": 632,
+          "rank": 8139,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.972894655333625
+        },
+        {
+          "schoolCode": "1496",
+          "schoolName": "哈尔滨工业大学（威海）（其他单列）",
+          "score": 632,
+          "rank": 8139,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9214416286524605
+        },
+        {
+          "schoolCode": "1196",
+          "schoolName": "浙江大学医学院（较高收费）",
+          "score": 632,
+          "rank": 8139,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8104772865772247
+        },
+        {
+          "schoolCode": "1140",
+          "schoolName": "华中科技大学（医护类）",
+          "score": 632,
+          "rank": 8139,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.7769899725914001
+        },
+        {
+          "schoolCode": "1500",
+          "schoolName": "哈尔滨工程大学（特殊类）",
+          "score": 631,
+          "rank": 8444,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8054622113704681
+        },
+        {
+          "schoolCode": "1495",
+          "schoolName": "哈尔滨T业大学（特殊类）",
+          "score": 629,
+          "rank": 9133,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9112094889084498
+        },
+        {
+          "schoolCode": "1410",
+          "schoolName": "华东师范大学（其他单列)",
+          "score": 628,
+          "rank": 9498,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9229561438163122
+        },
+        {
+          "schoolCode": "6000",
+          "schoolName": "郑州大学（其他单列)",
+          "score": 626,
+          "rank": 10188,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9150731295347214
+        },
+        {
+          "schoolCode": "1140",
+          "schoolName": "华中科技大学（单列专业）",
+          "score": 626,
+          "rank": 10188,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8504161238670349
+        },
+        {
+          "schoolCode": "1251",
+          "schoolName": "电子科技大学（沙河校区）校高收费）",
+          "score": 625,
+          "rank": 10592,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.917334051693187
+        },
+        {
+          "schoolCode": "1245",
+          "schoolName": "大连理工人学（其他单列）",
+          "score": 621,
+          "rank": 12204,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8915920083721479
+        },
+        {
+          "schoolCode": "1180",
+          "schoolName": "武汉大学（其他单列)",
+          "score": 621,
+          "rank": 12204,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9052530735731125
+        },
+        {
+          "schoolCode": "1237",
+          "schoolName": "北京邮电大学（宏福校区）",
+          "score": 619,
+          "rank": 13028,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9578726838032404
+        },
+        {
+          "schoolCode": "1258",
+          "schoolName": "东北大学泰呈岛分校",
+          "score": 617,
+          "rank": 13941,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.8213780025641123
+        },
+        {
+          "schoolCode": "1515",
+          "schoolName": "西北工业大学（较高收费）",
+          "score": 617,
+          "rank": 13941,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9540543009837469
+        },
+        {
+          "schoolCode": "1245",
+          "schoolName": "大连理工大学（较高收费）",
+          "score": 616,
+          "rank": 14396,
+          "subjectGroup": "理科",
+          "sourceImage": "science-1.png",
+          "confidence": 0.9370982597271601
+        },
+        {
+          "schoolCode": "1251",
+          "schoolName": "电子科技大学（沙河校区）（异地校区）",
+          "score": 616,
+          "rank": 14396,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9381876074605517
+        },
+        {
+          "schoolCode": "1175",
+          "schoolName": "四川人学（较高收费）",
+          "score": 615,
+          "rank": 14891,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8998376488685608
+        },
+        {
+          "schoolCode": "1173",
+          "schoolName": "山东大学威海分校",
+          "score": 614,
+          "rank": 15402,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9819647967815399
+        },
+        {
+          "schoolCode": "1245",
+          "schoolName": "大连理工大学（软件类）",
+          "score": 613,
+          "rank": 15913,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9422938661141829
+        },
+        {
+          "schoolCode": "1185",
+          "schoolName": "西安交通大学（医护类）",
+          "score": 613,
+          "rank": 15913,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9302049766887318
+        },
+        {
+          "schoolCode": "1355",
+          "schoolName": "重庆大学（较高收费）",
+          "score": 611,
+          "rank": 16982,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8354710638523102
+        },
+        {
+          "schoolCode": "1248",
+          "schoolName": "大连理工大学（盘锦校区）",
+          "score": 610,
+          "rank": 17519,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9183659553527832
+        },
+        {
+          "schoolCode": "2030",
+          "schoolName": "西南政法大学（较高收费）",
+          "score": 610,
+          "rank": 17519,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.969104657570521
+        },
+        {
+          "schoolCode": "1237",
+          "schoolName": "北京邮电大学（宏福校区（异地校区）",
+          "score": 609,
+          "rank": 18059,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9746631383895874
+        },
+        {
+          "schoolCode": "1255",
+          "schoolName": "东北大学（农林矿",
+          "score": 609,
+          "rank": 18059,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9444408714771271
+        },
+        {
+          "schoolCode": "1320",
+          "schoolName": "西安电子科技大学（较高收费）",
+          "score": 608,
+          "rank": 18642,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9553732829434531
+        },
+        {
+          "schoolCode": "1145",
+          "schoolName": "吉林大学（农林W）",
+          "score": 608,
+          "rank": 18642,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8855709234873453
+        },
+        {
+          "schoolCode": "1495",
+          "schoolName": "哈尔滨工业大学（其他单列）",
+          "score": 606,
+          "rank": 19869,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9429060083169204
+        },
+        {
+          "schoolCode": "1210",
+          "schoolName": "中南大学（较高收费）",
+          "score": 606,
+          "rank": 19869,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9688780009746552
+        },
+        {
+          "schoolCode": "1145",
+          "schoolName": "古林大学（较高收费）",
+          "score": 606,
+          "rank": 19869,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8546546548604965
+        },
+        {
+          "schoolCode": "1155",
+          "schoolName": "兰州大学（较高收费）",
+          "score": 606,
+          "rank": 19869,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9474699378013611
+        },
+        {
+          "schoolCode": "1500",
+          "schoolName": "哈尔滨工程大学（其他单列）",
+          "score": 603,
+          "rank": 21656,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9417444467544556
+        },
+        {
+          "schoolCode": "1460",
+          "schoolName": "中央财经大学（较高收费）",
+          "score": 603,
+          "rank": 21656,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9273850520451864
+        },
+        {
+          "schoolCode": "3040",
+          "schoolName": "上海电力大学（较高收费）",
+          "score": 603,
+          "rank": 21656,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9211187462011973
+        },
+        {
+          "schoolCode": "1180",
+          "schoolName": "武汉大学（较高收费）",
+          "score": 603,
+          "rank": 21656,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9496324062347412
+        },
+        {
+          "schoolCode": "1120",
+          "schoolName": "北京交通大学（软件类）",
+          "score": 602,
+          "rank": 22336,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9404037296772003
+        },
+        {
+          "schoolCode": "1258",
+          "schoolName": "东北大学案皇岛分校（较高收费）",
+          "score": 602,
+          "rank": 22336,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.863563006122907
+        },
+        {
+          "schoolCode": "1185",
+          "schoolName": "西安交通大学（较高收费）",
+          "score": 602,
+          "rank": 22336,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9234469890594482
+        },
+        {
+          "schoolCode": "1520",
+          "schoolName": "暨南大学（其他单列",
+          "score": 602,
+          "rank": 22336,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9292024771372477
+        },
+        {
+          "schoolCode": "1255",
+          "schoolName": "东北人学（较高收费）",
+          "score": 601,
+          "rank": 22963,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9622770190238953
+        },
+        {
+          "schoolCode": "2025",
+          "schoolName": "出庆医科大学（较高收费）",
+          "score": 601,
+          "rank": 22963,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.7920655012130737
+        },
+        {
+          "schoolCode": "2305",
+          "schoolName": "贵州大学(其他单列)",
+          "score": 600,
+          "rank": 23638,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9237029790878296
+        },
+        {
+          "schoolCode": "2035",
+          "schoolName": "重庆邮电大学（软件类）",
+          "score": 600,
+          "rank": 23638,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9502783471887762
+        },
+        {
+          "schoolCode": "2420",
+          "schoolName": "杭州电了科技人学（较高收费）",
+          "score": 600,
+          "rank": 23638,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9604988992214203
+        },
+        {
+          "schoolCode": "1145",
+          "schoolName": "吉林大学（医护类）",
+          "score": 600,
+          "rank": 23638,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8813014891412523
+        },
+        {
+          "schoolCode": "1120",
+          "schoolName": "北京交通大学（较高收费）",
+          "score": 599,
+          "rank": 24309,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9143748760223389
+        },
+        {
+          "schoolCode": "1315",
+          "schoolName": "武汉理工大学（较高收费）",
+          "score": 598,
+          "rank": 25049,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9703705509503683
+        },
+        {
+          "schoolCode": "1248",
+          "schoolName": "大连理T大学（盘锦校区）（较高收费）",
+          "score": 597,
+          "rank": 25762,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9179377721415626
+        },
+        {
+          "schoolCode": "1185",
+          "schoolName": "西安交通大学（特殊尖）",
+          "score": 597,
+          "rank": 25762,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9061371792446483
+        },
+        {
+          "schoolCode": "1340",
+          "schoolName": "中国地质大学（武汉（较高收费）",
+          "score": 597,
+          "rank": 25762,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8997333347797394
+        },
+        {
+          "schoolCode": "1268",
+          "schoolName": "合肥工业大学（宜城校区）",
+          "score": 597,
+          "rank": 25762,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.7377615690231323
+        },
+        {
+          "schoolCode": "5190",
+          "schoolName": "遵义医科人学（另地校区）",
+          "score": 596,
+          "rank": 26465,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8681988000869751
+        },
+        {
+          "schoolCode": "1330",
+          "schoolName": "中国海洋大学（较高收费）",
+          "score": 595,
+          "rank": 27214,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8028724133968353
+        },
+        {
+          "schoolCode": "1100",
+          "schoolName": "中央民族大学（较高收费）",
+          "score": 595,
+          "rank": 27214,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9593673149744669
+        },
+        {
+          "schoolCode": "0450",
+          "schoolName": "空军军医大学",
+          "score": 595,
+          "rank": 27214,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9951439142227173
+        },
+        {
+          "schoolCode": "2750",
+          "schoolName": "海南大学（其他单列)",
+          "score": 592,
+          "rank": 29369,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9196436136960984
+        },
+        {
+          "schoolCode": "5995",
+          "schoolName": "郑州大学（中外合作办学（校高收费）",
+          "score": 592,
+          "rank": 29369,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8408538997173309
+        },
+        {
+          "schoolCode": "1790",
+          "schoolName": "上海大学（较高收费）",
+          "score": 592,
+          "rank": 29369,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.9674056887626648
+        },
+        {
+          "schoolCode": "1140",
+          "schoolName": "华中科技大学（特外类）",
+          "score": 592,
+          "rank": 29369,
+          "subjectGroup": "理科",
+          "sourceImage": "science-2.png",
+          "confidence": 0.8633691668510437
+        },
+        {
+          "schoolCode": "2090",
+          "schoolName": "西北大学（较高收费）",
+          "score": 591,
+          "rank": 30123,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9500182807445526
+        },
+        {
+          "schoolCode": "1325",
+          "schoolName": "西南交通人学（较高收费）",
+          "score": 591,
+          "rank": 30123,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8998376488685608
+        },
+        {
+          "schoolCode": "2905",
+          "schoolName": "三峡大学（较高收费）",
+          "score": 591,
+          "rank": 30123,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8907826542854309
+        },
+        {
+          "schoolCode": "2235",
+          "schoolName": "东北电力大学（其他单列)",
+          "score": 590,
+          "rank": 30887,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8631699323654175
+        },
+        {
+          "schoolCode": "1175",
+          "schoolName": "四川大学（医护类）",
+          "score": 590,
+          "rank": 30887,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.904356473022037
+        },
+        {
+          "schoolCode": "1910",
+          "schoolName": "南昌大学（较高收费）",
+          "score": 590,
+          "rank": 30887,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9181053161621093
+        },
+        {
+          "schoolCode": "1895",
+          "schoolName": "福州大学（较高收费）",
+          "score": 589,
+          "rank": 31680,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9664273262023926
+        },
+        {
+          "schoolCode": "1170",
+          "schoolName": "山东大学（医护类)",
+          "score": 589,
+          "rank": 31680,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9119750559329987
+        },
+        {
+          "schoolCode": "1175",
+          "schoolName": "四川大学（特殊类）",
+          "score": 589,
+          "rank": 31680,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.891605277856191
+        },
+        {
+          "schoolCode": "1180",
+          "schoolName": "武汉大学（医护类）",
+          "score": 589,
+          "rank": 31680,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9217540290620592
+        },
+        {
+          "schoolCode": "1251",
+          "schoolName": "电了科技人学（沙河校区）（医护类）",
+          "score": 588,
+          "rank": 32528,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8782718420028687
+        },
+        {
+          "schoolCode": "2105",
+          "schoolName": "西安邮电大学（较高收费）",
+          "score": 588,
+          "rank": 32528,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9545473158359528
+        },
+        {
+          "schoolCode": "2035",
+          "schoolName": "重庆邮电大学（较高收费）",
+          "score": 588,
+          "rank": 32528,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9444665362437566
+        },
+        {
+          "schoolCode": "1190",
+          "schoolName": "厦门大学（只地校区)",
+          "score": 588,
+          "rank": 32528,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.783234852552414
+        },
+        {
+          "schoolCode": "3880",
+          "schoolName": "南京工程学院（其他单列)",
+          "score": 588,
+          "rank": 32528,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9009630382061005
+        },
+        {
+          "schoolCode": "1225",
+          "schoolName": "北京化工大学（较高收费）",
+          "score": 586,
+          "rank": 34230,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9593948622544607
+        },
+        {
+          "schoolCode": "1240",
+          "schoolName": "长安大学（其他单列)",
+          "score": 586,
+          "rank": 34230,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.878094345331192
+        },
+        {
+          "schoolCode": "1315",
+          "schoolName": "武汉理工大学（具他单列）",
+          "score": 586,
+          "rank": 34230,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9356612116098404
+        },
+        {
+          "schoolCode": "1560",
+          "schoolName": "北京工业大学（较高收费）",
+          "score": 585,
+          "rank": 35066,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9338735938072205
+        },
+        {
+          "schoolCode": "2365",
+          "schoolName": "太原理工大学（较高收费）",
+          "score": 585,
+          "rank": 35066,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9500378767649332
+        },
+        {
+          "schoolCode": "1520",
+          "schoolName": "暨南大学（较高收费）",
+          "score": 584,
+          "rank": 35948,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9194556951522828
+        },
+        {
+          "schoolCode": "2755",
+          "schoolName": "宁夏大学（异地校区）",
+          "score": 583,
+          "rank": 36841,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9216714799404144
+        },
+        {
+          "schoolCode": "1795",
+          "schoolName": "上海理上大学（较高收费）",
+          "score": 583,
+          "rank": 36841,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8567937612533569
+        },
+        {
+          "schoolCode": "1270",
+          "schoolName": "河海大学（较高收费）",
+          "score": 583,
+          "rank": 36841,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9635516762733459
+        },
+        {
+          "schoolCode": "1500",
+          "schoolName": "哈尔滨工程大学（较高收费）",
+          "score": 582,
+          "rank": 37744,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9279046883949866
+        },
+        {
+          "schoolCode": "1370",
+          "schoolName": "西北农林科技大学（较高收费）",
+          "score": 582,
+          "rank": 37744,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.880855393409729
+        },
+        {
+          "schoolCode": "1965",
+          "schoolName": "深圳人学（较高收费）",
+          "score": 582,
+          "rank": 37744,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.954750919342041
+        },
+        {
+          "schoolCode": "1830",
+          "schoolName": "苏州大学（医护类)",
+          "score": 582,
+          "rank": 37744,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8636831939220428
+        },
+        {
+          "schoolCode": "2525",
+          "schoolName": "大津I业大学（较高收费）",
+          "score": 582,
+          "rank": 37744,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8661434948444366
+        },
+        {
+          "schoolCode": "1155",
+          "schoolName": "兰州大学（医护类)",
+          "score": 582,
+          "rank": 37744,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.898935165670183
+        },
+        {
+          "schoolCode": "1885",
+          "schoolName": "安徽大学（较高收费）",
+          "score": 581,
+          "rank": 38682,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9052566647529602
+        },
+        {
+          "schoolCode": "1427",
+          "schoolName": "西南大学（荣昌校区）",
+          "score": 581,
+          "rank": 38682,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9612185716629028
+        },
+        {
+          "schoolCode": "1930",
+          "schoolName": "湘潭大学（较高收费）",
+          "score": 581,
+          "rank": 38682,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8244623243808746
+        },
+        {
+          "schoolCode": "0445",
+          "schoolName": "陆军军医大学",
+          "score": 581,
+          "rank": 38682,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9868432283401489
+        },
+        {
+          "schoolCode": "1455",
+          "schoolName": "西南财经大学（较高收费）",
+          "score": 580,
+          "rank": 39605,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8510830521583557
+        },
+        {
+          "schoolCode": "1425",
+          "schoolName": "西南大学（较高收费）",
+          "score": 580,
+          "rank": 39605,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9127171814441681
+        },
+        {
+          "schoolCode": "2570",
+          "schoolName": "上海中医药大学（较高收费）",
+          "score": 580,
+          "rank": 39605,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9327711508824275
+        },
+        {
+          "schoolCode": "2755",
+          "schoolName": "宁夏大学（较高收费）",
+          "score": 578,
+          "rank": 41509,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8909398198127747
+        },
+        {
+          "schoolCode": "1150",
+          "schoolName": "江南大学（较高收费）",
+          "score": 578,
+          "rank": 41509,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9655694961547852
+        },
+        {
+          "schoolCode": "1121",
+          "schoolName": "北京交通大学（威海校区）",
+          "score": 577,
+          "rank": 42445,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9466463973124822
+        },
+        {
+          "schoolCode": "1405",
+          "schoolName": "东北师范人学（饮科类）",
+          "score": 577,
+          "rank": 42445,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8521230004050515
+        },
+        {
+          "schoolCode": "1296",
+          "schoolName": "中国石油大学（北京）克拉玛依校区",
+          "score": 576,
+          "rank": 43459,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9658615924417973
+        },
+        {
+          "schoolCode": "1895",
+          "schoolName": "福州人学（异地校区）",
+          "score": 575,
+          "rank": 44463,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8554094016551972
+        },
+        {
+          "schoolCode": "1470",
+          "schoolName": "中国传媒大学（其他单列）",
+          "score": 575,
+          "rank": 44463,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8723075985908508
+        },
+        {
+          "schoolCode": "1375",
+          "schoolName": "中国农业大学（较高收费）",
+          "score": 575,
+          "rank": 44463,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.9542157351970673
+        },
+        {
+          "schoolCode": "6006",
+          "schoolName": "河南大学（软件类）",
+          "score": 575,
+          "rank": 44463,
+          "subjectGroup": "理科",
+          "sourceImage": "science-3.png",
+          "confidence": 0.8169105052947998
+        },
+        {
+          "schoolCode": "2120",
+          "schoolName": "新疆人学（较高收费）",
+          "score": 574,
+          "rank": 45456,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9089834839105606
+        },
+        {
+          "schoolCode": "1240",
+          "schoolName": "长安大学（较高收费）",
+          "score": 574,
+          "rank": 45456,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9191538035869599
+        },
+        {
+          "schoolCode": "2430",
+          "schoolName": "南昌航空大学（其他单列)",
+          "score": 574,
+          "rank": 45456,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9038261651992798
+        },
+        {
+          "schoolCode": "1285",
+          "schoolName": "人连海事人学（较高收费）",
+          "score": 573,
+          "rank": 46513,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.8837486624717712
+        },
+        {
+          "schoolCode": "1895",
+          "schoolName": "州大学（农外）",
+          "score": 573,
+          "rank": 46513,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.7582693994045258
+        },
+        {
+          "schoolCode": "1340",
+          "schoolName": "中国地质大学（武汉）（其他单列）",
+          "score": 573,
+          "rank": 46513,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9011838380247355
+        },
+        {
+          "schoolCode": "2450",
+          "schoolName": "成都理工大学（异地校区）",
+          "score": 572,
+          "rank": 47548,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9486385464668274
+        },
+        {
+          "schoolCode": "1405",
+          "schoolName": "东北师范大学（其他单列)",
+          "score": 572,
+          "rank": 47548,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.7487968802452087
+        },
+        {
+          "schoolCode": "1745",
+          "schoolName": "长春理工人学（较高收费）",
+          "score": 572,
+          "rank": 47548,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.8854141354560852
+        },
+        {
+          "schoolCode": "2575",
+          "schoolName": "浙江师范大学（软件类)",
+          "score": 571,
+          "rank": 48594,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9294281818649985
+        },
+        {
+          "schoolCode": "1350",
+          "schoolName": "中国业大学（较高收费）",
+          "score": 571,
+          "rank": 48594,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.7501240074634552
+        },
+        {
+          "schoolCode": "2130",
+          "schoolName": "石河子大学（较高收费)",
+          "score": 571,
+          "rank": 48594,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.92133183370937
+        },
+        {
+          "schoolCode": "1630",
+          "schoolName": "河北工业大学（较高收费）",
+          "score": 571,
+          "rank": 48594,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9036955634752909
+        },
+        {
+          "schoolCode": "2240",
+          "schoolName": "南京审计大学（较高收费）",
+          "score": 571,
+          "rank": 48594,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9388098021348318
+        },
+        {
+          "schoolCode": "6000",
+          "schoolName": "郑州大学（医护类）",
+          "score": 569,
+          "rank": 50642,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.7851370871067047
+        },
+        {
+          "schoolCode": "2405",
+          "schoolName": "天津师范人学（软件类）",
+          "score": 569,
+          "rank": 50642,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9010587659749117
+        },
+        {
+          "schoolCode": "4060",
+          "schoolName": "浙江工商大学（较高收费）",
+          "score": 568,
+          "rank": 51686,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9371023923158646
+        },
+        {
+          "schoolCode": "1690",
+          "schoolName": "辽宁人学（较高收费）",
+          "score": 568,
+          "rank": 51686,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9590081155300141
+        },
+        {
+          "schoolCode": "2865",
+          "schoolName": "重庆交通大学（较高收费）",
+          "score": 567,
+          "rank": 52721,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9659705609083176
+        },
+        {
+          "schoolCode": "2330",
+          "schoolName": "西安T业大学（较高收费）",
+          "score": 565,
+          "rank": 55035,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.915703010559082
+        },
+        {
+          "schoolCode": "2305",
+          "schoolName": "贵州大学（较高收司）",
+          "score": 564,
+          "rank": 56189,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.876060938835144
+        },
+        {
+          "schoolCode": "1915",
+          "schoolName": "江西财经大学（较高收费）",
+          "score": 563,
+          "rank": 57281,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.8200934886932373
+        },
+        {
+          "schoolCode": "1860",
+          "schoolName": "南京信息工程大学（较高收费）",
+          "score": 563,
+          "rank": 57281,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.8136860132217407
+        },
+        {
+          "schoolCode": "2750",
+          "schoolName": "海南人学（较高收费）",
+          "score": 562,
+          "rank": 58400,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9669699192047119
+        },
+        {
+          "schoolCode": "5400",
+          "schoolName": "兰州理T大学（较高收费）",
+          "score": 562,
+          "rank": 58400,
+          "subjectGroup": "理科",
+          "sourceImage": "science-4.png",
+          "confidence": 0.9391382733980814
+        },
+        {
+          "schoolCode": "2025",
+          "schoolName": "重庆医科大学（医护类）",
+          "score": 559,
+          "rank": 61939,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.672970324754715
+        },
+        {
+          "schoolCode": "1380",
+          "schoolName": "北京林业大学（较高收费）",
+          "score": 558,
+          "rank": 63132,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9261637777090073
+        },
+        {
+          "schoolCode": "1740",
+          "schoolName": "延边大学（较高收费）",
+          "score": 558,
+          "rank": 63132,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9048057794570923
+        },
+        {
+          "schoolCode": "2580",
+          "schoolName": "安徽理T大学（较高收费）",
+          "score": 557,
+          "rank": 64313,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.7571410536766052
+        },
+        {
+          "schoolCode": "1635",
+          "schoolName": "燕山大学（较高收费）",
+          "score": 557,
+          "rank": 64313,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.8386021852493286
+        },
+        {
+          "schoolCode": "4205",
+          "schoolName": "福建师范大学（饮件类）",
+          "score": 556,
+          "rank": 65558,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.8894928216934204
+        },
+        {
+          "schoolCode": "2390",
+          "schoolName": "上海师范大学（较高收费）",
+          "score": 556,
+          "rank": 65558,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9308130691448847
+        },
+        {
+          "schoolCode": "1805",
+          "schoolName": "上海对外经贵大学（较高收费）",
+          "score": 555,
+          "rank": 66810,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9371746735913413
+        },
+        {
+          "schoolCode": "2600",
+          "schoolName": "天津中医药大学（较高收费）",
+          "score": 555,
+          "rank": 66810,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9691844949355493
+        },
+        {
+          "schoolCode": "3550",
+          "schoolName": "沈阳航空航天大学（较高收费）",
+          "score": 554,
+          "rank": 68050,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9732425255434853
+        },
+        {
+          "schoolCode": "3280",
+          "schoolName": "河北师范大学（较高收费）",
+          "score": 554,
+          "rank": 68050,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9140322556098303
+        },
+        {
+          "schoolCode": "1690",
+          "schoolName": "辽宁大学(其他单列)",
+          "score": 554,
+          "rank": 68050,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9516608953475952
+        },
+        {
+          "schoolCode": "1760",
+          "schoolName": "东北农业大学（软件类）",
+          "score": 553,
+          "rank": 69342,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9337638020515442
+        },
+        {
+          "schoolCode": "7452",
+          "schoolName": "深圳职业技术人学（原深圳职业技术学",
+          "score": 553,
+          "rank": 69342,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.8690003156661987
+        },
+        {
+          "schoolCode": "2230",
+          "schoolName": "天津财经大学（较高收费）",
+          "score": 553,
+          "rank": 69342,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9231083343426386
+        },
+        {
+          "schoolCode": "2895",
+          "schoolName": "武汉工程大学（较高收费）",
+          "score": 553,
+          "rank": 69342,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9496324062347412
+        },
+        {
+          "schoolCode": "1690",
+          "schoolName": "辽宁大学（特殊类）",
+          "score": 553,
+          "rank": 69342,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9242976042959425
+        },
+        {
+          "schoolCode": "2255",
+          "schoolName": "浙江理T大学（其他单列)",
+          "score": 552,
+          "rank": 70602,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.8812924971183141
+        },
+        {
+          "schoolCode": "5995",
+          "schoolName": "郑州大学（中外合作办学)",
+          "score": 552,
+          "rank": 70602,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.93450199564298
+        },
+        {
+          "schoolCode": "1420",
+          "schoolName": "陕西师范大学（其他单列)",
+          "score": 552,
+          "rank": 70602,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9407749573389689
+        },
+        {
+          "schoolCode": "6102",
+          "schoolName": "河南理工大学（中外合作办学)",
+          "score": 551,
+          "rank": 71851,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9403322551931653
+        },
+        {
+          "schoolCode": "5595",
+          "schoolName": "上海电机学院（较高收费）",
+          "score": 549,
+          "rank": 74409,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9696617275476456
+        },
+        {
+          "schoolCode": "3550",
+          "schoolName": "沈阳航空航天大学（单列专业）",
+          "score": 549,
+          "rank": 74409,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9741845897265843
+        },
+        {
+          "schoolCode": "1745",
+          "schoolName": "长春理工大学（特殊类）",
+          "score": 548,
+          "rank": 75686,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.8931348757310347
+        },
+        {
+          "schoolCode": "2605",
+          "schoolName": "中国医科大学（较高收费）",
+          "score": 548,
+          "rank": 75686,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9447779655456543
+        },
+        {
+          "schoolCode": "3200",
+          "schoolName": "天津科技大学（较高收费）",
+          "score": 548,
+          "rank": 75686,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9549629191557566
+        },
+        {
+          "schoolCode": "3880",
+          "schoolName": "南京工程学院（较高收费）",
+          "score": 548,
+          "rank": 75686,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9256964027881622
+        },
+        {
+          "schoolCode": "1760",
+          "schoolName": "东北农业大学（特殊类）",
+          "score": 547,
+          "rank": 77002,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9027643826874819
+        },
+        {
+          "schoolCode": "9902",
+          "schoolName": "中央关术学院（较高收费）",
+          "score": 547,
+          "rank": 77002,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.8917903105417887
+        },
+        {
+          "schoolCode": "1385",
+          "schoolName": "东北林业大学（较亮收费）",
+          "score": 545,
+          "rank": 79655,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.880735899011294
+        },
+        {
+          "schoolCode": "4065",
+          "schoolName": "浙江财经人学（较高收费）",
+          "score": 545,
+          "rank": 79655,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.9551375259955724
+        },
+        {
+          "schoolCode": "1935",
+          "schoolName": "湖南帅范大学（其他单列",
+          "score": 545,
+          "rank": 79655,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.596616268157959
+        },
+        {
+          "schoolCode": "2385",
+          "schoolName": "安徽财经大学（较高收费）",
+          "score": 544,
+          "rank": 80952,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.863430279493332
+        },
+        {
+          "schoolCode": "6075",
+          "schoolName": "南阳理T学院（医护类）",
+          "score": 544,
+          "rank": 80952,
+          "subjectGroup": "理科",
+          "sourceImage": "science-5.png",
+          "confidence": 0.904401258988814
+        },
+        {
+          "schoolCode": "1725",
+          "schoolName": "东北财经大学（较高收费）",
+          "score": 543,
+          "rank": 82340,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9257134844859441
+        },
+        {
+          "schoolCode": "1425",
+          "schoolName": "西南大学（其他单列)",
+          "score": 542,
+          "rank": 83672,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9195854902267456
+        },
+        {
+          "schoolCode": "4890",
+          "schoolName": "北京师范大学-香港浸会大学联合国际",
+          "score": 541,
+          "rank": 84991,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8808985114097595
+        },
+        {
+          "schoolCode": "6005",
+          "schoolName": "河南大学（医护类）",
+          "score": 541,
+          "rank": 84991,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9502724806467692
+        },
+        {
+          "schoolCode": "6105",
+          "schoolName": "河南工业大学（较高收费）",
+          "score": 541,
+          "rank": 84991,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9711804240942001
+        },
+        {
+          "schoolCode": "1405",
+          "schoolName": "东北师范大学（特殊类)",
+          "score": 540,
+          "rank": 86324,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9074939814480868
+        },
+        {
+          "schoolCode": "2500",
+          "schoolName": "首都经济贸易大学（较高收费）",
+          "score": 540,
+          "rank": 86324,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9559577831200191
+        },
+        {
+          "schoolCode": "3890",
+          "schoolName": "苏州科技人学（较高收费）",
+          "score": 540,
+          "rank": 86324,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9543409466743469
+        },
+        {
+          "schoolCode": "4050",
+          "schoolName": "温州大学（较高收费）",
+          "score": 540,
+          "rank": 86324,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8390744626522064
+        },
+        {
+          "schoolCode": "2210",
+          "schoolName": "湖北大学（较高收费）",
+          "score": 540,
+          "rank": 86324,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9318701505661011
+        },
+        {
+          "schoolCode": "4205",
+          "schoolName": "福建师范大学（其他单列)",
+          "score": 539,
+          "rank": 87758,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9248519564668337
+        },
+        {
+          "schoolCode": "1760",
+          "schoolName": "东北农业大学（其他单列)",
+          "score": 538,
+          "rank": 89194,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9297574857870737
+        },
+        {
+          "schoolCode": "3815",
+          "schoolName": "上海应用技术大学（较高收费）",
+          "score": 537,
+          "rank": 90628,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9737286184515271
+        },
+        {
+          "schoolCode": "2870",
+          "schoolName": "天津理工大学（校高收费）",
+          "score": 537,
+          "rank": 90628,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8734562446673712
+        },
+        {
+          "schoolCode": "6100",
+          "schoolName": "河南理工大学（软件类）",
+          "score": 536,
+          "rank": 92030,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9475193240425803
+        },
+        {
+          "schoolCode": "6113",
+          "schoolName": "郑州轻工业大学（中外合作办学）",
+          "score": 535,
+          "rank": 93451,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9677907745043437
+        },
+        {
+          "schoolCode": "2305",
+          "schoolName": "贵州大学（特外类）",
+          "score": 534,
+          "rank": 94894,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8583531909518771
+        },
+        {
+          "schoolCode": "2095",
+          "schoolName": "陕西科技大学（较高收费）",
+          "score": 534,
+          "rank": 94894,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.971654678384463
+        },
+        {
+          "schoolCode": "4055",
+          "schoolName": "杭州师范人学（较高收费）",
+          "score": 534,
+          "rank": 94894,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.957448015610377
+        },
+        {
+          "schoolCode": "1710",
+          "schoolName": "沈阳农业大学（较高收费）",
+          "score": 533,
+          "rank": 96379,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9685104240973791
+        },
+        {
+          "schoolCode": "6080",
+          "schoolName": "河南财经政法大学（软件类）",
+          "score": 532,
+          "rank": 97837,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9239697043712323
+        },
+        {
+          "schoolCode": "3545",
+          "schoolName": "沈阳理工大学（较高收费）",
+          "score": 531,
+          "rank": 99299,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8882052004337311
+        },
+        {
+          "schoolCode": "1427",
+          "schoolName": "西南大学（荣昌校区）（较高收费）",
+          "score": 530,
+          "rank": 100737,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8830306455492973
+        },
+        {
+          "schoolCode": "6085",
+          "schoolName": "河南科技大学（软件类）",
+          "score": 530,
+          "rank": 100737,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9478509751233187
+        },
+        {
+          "schoolCode": "2450",
+          "schoolName": "成都理工大学（其他单列",
+          "score": 529,
+          "rank": 102211,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9541597366333008
+        },
+        {
+          "schoolCode": "6009",
+          "schoolName": "河南人学（中外合作办学）",
+          "score": 529,
+          "rank": 102211,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8158184170722962
+        },
+        {
+          "schoolCode": "5055",
+          "schoolName": "重庆师范大学（较高收费）",
+          "score": 527,
+          "rank": 105160,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9284296830495199
+        },
+        {
+          "schoolCode": "2780",
+          "schoolName": "山东科技人学（较高收费）",
+          "score": 527,
+          "rank": 105160,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8844457268714905
+        },
+        {
+          "schoolCode": "2355",
+          "schoolName": "四川农业大学（较高收费）",
+          "score": 527,
+          "rank": 105160,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9489737302064896
+        },
+        {
+          "schoolCode": "1405",
+          "schoolName": "东北师范大学（较高收费）",
+          "score": 526,
+          "rank": 106610,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.9262490272521973
+        },
+        {
+          "schoolCode": "1745",
+          "schoolName": "长春理工大学（其他单列)",
+          "score": 525,
+          "rank": 108197,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8684596061706543
+        },
+        {
+          "schoolCode": "2100",
+          "schoolName": "西安建筑科技大学（较高收费）",
+          "score": 525,
+          "rank": 108197,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.965898939541408
+        },
+        {
+          "schoolCode": "6007",
+          "schoolName": "河南大学（与开封大学联合办学）就读地",
+          "score": 525,
+          "rank": 108197,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.8632269501686096
+        },
+        {
+          "schoolCode": "6103",
+          "schoolName": "河南理工大学利莫瑞克国际学院",
+          "score": 525,
+          "rank": 108197,
+          "subjectGroup": "理科",
+          "sourceImage": "science-6.png",
+          "confidence": 0.965466320514679
+        },
+        {
+          "schoolCode": "1760",
+          "schoolName": "东北农业大学（较高收费）",
+          "score": 523,
+          "rank": 111166,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9739991476138433
+        },
+        {
+          "schoolCode": "4010",
+          "schoolName": "浙江科技大学（较高收费）",
+          "score": 523,
+          "rank": 111166,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9634608725706736
+        },
+        {
+          "schoolCode": "2255",
+          "schoolName": "浙江理工大学（较高收费）",
+          "score": 523,
+          "rank": 111166,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9662381708621979
+        },
+        {
+          "schoolCode": "6117",
+          "schoolName": "中原工学院（软件类）",
+          "score": 521,
+          "rank": 114271,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9830324649810791
+        },
+        {
+          "schoolCode": "2250",
+          "schoolName": "天津外国语大学（较高收费）",
+          "score": 521,
+          "rank": 114271,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9755031924981338
+        },
+        {
+          "schoolCode": "2080",
+          "schoolName": "云南大学（较高收费）",
+          "score": 520,
+          "rank": 115830,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9650777041912079
+        },
+        {
+          "schoolCode": "4025",
+          "schoolName": "浙江农林大学（较高收费）",
+          "score": 520,
+          "rank": 115830,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9763812472422918
+        },
+        {
+          "schoolCode": "6085",
+          "schoolName": "河南科技大学（医护类）",
+          "score": 520,
+          "rank": 115830,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9454683715646918
+        },
+        {
+          "schoolCode": "2235",
+          "schoolName": "东北电力大学（较高收费）",
+          "score": 519,
+          "rank": 117381,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9430118724703789
+        },
+        {
+          "schoolCode": "2275",
+          "schoolName": "青岛科技大学（较高收费）",
+          "score": 519,
+          "rank": 117381,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9794300695260366
+        },
+        {
+          "schoolCode": "6008",
+          "schoolName": "河南大学（与濮阳市联办濮阳工学院）",
+          "score": 518,
+          "rank": 118997,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9758246015099918
+        },
+        {
+          "schoolCode": "4550",
+          "schoolName": "湖北工业大学（较高收费）",
+          "score": 518,
+          "rank": 118997,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9684006571769714
+        },
+        {
+          "schoolCode": "4260",
+          "schoolName": "江西师范大学（其他单列)",
+          "score": 518,
+          "rank": 118997,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9393095175425211
+        },
+        {
+          "schoolCode": "2440",
+          "schoolName": "长江大学（较高收费）",
+          "score": 517,
+          "rank": 120583,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9591593891382217
+        },
+        {
+          "schoolCode": "3690",
+          "schoolName": "吉林财经大学（较高收费）",
+          "score": 517,
+          "rank": 120583,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9749215096235275
+        },
+        {
+          "schoolCode": "2935",
+          "schoolName": "辽宁科技大学（较高收费）",
+          "score": 517,
+          "rank": 120583,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9802849243084589
+        },
+        {
+          "schoolCode": "2415",
+          "schoolName": "浙江工业大学（较高收费）",
+          "score": 516,
+          "rank": 122158,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9693157921234766
+        },
+        {
+          "schoolCode": "2250",
+          "schoolName": "天津外国语大学（其他单列）",
+          "score": 516,
+          "rank": 122158,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9694948884157034
+        },
+        {
+          "schoolCode": "6399",
+          "schoolName": "河南科技人学莫动理工学院",
+          "score": 516,
+          "rank": 122158,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9931901643673579
+        },
+        {
+          "schoolCode": "1205",
+          "schoolName": "中南财经政法大学（较高收费）",
+          "score": 515,
+          "rank": 123701,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9700005522796086
+        },
+        {
+          "schoolCode": "2890",
+          "schoolName": "重庆工商大学（校高收费）",
+          "score": 515,
+          "rank": 123701,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9065433939297994
+        },
+        {
+          "schoolCode": "2405",
+          "schoolName": "天津师范大学（较高收费）",
+          "score": 514,
+          "rank": 125279,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9702772498130798
+        },
+        {
+          "schoolCode": "6396",
+          "schoolName": "河南科技大学（农林类）",
+          "score": 514,
+          "rank": 125279,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.957631685517051
+        },
+        {
+          "schoolCode": "2805",
+          "schoolName": "西安理工大学（较高收费）",
+          "score": 513,
+          "rank": 126985,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9780542949835459
+        },
+        {
+          "schoolCode": "2575",
+          "schoolName": "浙江师范大学（较高收费）",
+          "score": 513,
+          "rank": 126985,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9756488651037216
+        },
+        {
+          "schoolCode": "5005",
+          "schoolName": "海南医科大学（较高收费）",
+          "score": 513,
+          "rank": 126985,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9765021403630575
+        },
+        {
+          "schoolCode": "1360",
+          "schoolName": "华中农业大学（较高收费）",
+          "score": 513,
+          "rank": 126985,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9639336268107096
+        },
+        {
+          "schoolCode": "5230",
+          "schoolName": "昆明理工大学（较高收费）",
+          "score": 513,
+          "rank": 126985,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9623407423496246
+        },
+        {
+          "schoolCode": "2505",
+          "schoolName": "南京林业大学（较高收费）",
+          "score": 513,
+          "rank": 126985,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9735449502865473
+        },
+        {
+          "schoolCode": "1550",
+          "schoolName": "北京工商大学（较高收费）",
+          "score": 512,
+          "rank": 128582,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9638631989558538
+        },
+        {
+          "schoolCode": "1880",
+          "schoolName": "宁波大学（较高收费）",
+          "score": 512,
+          "rank": 128582,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9641157984733582
+        },
+        {
+          "schoolCode": "4415",
+          "schoolName": "山东建筑大学（较高收费）",
+          "score": 512,
+          "rank": 128582,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9570574879646301
+        },
+        {
+          "schoolCode": "2780",
+          "schoolName": "山东科技大学(其他单列)",
+          "score": 512,
+          "rank": 128582,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9336436837911606
+        },
+        {
+          "schoolCode": "2320",
+          "schoolName": "北方工业大学（较高收费）",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9556742757558823
+        },
+        {
+          "schoolCode": "0001",
+          "schoolName": "北京体育大学（较高收费）",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9743348757425944
+        },
+        {
+          "schoolCode": "5996",
+          "schoolName": "郑州大学惠灵顿学院",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.99543896317482
+        },
+        {
+          "schoolCode": "6113",
+          "schoolName": "郑州轻工业大学（中外合作办学（较高收",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9638331002659268
+        },
+        {
+          "schoolCode": "6189",
+          "schoolName": "郑州轻工业大学奥克兰大学智能工程联",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9905402485062095
+        },
+        {
+          "schoolCode": "6116",
+          "schoolName": "中原工学院中原彼得堡航空学院",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9820427213396344
+        },
+        {
+          "schoolCode": "6080",
+          "schoolName": "河南财经政法大学（较高收费）",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9729048950331551
+        },
+        {
+          "schoolCode": "6085",
+          "schoolName": "河南科技人学（较高收费）",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9603528877099355
+        },
+        {
+          "schoolCode": "6030",
+          "schoolName": "河南师范大学（软件类)",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9273669665510004
+        },
+        {
+          "schoolCode": "6015",
+          "schoolName": "河南中医药大学（较高收费）",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.979953972192911
+        },
+        {
+          "schoolCode": "6095",
+          "schoolName": "华北水利水电大学（异地校区）",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9105968475341797
+        },
+        {
+          "schoolCode": "6395",
+          "schoolName": "华北水利水电大学乌拉尔学院",
+          "score": 511,
+          "rank": 130195,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9942789673805237
+        },
+        {
+          "schoolCode": "6012",
+          "schoolName": "河南农业大学（中外合作办学）",
+          "score": 504,
+          "rank": 141292,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9615812812532697
+        },
+        {
+          "schoolCode": "6013",
+          "schoolName": "河南农业大学（办学就读地点在许昌）",
+          "score": 497,
+          "rank": 152728,
+          "subjectGroup": "理科",
+          "sourceImage": "science-7.png",
+          "confidence": 0.9793190710684833
+        }
+      ]
+    }
+  ]
+}

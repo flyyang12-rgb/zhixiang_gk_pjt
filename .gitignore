@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.scratch/
+logs/
+coverage/
+playwright-report/
+test-results/
+*.log

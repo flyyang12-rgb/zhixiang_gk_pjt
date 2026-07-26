@@ -1,0 +1,21 @@
+.school-major-tags a {
+  display: inline-block;
+  margin-top: 7px;
+  color: #2c674f;
+  font-size: 9px;
+}
+
+.school-major-more {
+  display: block;
+  margin: 12px auto 0;
+  padding: 7px 12px;
+  border: 0;
+  background: transparent;
+  color: #2b654e;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.school-major-tags.recommended span { background: #f7f4ec; border-style: dashed; }
+.school-major-tags.recommended p { margin: 7px 0; color: #65716b; font-size: 10px; line-height: 1.55; }
+.recommendation-note { margin-bottom: 12px !important; }

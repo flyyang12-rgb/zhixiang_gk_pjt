@@ -1,0 +1,436 @@
+{
+  "year": 2025,
+  "imported": 25774,
+  "unmatched": 71,
+  "missingRanks": 0,
+  "unmatchedRows": [
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "法学",
+      "score": 565
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "思想政治教育",
+      "score": 550
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "小学教育",
+      "score": 544
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "汉语言文学",
+      "score": 562
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "新闻学",
+      "score": 541
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "应用心理学",
+      "score": 537
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "香港珠海学院[香港]",
+      "majorName": "商学院",
+      "score": 478
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "香港珠海学院[香港]",
+      "majorName": "文学与社会科学院",
+      "score": 489
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "英语",
+      "score": 496
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "日语",
+      "score": 500
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "广播电视学",
+      "score": 497
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "网络与新媒体",
+      "score": 513
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "工商管理",
+      "score": 500
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "市场营销",
+      "score": 499
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "物流管理",
+      "score": 503
+    },
+    {
+      "subjectGroup": "历史类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "跨境电子商务",
+      "score": 501
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "临床医学",
+      "score": 619
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "麻醉学",
+      "score": 628
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "医学影像学",
+      "score": 618
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "中医学",
+      "score": 611
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "药学",
+      "score": 617
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "海军军医大学[公办]",
+      "majorName": "护理学",
+      "score": 600
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "生物技术",
+      "score": 613
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "生物医学工程",
+      "score": 615
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "临床医学",
+      "score": 620
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "口腔医学",
+      "score": 633
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "空军军医大学[公办]",
+      "majorName": "药学",
+      "score": 617
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "社会工作",
+      "score": 513
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "数学与应用数学",
+      "score": 524
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "物理学",
+      "score": 522
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "应用化学",
+      "score": 518
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "能源化学",
+      "score": 517
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "地理科学",
+      "score": 527
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "地理信息科学",
+      "score": 522
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "生态学",
+      "score": 510
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "智能制造工程",
+      "score": 530
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头师范学院[公办]",
+      "majorName": "电气工程及其自动化",
+      "score": 539
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "临床医学",
+      "score": 551
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "麻醉学",
+      "score": 548
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "医学检验技术",
+      "score": 524
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "卫生检验与检疫",
+      "score": 510
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "内蒙古科技大学包头医学院[公办]",
+      "majorName": "护理学",
+      "score": 525
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "香港珠海学院[香港]",
+      "majorName": "商学院",
+      "score": 485
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "香港珠海学院[香港]",
+      "majorName": "理工学院",
+      "score": 492
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "英语",
+      "score": 477
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "日语",
+      "score": 466
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "广播电视学",
+      "score": 472
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "网络与新媒体",
+      "score": 500
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "电气工程及其自动化",
+      "score": 502
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "电子信息工程",
+      "score": 493
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "通信工程",
+      "score": 495
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "自动化",
+      "score": 495
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "计算机科学与技术",
+      "score": 503
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "软件工程",
+      "score": 496
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "网络工程",
+      "score": 493
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "物联网工程",
+      "score": 492
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "数字媒体技术",
+      "score": 496
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "数据科学与大数据技术",
+      "score": 494
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "虚拟现实技术",
+      "score": 485
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "土木工程",
+      "score": 482
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "测绘工程",
+      "score": 474
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "地理空间信息工程",
+      "score": 481
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "建筑学",
+      "score": 476
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "风景园林",
+      "score": 477
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "信息管理与信息系统",
+      "score": 487
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "工程造价",
+      "score": 469
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "大数据管理与应用",
+      "score": 491
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "工商管理",
+      "score": 487
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "市场营销",
+      "score": 494
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "物流管理",
+      "score": 478
+    },
+    {
+      "subjectGroup": "物理类",
+      "schoolName": "大连理工大学城市学院[独立学院]",
+      "majorName": "跨境电子商务",
+      "score": 505
+    }
+  ],
+  "missingRankRows": [],
+  "rankSourceUrl": "https://file.hebeea.edu.cn/files/article/2025/06/20250624193800_658.pdf"
+}
