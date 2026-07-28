@@ -5,10 +5,10 @@ export type FamilyBriefSchoolInput={
 }
 export type FamilyBriefItem={schoolId:number;name:string;stance:string;evidence:[string,string];risk:string;note:string;nextAction:string}
 
-export function buildFamilyBrief(input:{profileSummary:{planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number;provinceRank:number|null};schools:FamilyBriefSchoolInput[]}):FamilyBriefItem[]{
+export function buildFamilyBrief(input:{planningRank:number|null;profileSummary:{planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number;provinceRank:number|null};schools:FamilyBriefSchoolInput[]}):FamilyBriefItem[]{
   return input.schools.map(school=>{
     const hasAdmission=Boolean(school.admission?.minRank)
-    const stance=input.profileSummary.planningMode==='exploration'
+    const stance=!input.planningRank
       ?'继续了解，等可靠位次后再判断报考位置。'
       :hasAdmission?`可以比较，当前只能参考历史“${school.admission?.risk??'待核验'}”位置。`:'暂不下报考结论，因为没有当前档案的可比招生记录。'
     const evidence:[string,string]=[

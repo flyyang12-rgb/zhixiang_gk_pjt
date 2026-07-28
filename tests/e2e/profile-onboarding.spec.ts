@@ -94,15 +94,18 @@ test('家庭创建学生档案后直接进入专业就业工作台并可刷新�
   await page.locator('.profession-card').first().locator('.card-summary').click()
   await expect(page.locator('.profession-card')).toHaveCount(0)
   await expect(page.locator('.profession-focus-detail').locator('.job-directions article')).toHaveCount(3)
-  await expect(page.locator('.profession-focus-detail').locator('.school-evidence-list article')).toHaveCount(6)
+  await expect(page.locator('.profession-focus-detail').locator('.school-evidence-list article')).toHaveCount(0)
+  await expect(page.locator('.profession-focus-detail').locator('.school-evidence')).toContainText('现在只查到这个学校专业组的投档线')
   await page.keyboard.press('ArrowRight')
   await expect(page.locator('.profession-focus-nav')).toContainText('2 / 3')
   await page.keyboard.press('ArrowLeft')
-  await page.locator('.profession-focus-detail').locator('.school-evidence-list article').first().getByRole('button', { name: /查看详情/ }).click()
+  await page.locator('.focus-back').click()
+  const firstSchoolCandidate=page.locator('.admission-risk-column article').first()
+  await firstSchoolCandidate.getByRole('button',{name:/查看详情/}).click()
   await expect(page.getByRole('dialog', { name: '学校详情' })).toBeVisible()
   await expect(page.getByText('学校定位', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: '关闭学校详情' }).click()
-  await page.locator('.profession-focus-detail').getByRole('button', { name: '☆ 收藏学校' }).first().click()
+  await firstSchoolCandidate.getByRole('button', { name: '☆ 收藏学校' }).click()
   await expect(page.getByRole('dialog', { name: '收藏成功' })).toBeVisible()
   await page.getByRole('button', { name: '查看我的收藏 →' }).click()
   await expect(page.getByRole('heading', { name: `${studentName} 的收藏` })).toBeVisible()
@@ -110,8 +113,7 @@ test('家庭创建学生档案后直接进入专业就业工作台并可刷新�
   await page.locator('.collection-school-link').first().click()
   await expect(page.getByRole('dialog', { name: '学校详情' })).toBeVisible()
   await page.getByRole('button', { name: '关闭学校详情' }).click()
-  await expect(page.locator('.profession-focus-detail').getByRole('button', { name: '★ 已收藏' }).first()).toBeVisible()
-  await page.keyboard.press('Escape')
+  await expect(firstSchoolCandidate.getByRole('button', { name: '★ 已收藏' })).toBeVisible()
   await expect(page.locator('.profession-card')).toHaveCount(9)
   await expect(page.getByRole('button', { name: /双视角|测评|答题/ })).toHaveCount(0)
 
@@ -394,6 +396,48 @@ test('多次有效位次形成稳健规划位次，单次异常不会直接带�
     const generated=await request.post(`/api/profiles/${profileId}/recommendations/generate`)
     expect(generated.ok()).toBeTruthy()
     expect((await generated.json()).data.planningCoordinate).toMatchObject({rank:10000,sampleCount:3,stability:'volatile'})
+  }finally{await request.delete(`/api/profiles/${profileId}`)}
+})
+
+test('目标探索档案积累有效位次后自动联合推荐学校和专业',async({page,request})=>{
+  const created=await request.post('/api/profiles',{data:{studentName:`联合推荐-${Date.now()}`,province:'山东',subjectGroup:'综合改革',selectedSubjects:['物理','化学','生物'],score:620,provinceRank:12000,planningMode:'exploration'}})
+  const profileId=(await created.json()).data.id as string
+  try{
+    await request.post(`/api/profiles/${profileId}/score-snapshots`,{data:{examName:'校内周测',examDate:'2026-07-28',score:632,provinceRank:null,note:'只有分数，不参与规划位次'}})
+    const profile=(await (await request.get(`/api/profiles/${profileId}`)).json()).data
+    expect(profile.planningMode).toBe('exploration')
+    const dashboard=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
+    expect(dashboard.planningCoordinate).toMatchObject({rank:12000,sampleCount:1})
+    expect(dashboard.schoolCandidates.length).toBeGreaterThan(0)
+    expect(dashboard.cards.some((card:{schools:Array<{risk?:string}>})=>card.schools.some(school=>['冲','稳','保'].includes(String(school.risk))))).toBeTruthy()
+    await page.goto('/')
+    await page.evaluate(id=>localStorage.setItem('zhixiang.currentProfileId',id),profileId)
+    await page.reload()
+    await expect(page.locator('.admission-layer')).toBeVisible()
+    await page.setViewportSize({width:390,height:844})
+    const preview=page.locator('.major-school-preview').first()
+    await expect(preview).toContainText('可核验学校')
+    await preview.getByRole('button').first().click()
+    await expect(page.getByRole('dialog',{name:'学校详情'})).toBeVisible()
+  }finally{await request.delete(`/api/profiles/${profileId}`)}
+})
+
+test('没有有效位次时不猜学校并保留档案原始模式',async({page,request})=>{
+  const created=await request.post('/api/profiles',{data:{studentName:`学校待开启-${Date.now()}`,province:'山东',subjectGroup:'综合改革',selectedSubjects:['物理','化学','生物'],score:620,provinceRank:null,planningMode:'application'}})
+  const profileId=(await created.json()).data.id as string
+  try{
+    const profile=(await (await request.get(`/api/profiles/${profileId}`)).json()).data
+    expect(profile.planningMode).toBe('application')
+    const dashboard=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
+    expect(dashboard.mode).toBe('exploration')
+    expect(dashboard.planningCoordinate.rank).toBeNull()
+    expect(dashboard.schoolCandidates).toHaveLength(0)
+    await page.goto('/')
+    await page.evaluate(id=>localStorage.setItem('zhixiang.currentProfileId',id),profileId)
+    await page.reload()
+    await expect(page.locator('.school-recommendation-empty')).toContainText('记一次全省位次，学校范围自动出现')
+    await page.locator('.school-recommendation-empty').getByRole('button',{name:'记录含位次的模考'}).click()
+    await expect(page.locator('.score-form')).toBeVisible()
   }finally{await request.delete(`/api/profiles/${profileId}`)}
 })
 

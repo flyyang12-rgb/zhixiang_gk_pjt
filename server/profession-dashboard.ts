@@ -31,23 +31,24 @@ export async function buildProfessionDashboard(profileId: string) {
     const profile = profiles[0]
     const planningCoordinate=await loadPlanningCoordinate(profileId,profile.provinceRank==null?null:Number(profile.provinceRank))
     const planningRank=planningCoordinate.rank
+    const effectiveMode=planningRank?'application':'exploration'
     const selectedSubjects = parseJson<string[]>(profile.selectedSubjects ?? '[]')
     const [majorRows] = await database.query<RowDataPacket[]>(`SELECT id,code,name,category FROM majors WHERE code IN ('080901','080601','080202','120203K','101101','100201K','030101K','050101','070101') ORDER BY code`)
     const employmentHealth = await loadEmploymentHealth()
-    const admission = profile.planningMode === 'application' && planningRank
+    const admission = planningRank
       ? await loadAdmissionCandidates({province:String(profile.province),subjectGroup:String(profile.subjectGroup),selectedSubjects,rank:planningRank})
-      : {candidates:[],evidence:{years:[],unitType:null,confidence:'无',recordCount:0,note:'目标探索模式不计算冲稳保'} as AdmissionEvidence}
+      : {candidates:[],evidence:{years:[],unitType:null,confidence:'无',recordCount:0,note:'记录一次可比联考或统考的全省位次后，自动给出学校范围'} as AdmissionEvidence}
     const inputs: ProfessionInput[] = []
     const details = new Map<number, { jobs: unknown[]; schools: unknown[]; schoolMatchStatus:'verified'|'group_only'|'unavailable' }>()
 
     for (const major of majorRows) {
       const jobs = await loadJobDirections(Number(major.id))
       const employment = await loadEmploymentStats(Number(major.id))
-      const schools = profile.planningMode === 'application' && planningRank
+      const schools = planningRank
         ? await loadApplicationSchools({ majorName: String(major.name), province: String(profile.province), subjectGroup: String(profile.subjectGroup), rank: planningRank })
         : await loadExplorationSchools(String(major.name))
       const directEntryRatio = jobs.length ? jobs.filter(job => job.directEntry).length / jobs.length : 0
-      inputs.push({ id: Number(major.id), code: String(major.code), name: String(major.name), category: String(major.category), requiredSubjects: subjectRequirements[String(major.code)] ?? [], selectedSubjects, jobCount: employment.jobCount, provinceCount: employment.provinceCount, sourceCount: employment.sourceCount, directEntryRatio, eligibleSchoolCount: schools.length, dailyJobCounts: employment.dailyCounts, employmentUsable: employmentHealth.usable && employment.sourceCount >= 2, mode: profile.planningMode })
+      inputs.push({ id: Number(major.id), code: String(major.code), name: String(major.name), category: String(major.category), requiredSubjects: subjectRequirements[String(major.code)] ?? [], selectedSubjects, jobCount: employment.jobCount, provinceCount: employment.provinceCount, sourceCount: employment.sourceCount, directEntryRatio, eligibleSchoolCount: schools.length, dailyJobCounts: employment.dailyCounts, employmentUsable: employmentHealth.usable && employment.sourceCount >= 2, mode: effectiveMode })
       details.set(Number(major.id), { jobs, schools, schoolMatchStatus:schools.length?'verified':admission.evidence.unitType==='major_group'?'group_only':'unavailable' })
     }
 
@@ -62,7 +63,7 @@ export async function buildProfessionDashboard(profileId: string) {
     )
     const [snapshotRows]=await database.query<RowDataPacket[]>(`SELECT id,exam_name examName,DATE_FORMAT(exam_date,'%Y-%m-%d') examDate,score,province_rank provinceRank,note,is_current isCurrent FROM profile_score_snapshots WHERE profile_id=? ORDER BY exam_date,id`,[profileId])
     return {
-      mode: profile.planningMode as 'exploration'|'application',
+      mode: effectiveMode as 'exploration'|'application',
       profileSummary:{studentName:String(profile.studentName),planningMode:profile.planningMode,province:String(profile.province),subjectGroup:String(profile.subjectGroup),score:Number(profile.score),provinceRank:profile.provinceRank==null?null:Number(profile.provinceRank)},
       planningCoordinate,
       scoreSnapshots:snapshotRows.map(row=>({...row,id:Number(row.id),score:row.score==null?null:Number(row.score),provinceRank:row.provinceRank==null?null:Number(row.provinceRank),isCurrent:Boolean(row.isCurrent)})),

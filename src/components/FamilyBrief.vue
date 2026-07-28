@@ -8,7 +8,7 @@ const emit=defineEmits<{close:[];noteSaved:[number,string|null]}>()
 const copyStatus=ref('')
 const editingSchoolId=ref<number|null>(null),noteSaving=ref(false),noteStatus=ref('')
 const noteDrafts=reactive<Record<number,string>>(Object.fromEntries(props.details.map(detail=>[detail.school.id,props.savedItems.find(item=>item.itemType==='school'&&item.itemId===detail.school.id)?.note??''])))
-const brief=computed(()=>buildFamilyBrief({profileSummary:props.profileSummary,schools:props.details.map(detail=>({
+const brief=computed(()=>buildFamilyBrief({planningRank:props.planningCoordinate.rank,profileSummary:props.profileSummary,schools:props.details.map(detail=>({
   id:detail.school.id,name:detail.school.name,city:detail.school.city,level:detail.school.level,
   featuredMajors:detail.featuredMajors.map(item=>item.name),admission:detail.admissionContext?.records[0]??null,
   officialUrl:Boolean(detail.school.officialUrl),admissionsUrl:Boolean(detail.school.admissionsUrl),

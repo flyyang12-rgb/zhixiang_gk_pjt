@@ -69,7 +69,7 @@ router.post('/:id/score-snapshots',async(request,response,next)=>{
     if(!profiles[0]){await connection.rollback();response.status(404).json({success:false,data:null,error:'没有找到这个学生档案',requestId:response.locals.requestId});return}
     await connection.execute('UPDATE profile_score_snapshots SET is_current=0 WHERE profile_id=?',[id])
     const [inserted]=await connection.execute<import('mysql2').ResultSetHeader>(`INSERT INTO profile_score_snapshots(profile_id,exam_name,exam_date,score,province_rank,note,is_current) VALUES (?,?,?,?,?,?,1)`,[id,input.examName,input.examDate,input.score,input.provinceRank,input.note??null])
-    await connection.execute(`UPDATE student_profiles SET score=?,province_rank=?,planning_mode=IF(? IS NULL,'exploration',planning_mode) WHERE id=?`,[input.score,input.provinceRank,input.provinceRank,id])
+    await connection.execute('UPDATE student_profiles SET score=?,province_rank=? WHERE id=?',[input.score,input.provinceRank,id])
     await connection.commit()
     response.status(201).json({success:true,data:{id:inserted.insertId,...input,note:input.note??null,isCurrent:true},error:null,requestId:response.locals.requestId})
   }catch(error){await connection.rollback();next(error)}finally{connection.release()}
@@ -90,7 +90,7 @@ router.delete('/:id/score-snapshots/:snapshotId',async(request,response,next)=>{
       const [previous]=await connection.query<RowDataPacket[]>(`SELECT id,score,province_rank provinceRank FROM profile_score_snapshots WHERE profile_id=? ORDER BY exam_date DESC,id DESC LIMIT 1 FOR UPDATE`,[id])
       restored=previous[0]
       await connection.execute('UPDATE profile_score_snapshots SET is_current=(id=?) WHERE profile_id=?',[Number(restored!.id),id])
-      await connection.execute(`UPDATE student_profiles SET score=?,province_rank=?,planning_mode=IF(? IS NULL,'exploration',planning_mode) WHERE id=?`,[restored!.score,restored!.provinceRank,restored!.provinceRank,id])
+      await connection.execute('UPDATE student_profiles SET score=?,province_rank=? WHERE id=?',[restored!.score,restored!.provinceRank,id])
     }
     await connection.commit()
     response.json({success:true,data:{id:snapshotId,restoredSnapshotId:restored?Number(restored.id):null},error:null,requestId:response.locals.requestId})

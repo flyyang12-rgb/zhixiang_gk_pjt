@@ -252,8 +252,8 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
               <div class="form-grid">
                 <fieldset class="mode-picker span-two">
                   <legend>当前规划阶段</legend>
-                  <label :class="{ active: form.planningMode === 'exploration' }"><input v-model="form.planningMode" type="radio" value="exploration" /><span><b>目标探索</b><small>了解专业就业，收藏目标院校</small></span></label>
-                  <label :class="{ active: form.planningMode === 'application' }"><input v-model="form.planningMode" type="radio" value="application" /><span><b>志愿填报</b><small>使用可靠位次计算专业组冲稳保</small></span></label>
+                  <label :class="{ active: form.planningMode === 'exploration' }"><input v-model="form.planningMode" type="radio" value="exploration" /><span><b>目标探索</b><small>可先看专业；补充有效位次后自动推荐学校</small></span></label>
+                  <label :class="{ active: form.planningMode === 'application' }"><input v-model="form.planningMode" type="radio" value="application" /><span><b>志愿填报</b><small>现在已有可靠位次，直接计算学校冲稳保</small></span></label>
                 </fieldset>
                 <label class="field span-two">
                   <span>学生称呼</span>
@@ -286,7 +286,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
                 <label class="field">
                   <span>全省位次 <em>选填</em></span>
                   <div class="suffix-input"><input v-model.number="form.provinceRank" type="number" min="1" placeholder="18500" /><i>名</i></div>
-                  <small>未填写时只能生成粗略参考</small>
+                  <small>未填写时不猜学校；以后记录联考或统考全省位次会自动开启学校推荐</small>
                 </label>
               </div>
 

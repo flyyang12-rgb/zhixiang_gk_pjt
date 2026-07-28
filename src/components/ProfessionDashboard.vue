@@ -128,6 +128,9 @@ const factorLabels={coverage:'最近招聘机会多不多',directEntry:'本科�
         </div>
         <p v-else class="no-school">当前没有满足位次、选科和链接核验条件的院校专业组。</p>
       </section>
+      <section v-else class="school-recommendation-empty">
+        <span class="section-number">01</span><div><span class="kicker">学校推荐待开启</span><h3>记一次全省位次，学校范围自动出现</h3><p>请填写可比联考或统考的全省位次。只有分数或校内排名不能用来判断冲稳保，系统不会硬猜学校。</p></div><button type="button" @click="showScoreForm=true">记录含位次的模考</button>
+      </section>
       <header class="major-section-head"><span class="section-number">{{dashboard.mode==='application'?'02':'01'}}</span><div><span class="kicker">专业怎么选</span><h3>9 个专业，分 3 组更好选</h3><p>先看哪些值得重点了解，再点开看就业和可报学校。</p></div><button class="collection-entry" :aria-label="`打开我的收藏，共 ${collectionCount} 项`" @click="openCollection"><span>我的收藏</span><b>{{collectionCount}}</b></button></header>
       <Transition name="profession-view" mode="out-in" @after-enter="focusDetail">
       <div v-if="!activeCard" key="profession-list" class="profession-bands">
@@ -135,6 +138,7 @@ const factorLabels={coverage:'最近招聘机会多不多',directEntry:'本科�
         <header><div><span>{{band}}</span><p>{{band==='优先了解'?'证据相对完整，建议先看':band==='值得比较'?'方向可行，但需要比较门槛':'热门但存在明显门槛或证据不足'}}</p></div><b>{{cardsByBand[band].length}} 个专业</b></header>
         <article v-for="card in cardsByBand[band]" :key="card.id" :class="['profession-card',{excluded:saved('major',card.id,'excluded')}]">
           <div class="card-top"><button class="card-summary" :aria-label="`查看 ${card.name} 详情`" @click="openDetail(card.id)"><span class="major-code">{{card.code}}</span><div><small>{{card.category}} · 资料可靠程度：{{card.confidence}} · 资料完整度 {{card.evidenceCoverage}}%</small><h3>{{card.name}}</h3><p>最近 30 天，全国 {{card.provinceCount}} 个地区共收集到 {{card.jobCount.toLocaleString()}} 个不重复岗位</p></div><strong>{{card.totalScore}}<small>综合参考分</small></strong><i>查看详情 <b>→</b></i></button><button class="major-save" :class="{saved:saved('major',card.id,'saved')}" :disabled="saving('major',card.id)" @click="toggle('major',card.id,'saved')">{{saving('major',card.id)?'…':saved('major',card.id,'saved')?'★ 已收藏':'☆ 收藏专业'}}</button></div>
+          <div v-if="card.schools.length" class="major-school-preview"><span>可核验学校 {{card.schools.length}} 所</span><div><button v-for="school in card.schools.slice(0,2)" :key="school.id" type="button" @click="emit('school',school.id)"><em v-if="school.risk" :class="['school-risk',school.risk]">{{school.risk}}</em><b>{{school.name}}</b><small>查看学校 →</small></button></div></div>
         </article>
       </section>
       </div>

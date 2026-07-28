@@ -16,11 +16,18 @@ describe('家庭陪跑',()=>{
   })
 
   it('目标探索简报不伪装成报考结论',()=>{
-    const brief=buildFamilyBrief({profileSummary:{planningMode:'exploration',province:'河南',subjectGroup:'物理类',score:530,provinceRank:90000},schools:[{id:1,name:'测试大学',city:'郑州',level:'本科',featuredMajors:['计算机科学与技术'],admission:null,officialUrl:true,admissionsUrl:false,note:'弟弟愿意学编程'}]})
+    const brief=buildFamilyBrief({planningRank:null,profileSummary:{planningMode:'exploration',province:'河南',subjectGroup:'物理类',score:530,provinceRank:null},schools:[{id:1,name:'测试大学',city:'郑州',level:'本科',featuredMajors:['计算机科学与技术'],admission:null,officialUrl:true,admissionsUrl:false,note:'弟弟愿意学编程'}]})
     expect(brief[0].stance).toContain('等可靠位次后再判断报考位置')
     expect(brief[0].risk).toContain('可比招生记录')
     const text=buildFamilyBriefText(brief)
     expect(text).toContain('弟弟愿不愿学四年')
     expect(text).not.toContain('录取概率')
+  })
+
+  it('目标探索档案有规划位次后简报可以讨论学校历史位置',()=>{
+    const brief=buildFamilyBrief({planningRank:12000,profileSummary:{planningMode:'exploration',province:'山东',subjectGroup:'综合改革',score:620,provinceRank:null},schools:[{id:2,name:'示例大学',city:'济南',level:'本科',featuredMajors:[],admission:{year:2025,risk:'稳',minRank:12500},officialUrl:true,admissionsUrl:true,note:null}]})
+    expect(brief[0].stance).toContain('可以比较')
+    expect(brief[0].stance).toContain('稳')
+    expect(brief[0].stance).not.toContain('等可靠位次')
   })
 })
