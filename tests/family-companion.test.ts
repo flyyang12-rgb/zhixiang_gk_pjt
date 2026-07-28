@@ -9,7 +9,7 @@ describe('家庭陪跑',()=>{
   })
 
   it('目标探索简报不伪装成报考结论',()=>{
-    const brief=buildFamilyBrief({profileSummary:{planningMode:'exploration',province:'河南',subjectGroup:'物理类',score:530,provinceRank:90000},schools:[{name:'测试大学',city:'郑州',level:'本科',featuredMajors:['计算机科学与技术'],admission:null,officialUrl:true,admissionsUrl:false,note:'弟弟愿意学编程'}]})
+    const brief=buildFamilyBrief({profileSummary:{planningMode:'exploration',province:'河南',subjectGroup:'物理类',score:530,provinceRank:90000},schools:[{id:1,name:'测试大学',city:'郑州',level:'本科',featuredMajors:['计算机科学与技术'],admission:null,officialUrl:true,admissionsUrl:false,note:'弟弟愿意学编程'}]})
     expect(brief[0].stance).toContain('等可靠位次后再判断报考位置')
     expect(brief[0].risk).toContain('可比招生记录')
     const text=buildFamilyBriefText(brief)

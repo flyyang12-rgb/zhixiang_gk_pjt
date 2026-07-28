@@ -1,9 +1,9 @@
 export type FamilyBriefSchoolInput={
-  name:string;city:string;level:string;featuredMajors:string[]
+  id:number;name:string;city:string;level:string;featuredMajors:string[]
   admission:null|{year:number;risk:string|null;minRank:number|null;unitType?:string}
   officialUrl:boolean;admissionsUrl:boolean;note:string|null
 }
-export type FamilyBriefItem={name:string;stance:string;evidence:[string,string];risk:string;note:string;nextAction:string}
+export type FamilyBriefItem={schoolId:number;name:string;stance:string;evidence:[string,string];risk:string;note:string;nextAction:string}
 
 export function buildFamilyBrief(input:{profileSummary:{planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number;provinceRank:number|null};schools:FamilyBriefSchoolInput[]}):FamilyBriefItem[]{
   return input.schools.map(school=>{
@@ -20,7 +20,7 @@ export function buildFamilyBrief(input:{profileSummary:{planningMode:'exploratio
     if(!school.featuredMajors.length)gaps.push('缺已核验优势专业')
     if(!school.officialUrl)gaps.push('学校官网待核验')
     if(!school.admissionsUrl)gaps.push('招生官网待核验')
-    return {name:school.name,stance,evidence,risk:gaps[0]??'历史记录不代表明年结果',note:school.note?.trim()||'还没有家庭讨论备注',nextAction:!hasAdmission?`只核对 ${school.name} 在本省的当年招生计划`:'只核对弟弟想学的具体专业是否在招生单元里'}
+    return {schoolId:school.id,name:school.name,stance,evidence,risk:gaps[0]??'历史记录不代表明年结果',note:school.note?.trim()||'还没有家庭讨论备注',nextAction:!hasAdmission?`只核对 ${school.name} 在本省的当年招生计划`:'只核对弟弟想学的具体专业是否在招生单元里'}
   })
 }
 
