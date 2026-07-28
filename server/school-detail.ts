@@ -2,6 +2,7 @@ import type { RowDataPacket } from 'mysql2'
 import { database } from './database.js'
 import { classifySchoolRisk, classifySingleYearRisk } from './profession-engine.js'
 import { orientationRecommendations } from './school-major-recommendations.js'
+import {loadPlanningCoordinate} from './planning-coordinate.js'
 
 export class SchoolDetailLookupError extends Error {
   constructor(public readonly status: 404, message:string) { super(message) }
@@ -37,6 +38,7 @@ export async function loadSchoolDetail(schoolId:number,profileId?:string) {
     )
     if(!profileRows[0])throw new SchoolDetailLookupError(404,'学生档案不存在')
     const profile=profileRows[0]
+    const planningCoordinate=await loadPlanningCoordinate(profileId,profile.provinceRank==null?null:Number(profile.provinceRank))
     const [savedRows]=await database.query<RowDataPacket[]>(`SELECT state FROM profile_saved_items WHERE profile_id=? AND item_type='school' AND item_id=? AND state='target' LIMIT 1`,[profileId,schoolId])
     isSaved=Boolean(savedRows[0])
     const [recordRows]=await database.query<RowDataPacket[]>(
@@ -54,14 +56,15 @@ export async function loadSchoolDetail(schoolId:number,profileId?:string) {
     )
     const groups=new Map<string,RowDataPacket[]>()
     for(const row of recordRows){const key=`${row.batch}:${row.planType}:${row.unitType}:${row.unitName}`;groups.set(key,[...(groups.get(key)??[]),row])}
-    const provinceRank=profile.provinceRank==null?null:Number(profile.provinceRank)
+    const currentProvinceRank=profile.provinceRank==null?null:Number(profile.provinceRank)
+    const provinceRank=planningCoordinate.rank
     const records=recordRows.map(row=>{
       const group=groups.get(`${row.batch}:${row.planType}:${row.unitType}:${row.unitName}`)??[row]
       const comparableRanks=group.filter(item=>item.recommendationEligible&&item.minRank!=null).map(item=>Number(item.minRank))
       const assessment=provinceRank&&row.recommendationEligible&&row.minRank!=null?(comparableRanks.length>=2?classifySchoolRisk(provinceRank,comparableRanks):classifySingleYearRisk(provinceRank,Number(row.minRank))):null
       return {id:Number(row.id),year:Number(row.year),educationLevel:String(row.educationLevel),admissionCategory:String(row.admissionCategory),batch:String(row.batch),planType:String(row.planType),eligibilityRequirement:row.eligibilityRequirement==null?null:String(row.eligibilityRequirement),recommendationEligible:Boolean(row.recommendationEligible),recommendationExclusionReason:row.recommendationExclusionReason==null?null:String(row.recommendationExclusionReason),unitType:String(row.unitType),unitName:String(row.unitName),unitCode:row.unitCode==null?null:String(row.unitCode),subjectRequirement:row.subjectRequirement==null?null:String(row.subjectRequirement),minScore:row.minScore==null?null:Number(row.minScore),minRank:row.minRank==null?null:Number(row.minRank),risk:assessment?.risk??null,confidence:comparableRanks.length>=3?'高':comparableRanks.length===2?'中':'低',sourceUrl:row.sourceUrl==null?null:String(row.sourceUrl),publisher:row.publisher==null?null:String(row.publisher)}
     })
-    admissionContext={profileProvince:String(profile.province),subjectGroup:String(profile.subjectGroup),provinceRank,years:[...new Set(records.map(item=>item.year))].sort((a,b)=>b-a),records}
+    admissionContext={profileProvince:String(profile.province),subjectGroup:String(profile.subjectGroup),provinceRank,currentProvinceRank,planningCoordinate,years:[...new Set(records.map(item=>item.year))].sort((a,b)=>b-a),records}
   }
   const school={id:Number(schoolRow.id),name:String(schoolRow.name),province:String(schoolRow.province),city:String(schoolRow.city),level:String(schoolRow.level),schoolType:String(schoolRow.schoolType??'类型待核验'),features:parseJson(schoolRow.features),officialUrl:schoolRow.officialUrl??null,admissionsUrl:schoolRow.admissionsUrl??null,linksVerifiedAt:schoolRow.linksVerifiedAt??null,linksSourceUrl:schoolRow.linksSourceUrl??null}
   const location=school.province===school.city?school.city:`${school.province}${school.city}`

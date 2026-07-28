@@ -30,6 +30,8 @@ const activeBandCards=computed(()=>activeCard.value?cardsByBand.value[activeCard
 const activeCardIndex=computed(()=>activeBandCards.value.findIndex(card=>card.id===expanded.value))
 const activePosition=computed(()=>activeCardIndex.value<0?0:activeCardIndex.value+1)
 const scoreTrend=computed(()=>describeScoreTrend((dashboard.value?.scoreSnapshots??[]).map(item=>({score:item.score,provinceRank:item.provinceRank}))))
+const planningStabilityLabels={single:'单次参考',preliminary:'初步参考',stable:'相对稳定',moderate:'有一定波动',volatile:'波动较大'} as const
+const planningSummary=computed(()=>{const coordinate=dashboard.value?.planningCoordinate;if(!coordinate?.rank)return '还没有可用的全省位次';return `推荐使用综合规划位次 ${coordinate.rank.toLocaleString()} · ${coordinate.sampleCount} 次有效位次 · ${planningStabilityLabels[coordinate.stability]}`})
 
 onMounted(()=>{load();window.addEventListener('keydown',handleWindowKeys)})
 onBeforeUnmount(()=>window.removeEventListener('keydown',handleWindowKeys))
@@ -114,8 +116,8 @@ const factorLabels={coverage:'最近招聘机会多不多',directEntry:'本科�
     <div v-else-if="!dashboard?.cards.length" class="empty-state"><strong>当前没有满足硬条件的专业</strong><p>请核对具体选科、位次和本省专业招生数据；系统不会用学校线或模拟专业凑数。</p></div>
     <template v-else>
       <section class="score-timeline">
-        <header><div><span class="kicker">模考坐标</span><h3>{{scoreTrend}}</h3><p>只用当前坐标做历史参考，不平均模考，不预测高考。</p></div><button @click="showScoreForm=!showScoreForm">{{showScoreForm?'收起':'记一次模考'}}</button></header>
-        <form v-if="showScoreForm" class="score-form" @submit.prevent="submitScore"><label>考试名称<input v-model="scoreForm.examName" required maxlength="64" placeholder="例如：高二期末"></label><label>日期<input v-model="scoreForm.examDate" required type="date"></label><label>分数<input v-model="scoreForm.score" required type="number" min="100" max="750"></label><label>全省位次<input v-model="scoreForm.provinceRank" type="number" min="1" placeholder="没有就留空"></label><label class="score-note">备注<input v-model="scoreForm.note" maxlength="200" placeholder="本次考试范围或异常情况"></label><button :disabled="scoreSaving">{{scoreSaving?'保存中…':'保存为当前坐标'}}</button></form>
+        <header><div><span class="kicker">模考坐标</span><h3>{{scoreTrend}}</h3><strong class="planning-coordinate">{{planningSummary}}</strong><p>最近最多 5 次全省位次取中位数，减少单次超常或失常的影响；不平均分数，不预测高考。</p></div><button @click="showScoreForm=!showScoreForm">{{showScoreForm?'收起':'记一次模考'}}</button></header>
+        <form v-if="showScoreForm" class="score-form" @submit.prevent="submitScore"><label>考试名称<input v-model="scoreForm.examName" required maxlength="64" placeholder="例如：高二期末"></label><label>日期<input v-model="scoreForm.examDate" required type="date"></label><label>分数<input v-model="scoreForm.score" required type="number" min="100" max="750"></label><label>全省位次（联考/统考）<input v-model="scoreForm.provinceRank" type="number" min="1" placeholder="校内排名不要填"></label><label class="score-note">备注<input v-model="scoreForm.note" maxlength="200" placeholder="本次考试范围或异常情况"></label><button :disabled="scoreSaving">{{scoreSaving?'保存中…':'保存为当前坐标'}}</button></form>
         <p v-if="scoreError" class="comparison-error" role="alert">{{scoreError}}</p>
         <ol><li v-for="snapshot in dashboard.scoreSnapshots" :key="snapshot.id"><span>{{snapshot.examDate}} · {{snapshot.examName}}</span><b>{{snapshot.score??'—'}} 分<template v-if="snapshot.provinceRank"> · 位次 {{snapshot.provinceRank.toLocaleString()}}</template></b><em v-if="snapshot.isCurrent">当前坐标</em><button v-else @click="removeScore(snapshot.id)">删除</button></li></ol>
       </section>
@@ -202,6 +204,6 @@ const factorLabels={coverage:'最近招聘机会多不多',directEntry:'本科�
       </div>
     </Transition>
   </Teleport>
-  <Teleport to="body"><FamilyBrief v-if="familyBriefOpen&&dashboard" :profile-id="profileId" :profile-summary="dashboard.profileSummary" :details="familyDetails" :saved-items="dashboard.savedItems" @note-saved="applyFamilyBriefNote" @close="closeFamilyBrief" /></Teleport>
+  <Teleport to="body"><FamilyBrief v-if="familyBriefOpen&&dashboard" :profile-id="profileId" :profile-summary="dashboard.profileSummary" :planning-coordinate="dashboard.planningCoordinate" :details="familyDetails" :saved-items="dashboard.savedItems" @note-saved="applyFamilyBriefNote" @close="closeFamilyBrief" /></Teleport>
   </div>
 </template>

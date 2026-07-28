@@ -154,21 +154,29 @@ router.delete('/:id', async (request, response, next) => {
 })
 
 router.patch('/:id/rank', async (request, response, next) => {
+  let connection:Awaited<ReturnType<typeof database.getConnection>>|null=null
   try {
     const id = z.string().uuid().parse(request.params.id)
     const { provinceRank } = z.object({ provinceRank: z.number().int().positive('位次必须大于 0').max(2_000_000) }).parse(request.body)
-    const [result] = await database.execute<import('mysql2').ResultSetHeader>(
-      'UPDATE student_profiles SET province_rank = ? WHERE id = ?',
-      [provinceRank, id],
-    )
-    if (!result.affectedRows) {
+    connection=await database.getConnection()
+    await connection.beginTransaction()
+    const [profiles]=await connection.query<RowDataPacket[]>('SELECT id,score FROM student_profiles WHERE id=? FOR UPDATE',[id])
+    if (!profiles[0]) {
+      await connection.rollback()
       response.status(404).json({ success: false, data: null, error: '没有找到这个学生档案', requestId: response.locals.requestId })
       return
     }
+    await connection.execute('UPDATE student_profiles SET province_rank = ? WHERE id = ?',[provinceRank,id])
+    await connection.execute('UPDATE profile_score_snapshots SET province_rank=? WHERE profile_id=? AND is_current=1',[provinceRank,id])
+    await connection.execute(`INSERT INTO profile_score_snapshots(profile_id,exam_name,exam_date,score,province_rank,is_current,origin_key)
+      SELECT id,'建档坐标',CURDATE(),score,?,1,CONCAT('baseline:',id) FROM student_profiles
+      WHERE id=? AND NOT EXISTS(SELECT 1 FROM profile_score_snapshots WHERE profile_id=?)`,[provinceRank,id,id])
+    await connection.commit()
     response.json({ success: true, data: { provinceRank }, error: null, requestId: response.locals.requestId })
   } catch (error) {
+    if(connection)await connection.rollback()
     next(error)
-  }
+  } finally { connection?.release() }
 })
 
 interface ProvinceRow extends RowDataPacket {

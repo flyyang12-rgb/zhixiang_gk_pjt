@@ -19,6 +19,13 @@ function transparentAnswer(confirmed:string,unknown:string,nextStep:string,detai
   return `现在能确定：${confirmed}\n现在还不能确定：${unknown}\n下一步只做：${nextStep}${detail?`\n\n${detail}`:''}`
 }
 
+function advisorPlanningCoordinate(context:AdvisorReplyContext){
+  const coordinate=context.dashboard.planningCoordinate
+  if(coordinate)return coordinate
+  const rank=context.profile.provinceRank
+  return {rank,sampleCount:rank?1:0,bestRank:rank,worstRank:rank,spreadRatio:0,stability:'single' as const}
+}
+
 export async function generateAdvisorReply(input:{
   context:AdvisorReplyContext
   message:string
@@ -146,10 +153,11 @@ export function buildLocalAdvisorReply(context:AdvisorReplyContext,message:strin
   const focus=context.focusedMajor?[context.focusedMajor]:cards.filter(item=>message.includes(item.name)).slice(0,2)
   const compared=focus.length?focus:cards.slice(0,3)
   const names=compared.map(item=>`${item.name}（${item.band}）`).join('、')
-  const rank=profile.provinceRank?profile.provinceRank.toLocaleString():'还没有可靠数据'
+  const planningCoordinate=advisorPlanningCoordinate(context)
+  const rank=planningCoordinate.rank?planningCoordinate.rank.toLocaleString():'还没有可靠数据'
   const facts=names?`当前工作台能拿来比较的是：${names}。这里的档位只是比较顺序，不是说这个专业“最适合”谁，我也不会在聊天里偷偷改顺序。`:'当前工作台没有足够的专业证据。我宁可明确说资料不够，也不会临时编一个专业给你。'
   const employment=context.dashboard.employment.usable?'最近30天的招聘样本当前达到使用门槛，但它只说明公开岗位样本，不等于就业率和工资保证。':'当前招聘来源数量或更新时间没有达到使用门槛，就业这一块不能硬下结论。'
-  return transparentAnswer(`${profile.studentName}是${profile.province}${profile.subjectGroup}，全省大约排第${rank}名；当前已有专业方向可供比较。`,`${employment}${names?' 这些档位只是比较顺序，不代表一定适合。':' 当前也没有足够的专业证据。'}`,'告诉我你现在最想先解决学校、专业还是就业。',`${facts}\n\n先守住能录取的范围，再挑孩子愿意学、普通毕业生也有出口的专业。只看校名或者追热门，都是拿四年时间碰运气。${remembered?` ${remembered}`:''}`)
+  return transparentAnswer(`${profile.studentName}是${profile.province}${profile.subjectGroup}，最近 ${planningCoordinate.sampleCount} 次有效位次形成的综合规划位次约为第${rank}名；当前已有专业方向可供比较。`,`${employment}${planningCoordinate.stability==='volatile'?' 近期位次波动较大，不能把这个坐标当高考预测。':''}${names?' 这些档位只是比较顺序，不代表一定适合。':' 当前也没有足够的专业证据。'}`,'告诉我你现在最想先解决学校、专业还是就业。',`${facts}\n\n先守住能录取的范围，再挑孩子愿意学、普通毕业生也有出口的专业。只看校名或者追热门，都是拿四年时间碰运气。${remembered?` ${remembered}`:''}`)
 }
 
 function buildSchoolFactReply(detail:NonNullable<AdvisorReplyContext['schoolDetail']>,message:string){
@@ -182,8 +190,8 @@ function buildEmploymentReply(context:AdvisorReplyContext,message:string,remembe
 }
 
 function buildSchoolVsMajorReply(context:AdvisorReplyContext,remembered=''){
-  const rank=context.profile.provinceRank?.toLocaleString()??'还没填可靠位次'
-  return transparentAnswer(`你现在是${context.profile.province}${context.profile.subjectGroup}，全省大约排第${rank}名；有明确职业门槛的方向，优先保专业。`,'还不知道你家更不能接受学校层次低一点，还是专业以后难转行。','告诉我这两种风险里，你家更不能接受哪一种。',`专业出口差不多时，再选学校和城市。别一听校名就上头——毕业招聘时，人家问你会什么，不会因为学校名字好听就替你补技能。${remembered?` ${remembered}`:''}`)
+  const rank=advisorPlanningCoordinate(context).rank?.toLocaleString()??'还没填可靠位次'
+  return transparentAnswer(`你现在是${context.profile.province}${context.profile.subjectGroup}，综合规划位次大约排第${rank}名；有明确职业门槛的方向，优先保专业。`,'还不知道你家更不能接受学校层次低一点，还是专业以后难转行。','告诉我这两种风险里，你家更不能接受哪一种。',`专业出口差不多时，再选学校和城市。别一听校名就上头——毕业招聘时，人家问你会什么，不会因为学校名字好听就替你补技能。${remembered?` ${remembered}`:''}`)
 }
 
 function buildConversationalSchoolReply(detail:NonNullable<AdvisorReplyContext['schoolDetail']>,localPlace?:string,remembered=''){
@@ -234,11 +242,11 @@ function buildDiscussionNoteBridge(context:AdvisorReplyContext){
 
 function buildDirectMajorReply(context:AdvisorReplyContext,targetMajor:string,memory?:ReturnType<typeof buildConversationMemory>){
   const card=context.dashboard.cards.find(item=>item.name.includes(targetMajor)||targetMajor.includes(item.name))
-  const rank=context.profile.provinceRank?context.profile.provinceRank.toLocaleString():'还没填可靠位次'
+  const rank=advisorPlanningCoordinate(context).rank?.toLocaleString()??'还没填可靠位次'
   const bridge=buildNaturalMemoryBridge(memory,targetMajor)
   const currentEvidence=card
     ?`当前工作台里，${card.name}在“${card.band}”，说明它值得继续核对；但这个档位只是比较顺序，不等于哪所学校一定能录。`
-    :`你现在是${context.profile.province}${context.profile.subjectGroup}，全省位次（同省考生排在第几名）是${rank}。现有证据还没有确认具体学校的专业组里一定包含${targetMajor}。`
+    :`你现在是${context.profile.province}${context.profile.subjectGroup}，综合规划位次（最近多次全省位次的稳健中间位置）是${rank}。现有证据还没有确认具体学校的专业组里一定包含${targetMajor}。`
   const confirmed=card?`${card.name}已经在当前专业工作台中，可以继续作为备选。`:`你的档案满足继续了解${targetMajor}的基本条件。`
   const unknown=`现有资料没有确认具体学校的招生单元里一定包含${targetMajor}，所以不能判断哪所学校能录。`
   return transparentAnswer(confirmed,unknown,`告诉我一所你想报的学校。`,`${bridge?`${bridge} `:''}${currentEvidence}\n\n“能填这个专业”和“能被某所学校录取”是两回事，别把这两件事混在一起。`)

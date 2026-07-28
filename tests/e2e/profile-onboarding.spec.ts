@@ -379,6 +379,24 @@ test('模考轨迹同步当前坐标，删除当前记录后恢复上一条',asy
   }finally{await request.delete(`/api/profiles/${profileId}`)}
 })
 
+test('多次有效位次形成稳健规划位次，单次异常不会直接带偏学校候选',async({request})=>{
+  const created=await request.post('/api/profiles',{data:{studentName:`规划位次-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:680,provinceRank:10000,planningMode:'application'}})
+  const profileId=(await created.json()).data.id as string
+  try{
+    const baseline=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
+    const baselineSchools=baseline.schoolCandidates.map((item:{schoolId:number})=>item.schoolId)
+    await request.post(`/api/profiles/${profileId}/score-snapshots`,{data:{examName:'二模',examDate:'2026-06-01',score:690,provinceRank:9000}})
+    await request.post(`/api/profiles/${profileId}/score-snapshots`,{data:{examName:'三模异常',examDate:'2026-07-01',score:500,provinceRank:100000}})
+    const dashboard=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
+    expect(dashboard.profileSummary.provinceRank).toBe(100000)
+    expect(dashboard.planningCoordinate).toMatchObject({rank:10000,sampleCount:3,bestRank:9000,worstRank:100000,stability:'volatile'})
+    expect(dashboard.schoolCandidates.map((item:{schoolId:number})=>item.schoolId)).toEqual(baselineSchools)
+    const generated=await request.post(`/api/profiles/${profileId}/recommendations/generate`)
+    expect(generated.ok()).toBeTruthy()
+    expect((await generated.json()).data.planningCoordinate).toMatchObject({rank:10000,sampleCount:3,stability:'volatile'})
+  }finally{await request.delete(`/api/profiles/${profileId}`)}
+})
+
 async function verifyAdvisorAndReport(request: import('@playwright/test').APIRequestContext, profileId: string) {
   const advisorResponse = await request.post(`/api/profiles/${profileId}/advisor/messages`, { data: { message: '请按家庭约束、录取安全和专业发展帮我们梳理。' } })
   expect(advisorResponse.ok()).toBeTruthy()

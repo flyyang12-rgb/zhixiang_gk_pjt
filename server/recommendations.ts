@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { database } from './database.js'
 import { defaultDecisionWeights, scoreCandidate } from './recommendation-scoring.js'
 import { loadAdmissionCandidates, type AdmissionUnitType } from './admission-candidates.js'
+import {loadPlanningCoordinate} from './planning-coordinate.js'
 
 export const recommendationsRouter = Router()
 
@@ -19,16 +20,17 @@ recommendationsRouter.post('/profiles/:id/recommendations/generate', async (requ
     )
     const profile = profiles[0]
     if (!profile) { response.status(404).json({ success: false, data: null, error: '学生档案不存在', requestId: response.locals.requestId }); return }
-    if (!profile.provinceRank) { response.status(422).json({ success: false, data: null, error: '生成冲稳保清单需要填写全省位次', requestId: response.locals.requestId }); return }
+    const planningCoordinate=await loadPlanningCoordinate(profileId,profile.provinceRank==null?null:Number(profile.provinceRank))
+    if (!planningCoordinate.rank) { response.status(422).json({ success: false, data: null, error: '生成冲稳保清单需要填写全省位次', requestId: response.locals.requestId }); return }
 
     const [available] = await database.execute<RowDataPacket[]>(`SELECT COUNT(*) count,MAX(year) year,COUNT(DISTINCT year) yearCount,GROUP_CONCAT(DISTINCT year ORDER BY year) years FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL`, [profile.province, profile.subjectGroup])
     if (!Number(available[0]?.count)) {
-      const result = { generatedAt: new Date().toISOString(), sourceYear: null, candidates: [], warning: `当前尚未导入${profile.province}官方投档数据，不能负责任地生成冲稳保；可先使用全国院校地图。` }
+      const result = { generatedAt: new Date().toISOString(), sourceYear: null, candidates: [], planningCoordinate, warning: `当前尚未导入${profile.province}官方投档数据，不能负责任地生成冲稳保；可先使用全国院校地图。` }
       await saveSnapshot(profileId, result)
       response.json({ success: true, data: result, error: null, requestId: response.locals.requestId }); return
     }
 
-    const rank = Number(profile.provinceRank)
+    const rank = planningCoordinate.rank
     const latestYear = Number(available[0].year)
     const admission = await loadAdmissionCandidates({province:String(profile.province),subjectGroup:String(profile.subjectGroup),selectedSubjects:json<string[]>(profile.selectedSubjects??'[]'),rank})
     const [sourceRows] = await database.execute<RowDataPacket[]>(
@@ -53,7 +55,8 @@ recommendationsRouter.post('/profiles/:id/recommendations/generate', async (requ
       ? '河南数据由省考试院查询链接对应的公开镜像表识别导入，关键志愿须回到考试院原页复核。'
       : ''
     const coverageNote = admission.evidence.confidence==='低' ? `当前仅有 ${admission.evidence.years.join('、')} 年同制度数据，候选统一标记为低置信度。` : ''
-    const result = { generatedAt: new Date().toISOString(), sourceYear: latestYear, dataYears: admission.evidence.years, sources, candidates: balanced, admissionEvidence:admission.evidence, warning: `${provenanceNote}${coverageNote}规则评分只用于同风险层比较，不是录取概率。结果依据往年投档位次生成，不等于录取承诺；填报前须核对当年招生计划与选科要求。` }
+    const coordinateNote=planningCoordinate.sampleCount===1?'当前只有 1 次有效全省位次，继续记录可减少单次偶然性。':planningCoordinate.stability==='volatile'?`最近 ${planningCoordinate.sampleCount} 次位次波动较大（${planningCoordinate.bestRank?.toLocaleString()}—${planningCoordinate.worstRank?.toLocaleString()}），当前候选仍要保守看待。`:`当前规划位次由最近 ${planningCoordinate.sampleCount} 次有效位次稳健生成。`
+    const result = { generatedAt: new Date().toISOString(), sourceYear: latestYear, dataYears: admission.evidence.years, sources, candidates: balanced, admissionEvidence:admission.evidence, planningCoordinate, warning: `${provenanceNote}${coverageNote}${coordinateNote}规则评分只用于同风险层比较，不是录取概率。结果依据往年投档位次生成，不等于录取承诺；填报前须核对当年招生计划与选科要求。` }
     await saveSnapshot(profileId, result)
     response.json({ success: true, data: result, error: null, requestId: response.locals.requestId })
   } catch (error) { next(error) }

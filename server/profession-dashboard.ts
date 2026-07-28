@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { database } from './database.js'
 import { classifySchoolRisk, rankProfessions, type ProfessionInput } from './profession-engine.js'
 import { loadAdmissionCandidates, type AdmissionEvidence } from './admission-candidates.js'
+import {loadPlanningCoordinate} from './planning-coordinate.js'
 
 export const professionDashboardRouter = Router()
 
@@ -28,11 +29,13 @@ export async function buildProfessionDashboard(profileId: string) {
     )
     if (!profiles[0]) throw new Error('学生档案不存在')
     const profile = profiles[0]
+    const planningCoordinate=await loadPlanningCoordinate(profileId,profile.provinceRank==null?null:Number(profile.provinceRank))
+    const planningRank=planningCoordinate.rank
     const selectedSubjects = parseJson<string[]>(profile.selectedSubjects ?? '[]')
     const [majorRows] = await database.query<RowDataPacket[]>(`SELECT id,code,name,category FROM majors WHERE code IN ('080901','080601','080202','120203K','101101','100201K','030101K','050101','070101') ORDER BY code`)
     const employmentHealth = await loadEmploymentHealth()
-    const admission = profile.planningMode === 'application' && profile.provinceRank
-      ? await loadAdmissionCandidates({province:String(profile.province),subjectGroup:String(profile.subjectGroup),selectedSubjects,rank:Number(profile.provinceRank)})
+    const admission = profile.planningMode === 'application' && planningRank
+      ? await loadAdmissionCandidates({province:String(profile.province),subjectGroup:String(profile.subjectGroup),selectedSubjects,rank:planningRank})
       : {candidates:[],evidence:{years:[],unitType:null,confidence:'无',recordCount:0,note:'目标探索模式不计算冲稳保'} as AdmissionEvidence}
     const inputs: ProfessionInput[] = []
     const details = new Map<number, { jobs: unknown[]; schools: unknown[]; schoolMatchStatus:'verified'|'group_only'|'unavailable' }>()
@@ -40,8 +43,8 @@ export async function buildProfessionDashboard(profileId: string) {
     for (const major of majorRows) {
       const jobs = await loadJobDirections(Number(major.id))
       const employment = await loadEmploymentStats(Number(major.id))
-      const schools = profile.planningMode === 'application' && profile.provinceRank
-        ? await loadApplicationSchools({ majorName: String(major.name), province: String(profile.province), subjectGroup: String(profile.subjectGroup), rank: Number(profile.provinceRank) })
+      const schools = profile.planningMode === 'application' && planningRank
+        ? await loadApplicationSchools({ majorName: String(major.name), province: String(profile.province), subjectGroup: String(profile.subjectGroup), rank: planningRank })
         : await loadExplorationSchools(String(major.name))
       const directEntryRatio = jobs.length ? jobs.filter(job => job.directEntry).length / jobs.length : 0
       inputs.push({ id: Number(major.id), code: String(major.code), name: String(major.name), category: String(major.category), requiredSubjects: subjectRequirements[String(major.code)] ?? [], selectedSubjects, jobCount: employment.jobCount, provinceCount: employment.provinceCount, sourceCount: employment.sourceCount, directEntryRatio, eligibleSchoolCount: schools.length, dailyJobCounts: employment.dailyCounts, employmentUsable: employmentHealth.usable && employment.sourceCount >= 2, mode: profile.planningMode })
@@ -61,6 +64,7 @@ export async function buildProfessionDashboard(profileId: string) {
     return {
       mode: profile.planningMode as 'exploration'|'application',
       profileSummary:{studentName:String(profile.studentName),planningMode:profile.planningMode,province:String(profile.province),subjectGroup:String(profile.subjectGroup),score:Number(profile.score),provinceRank:profile.provinceRank==null?null:Number(profile.provinceRank)},
+      planningCoordinate,
       scoreSnapshots:snapshotRows.map(row=>({...row,id:Number(row.id),score:row.score==null?null:Number(row.score),provinceRank:row.provinceRank==null?null:Number(row.provinceRank),isCurrent:Boolean(row.isCurrent)})),
       employment: employmentHealth, schoolCandidates:admission.candidates, admissionEvidence:admission.evidence, cards, savedItems: savedRows,
     }
