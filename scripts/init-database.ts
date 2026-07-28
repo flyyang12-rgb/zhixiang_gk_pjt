@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises'
 import mysql from 'mysql2/promise'
 import { z } from 'zod'
 import { migrateAdvisorV2 } from './migrate-advisor-v2.js'
+import { migrateDataAudit } from './migrate-data-audit.js'
+import { migrateFamilyCompanion } from './migrate-family-companion.js'
 
 const initConfig = z.object({
   DB_HOST: z.string().default('localhost'),
@@ -28,6 +30,8 @@ try {
   const employmentSeed = await readFile(new URL('../database/employment-seed.sql', import.meta.url), 'utf8')
   await connection.query(employmentSeed)
   await migrateAdvisorV2(connection,initConfig.DB_NAME)
+  await migrateDataAudit(connection,initConfig.DB_NAME)
+  await migrateFamilyCompanion(connection,initConfig.DB_NAME)
   try {
     await connection.query('ALTER TABLE zhixiang.admission_programs ADD COLUMN min_score SMALLINT UNSIGNED NULL AFTER major_code')
   } catch (error) {

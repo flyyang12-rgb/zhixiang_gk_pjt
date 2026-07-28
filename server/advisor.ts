@@ -177,7 +177,7 @@ async function askComparisonModel(context:Awaited<ReturnType<typeof loadComparis
   const controller=new AbortController()
   const timeout=setTimeout(()=>controller.abort(),12_000)
   const promptContext={profile:context.profile,schools:context.details.map(detail=>{
-    const records=(detail.admissionContext?.records as Array<{year:number;unitType:string;unitName:string;subjectRequirement:string|null;minRank:number;risk:string|null;confidence:string}>|undefined)??[]
+    const records=((detail.admissionContext?.records as Array<{year:number;unitType:string;unitName:string;subjectRequirement:string|null;minRank:number|null;risk:string|null;confidence:string;recommendationEligible:boolean}>|undefined)??[]).filter(record=>record.recommendationEligible&&record.minRank!=null)
     return {name:detail.school.name,city:detail.school.city,level:detail.school.level,admissionRecords:records.slice(0,3),verifiedFeaturedMajors:detail.featuredMajors.slice(0,3).map(item=>item.name),dataGaps:{admission:!records.length,featuredMajors:!detail.featuredMajors.length,officialWebsite:!detail.school.officialUrl,admissionsWebsite:!detail.school.admissionsUrl}}
   })}
   try{
@@ -193,7 +193,7 @@ async function askComparisonModel(context:Awaited<ReturnType<typeof loadComparis
 
 export function buildLocalComparisonAnalysis(details:Array<Awaited<ReturnType<typeof loadSchoolDetail>>>){
   const facts=details.map(detail=>{
-    const records=(detail.admissionContext?.records as Array<{risk:string|null;confidence:string;year:number;minRank:number}>|undefined)??[]
+    const records=((detail.admissionContext?.records as Array<{risk:string|null;confidence:string;year:number;minRank:number|null;recommendationEligible:boolean}>|undefined)??[]).filter((record):record is {risk:string|null;confidence:string;year:number;minRank:number;recommendationEligible:true}=>record.recommendationEligible&&record.minRank!=null)
     const record=records[0]
     const position=record?`${record.risk||'核验'}·${record.confidence}，${record.year}位次 ${record.minRank.toLocaleString()}`:'无可比位次'
     const majors=detail.featuredMajors.slice(0,2).map(item=>item.name).join('、')||'优势专业待核验'

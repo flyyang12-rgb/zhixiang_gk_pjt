@@ -31,8 +31,14 @@ async function run(){
         await connection.execute(`INSERT INTO data_sources(source_type,title,source_url,source_year,publisher,published_at,collected_at) VALUES('major',?,?,?,?,NULL,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,[`${record.schoolName}${record.recognitionType}`,record.sourceUrl,record.sourceYear,record.publisher,new Date(record.verifiedAt)])
         const [sourceRows]=await connection.query<RowDataPacket[]>('SELECT id FROM data_sources WHERE source_url=? AND source_year=? LIMIT 1',[record.sourceUrl,record.sourceYear])
         const [existingRows]=await connection.query<RowDataPacket[]>('SELECT id FROM school_featured_major_evidence WHERE school_id=? AND major_name=? AND recognition_type=? AND recognition_year <=> ? LIMIT 1',[schools[0]!.id,record.majorName,record.recognitionType,record.recognitionYear??null])
-        if(existingRows[0])await connection.execute('UPDATE school_featured_major_evidence SET major_id=?,major_code=?,source_id=?,verified_at=? WHERE id=?',[majorId,record.majorCode??majors[0]?.code??null,sourceRows[0]!.id,new Date(record.verifiedAt),existingRows[0].id])
-        else await connection.execute(`INSERT INTO school_featured_major_evidence(school_id,major_id,major_name,major_code,recognition_type,recognition_year,source_id,verified_at) VALUES(?,?,?,?,?,?,?,?)`,[schools[0]!.id,majorId,record.majorName,record.majorCode??majors[0]?.code??null,record.recognitionType,record.recognitionYear??null,sourceRows[0]!.id,new Date(record.verifiedAt)])
+        if(existingRows[0])await connection.execute('UPDATE school_featured_major_evidence SET major_id=?,major_code=?,education_level=?,source_id=?,verified_at=? WHERE id=?',[majorId,record.majorCode??majors[0]?.code??null,record.educationLevel,sourceRows[0]!.id,new Date(record.verifiedAt),existingRows[0].id])
+        else await connection.execute(`INSERT INTO school_featured_major_evidence(school_id,major_id,major_name,major_code,education_level,recognition_type,recognition_year,source_id,verified_at) VALUES(?,?,?,?,?,?,?,?,?)`,[schools[0]!.id,majorId,record.majorName,record.majorCode??majors[0]?.code??null,record.educationLevel,record.recognitionType,record.recognitionYear??null,sourceRows[0]!.id,new Date(record.verifiedAt)])
+        await connection.execute(
+          `INSERT INTO school_fact_audits(school_id,fact_type,status,reason,source_url,checked_at)
+           VALUES (?,'featured_major','verified',NULL,?,?)
+           ON DUPLICATE KEY UPDATE status='verified',reason=NULL,source_url=VALUES(source_url),checked_at=VALUES(checked_at)`,
+          [schools[0]!.id,record.sourceUrl,new Date(record.verifiedAt)],
+        )
         await connection.commit();if(existingRows.length)updated+=1;else inserted+=1
       }catch(error){await connection.rollback();throw error}finally{connection.release()}
     }catch(error){skipped+=1;errors.push(`第 ${index+1} 条：${error instanceof Error?error.message:'未知错误'}`)}

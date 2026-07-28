@@ -34,7 +34,8 @@ export async function loadAdmissionCandidates(input:{province:string;subjectGrou
   const [coverage] = await database.query<RowDataPacket[]>(
     `SELECT ap.unit_type unitType,COUNT(*) recordCount,GROUP_CONCAT(DISTINCT ap.year ORDER BY ap.year) years
      FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id
-     WHERE p.name=? AND ap.subject_group=? AND ap.year=(SELECT MAX(ap2.year) FROM admission_programs ap2 JOIN provinces p2 ON p2.id=ap2.province_id WHERE p2.name=? AND ap2.subject_group=?)
+     WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL
+     AND ap.year=(SELECT MAX(ap2.year) FROM admission_programs ap2 JOIN provinces p2 ON p2.id=ap2.province_id WHERE p2.name=? AND ap2.subject_group=? AND ap2.recommendation_eligible=1 AND ap2.min_rank IS NOT NULL)
      GROUP BY ap.unit_type ORDER BY recordCount DESC LIMIT 1`,
     [input.province,input.subjectGroup,input.province,input.subjectGroup],
   )
@@ -58,8 +59,8 @@ async function loadMajorGroupCandidates(input:{province:string;subjectGroup:stri
      ds.source_url sourceUrl
      FROM admission_programs ap JOIN schools s ON s.id=ap.school_id JOIN provinces ep ON ep.id=ap.province_id JOIN provinces hp ON hp.id=s.province_id
      LEFT JOIN data_sources ds ON ds.id=ap.source_id
-     WHERE ep.name=? AND ap.subject_group=? AND ap.unit_type='major_group'
-     AND ap.year=(SELECT MAX(ap2.year) FROM admission_programs ap2 JOIN provinces p2 ON p2.id=ap2.province_id WHERE p2.name=? AND ap2.subject_group=? AND ap2.unit_type='major_group')
+     WHERE ep.name=? AND ap.subject_group=? AND ap.unit_type='major_group' AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL
+     AND ap.year=(SELECT MAX(ap2.year) FROM admission_programs ap2 JOIN provinces p2 ON p2.id=ap2.province_id WHERE p2.name=? AND ap2.subject_group=? AND ap2.unit_type='major_group' AND ap2.recommendation_eligible=1 AND ap2.min_rank IS NOT NULL)
      AND s.official_url IS NOT NULL AND s.admissions_url IS NOT NULL AND s.links_source_url IS NOT NULL`,
     [input.province,input.subjectGroup,input.province,input.subjectGroup],
   )
@@ -78,8 +79,8 @@ async function loadExactMajorCandidates(input:{province:string;subjectGroup:stri
      MAX(year_rank.unitId) unitId,'专业投档记录汇总' unitName,NULL subjectRequirement,ROUND(AVG(year_rank.referenceRank)) referenceRank,
      GROUP_CONCAT(year_rank.referenceRank ORDER BY year_rank.year) ranks,GROUP_CONCAT(year_rank.year ORDER BY year_rank.year) years,COUNT(*) yearCount,MAX(year_rank.sourceUrl) sourceUrl
      FROM (SELECT ap2.school_id,ap2.year,MAX(ap2.id) unitId,MAX(ap2.min_rank) referenceRank,MAX(ds2.source_url) sourceUrl FROM admission_programs ap2 JOIN provinces p2 ON p2.id=ap2.province_id LEFT JOIN data_sources ds2 ON ds2.id=ap2.source_id
-       WHERE p2.name=? AND ap2.subject_group=? AND ap2.unit_type='exact_major'
-       AND ap2.year>=(SELECT MAX(ap3.year)-2 FROM admission_programs ap3 JOIN provinces p3 ON p3.id=ap3.province_id WHERE p3.name=? AND ap3.subject_group=? AND ap3.unit_type='exact_major')
+       WHERE p2.name=? AND ap2.subject_group=? AND ap2.unit_type='exact_major' AND ap2.recommendation_eligible=1 AND ap2.min_rank IS NOT NULL
+       AND ap2.year>=(SELECT MAX(ap3.year)-2 FROM admission_programs ap3 JOIN provinces p3 ON p3.id=ap3.province_id WHERE p3.name=? AND ap3.subject_group=? AND ap3.unit_type='exact_major' AND ap3.recommendation_eligible=1 AND ap3.min_rank IS NOT NULL)
        GROUP BY ap2.school_id,ap2.year) year_rank
      JOIN schools s ON s.id=year_rank.school_id JOIN provinces hp ON hp.id=s.province_id
      WHERE s.official_url IS NOT NULL AND s.admissions_url IS NOT NULL AND s.links_source_url IS NOT NULL

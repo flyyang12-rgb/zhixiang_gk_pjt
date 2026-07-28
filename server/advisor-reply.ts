@@ -101,7 +101,7 @@ async function askModel(context:AdvisorReplyContext,message:string,memory:Return
     const response=await fetch(`${config.AI_BASE_URL.replace(/\/$/,'')}/chat/completions`,{
       method:'POST',signal:controller.signal,
       headers:{Authorization:`Bearer ${config.AI_API_KEY}`,'Content-Type':'application/json'},
-      body:JSON.stringify({model:config.AI_MODEL,temperature:.3,thinking:{type:'disabled'},messages:buildModelMessages({methodology,facts:context,memory,currentMessage:message,responseInstruction:replyPlan.transparent?`回答开头必须连续使用三行纯文本，顺序和标签一字不改：\n现在能确定：只写当前本地事实支持的结论。\n现在还不能确定：写清具体缺口以及为什么不能把话说死。\n下一步只做：只写一个家庭现在能完成的动作，不得出现编号清单或多个动作。\n三行后可补必要解释。禁止 Markdown 符号、内部评分术语和万能检查清单。\n${replyPlan.instruction}`:replyPlan.instruction})}),
+      body:JSON.stringify({model:config.AI_MODEL,temperature:.45,thinking:{type:'disabled'},messages:buildModelMessages({methodology,facts:context,memory,currentMessage:message,responseInstruction:replyPlan.transparent?`回答开头必须连续使用三行纯文本，顺序和标签一字不改：\n现在能确定：先给鲜明倾向，再写支撑这个倾向的当前本地事实。\n现在还不能确定：写清具体缺口以及为什么不能把话说死。\n下一步只做：只写一个家庭现在能完成的动作，不得出现编号清单或多个动作。\n三行后可补必要解释。可以有火气、反问和比喻，可以骂选择瞎、策略蠢、宣传扯淡，但不能骂学生或家长。禁止 Markdown 符号、内部评分术语和万能检查清单。\n${replyPlan.instruction}`:replyPlan.instruction})}),
     })
     if(!response.ok)throw new Error(`AI 服务返回 ${response.status}`)
     const body=await response.json() as {choices?:Array<{message?:{content?:string}}>}
@@ -132,7 +132,7 @@ export function buildLocalAdvisorReply(context:AdvisorReplyContext,message:strin
   if((replyPlan.kind==='major-interest'||replyPlan.kind==='repair-repeat')&&replyPlan.targetMajor&&context.schoolDetail)return buildSchoolMajorReply(context.schoolDetail,replyPlan.targetMajor,replyPlan.kind==='repair-repeat')
   if(replyPlan.kind==='repair-repeat')return `你说得对，我刚才确实没有接住你的问题，还在重复原来的说明。咱们重新来：你只用一句话告诉我现在最想确认什么，我这次只回答这一件事，不再套前面的模板。`
   if(replyPlan.kind==='major-eligibility'&&replyPlan.targetMajor)return buildDirectMajorReply(context,replyPlan.targetMajor,memory)
-  const remembered=buildNaturalMemoryBridge(memory)
+  const remembered=[buildNaturalMemoryBridge(memory),buildDiscussionNoteBridge(context)].filter(Boolean).join(' ')
   if(replyPlan.kind==='emotion')return buildEmotionalReply(context,remembered)
   if(replyPlan.kind==='postgraduate')return buildPostgraduateReply(context,remembered)
   if(replyPlan.kind==='employment')return buildEmploymentReply(context,message,remembered)
@@ -188,7 +188,7 @@ function buildSchoolVsMajorReply(context:AdvisorReplyContext,remembered=''){
 
 function buildConversationalSchoolReply(detail:NonNullable<AdvisorReplyContext['schoolDetail']>,localPlace?:string,remembered=''){
   const school=detail.school
-  const records=(detail.admissionContext?.records as Array<{year:number;unitType:string;unitName:string;minRank:number;risk:string|null;confidence:string}>|undefined)??[]
+  const records=comparableAdmissionRecords(detail)
   const latestYear=records[0]?.year
   const risks=[...new Set(records.map(item=>item.risk).filter(Boolean))]
   const isNearby=Boolean(localPlace&&(school.city.includes(localPlace)||school.province.includes(localPlace)))
@@ -203,18 +203,18 @@ function buildConversationalSchoolReply(detail:NonNullable<AdvisorReplyContext['
   const admission=records.length
     ?`你这个档案能对上${latestYear}年等 ${new Set(records.map(item=>item.year)).size} 个年份的招生记录${risks.length?`，现有记录里出现${risks.join('、')}档参考`:''}。但学校线能过，不等于你想学的专业也能进。`
     :'你当前省份和科类还没有可直接比较的招生记录，所以现在谁要拍胸脯说“稳”，谁就是在拿你的志愿赌。'
-  const confirmed=`${school.name}在${school.city}，是${school.level}${school.schoolType}院校，可以继续比较，但离家近不能代替专业选择。`
+  const confirmed=`${school.name}能看，但别急着报。它在${school.city}，是${school.level}${school.schoolType}院校；离家近不能代替专业选择。`
   const unknown=records.length?'现有学校或专业组记录不能证明你想学的专业一定在里面。':'当前没有你所在省份和科类的可比招生记录，也没有经核验的优势专业材料。'
-  return transparentAnswer(confirmed,unknown,`告诉我你最想学什么专业。`,`${locationLine}${remembered?` ${remembered}`:''}\n\n${featured}${admission}\n\n专业对口、位次够，它可以认真比较；专业不对口，就算在家门口，也别为了“省事”把四年搭进去。`)
+  return transparentAnswer(confirmed,unknown,`告诉我你最想学什么专业。`,`${locationLine}${remembered?` ${remembered}`:''}\n\n${featured}${admission}\n\n专业对口、位次够，它可以认真比较；专业都没核对，只因为离家近或校名顺耳就往里冲，这叫瞎报，不叫规划。`)
 }
 
 function buildSchoolMajorReply(detail:NonNullable<AdvisorReplyContext['schoolDetail']>,targetMajor:string,isRepair:boolean){
-  const records=(detail.admissionContext?.records as Array<{year:number;unitType:string;unitName:string;subjectRequirement:string|null;minRank:number}>|undefined)??[]
+  const records=(detail.admissionContext?.records as Array<{year:number;unitType:string;unitName:string;subjectRequirement:string|null;minRank:number|null;batch:string;recommendationEligible:boolean}>|undefined)??[]
   const exactRecords=records.filter(item=>item.unitType==='exact_major'&&item.unitName.includes(targetMajor))
   const profileProvince=String(detail.admissionContext?.profileProvince??'当前省份')
   const subjectGroup=String(detail.admissionContext?.subjectGroup??'当前科类')
   const opening=isRepair?`你说得对，我刚才确实在重复学校介绍，没有接住你想学${targetMajor}这件事。咱们重新说。`:`想学${targetMajor}没问题，咱们就只看${detail.school.name}的${targetMajor}，不绕去讲别的。`
-  if(exactRecords.length){const latest=exactRecords[0];return transparentAnswer(`${latest.year}年${detail.school.name}在${profileProvince}${subjectGroup}有“${latest.unitName}”，往年最低位次是 ${latest.minRank.toLocaleString()}。`,'往年位次不能保证今年录取，今年是否继续招生也要重新确认。',`查看该校今年${targetMajor}的招生计划。`,opening)}
+  if(exactRecords.length){const latest=exactRecords[0],coordinate=latest.minRank?`，往年最低位次是 ${latest.minRank.toLocaleString()}`:'';return transparentAnswer(`${latest.year}年${detail.school.name}在${profileProvince}${subjectGroup}的${latest.batch}有“${latest.unitName}”${coordinate}。`,'往年记录不能保证今年继续招生或录取，特殊批次还要核对资格。',`查看该校今年${targetMajor}的招生计划。`,opening)}
   return transparentAnswer(`当前只查到${detail.school.name}的学校或专业组记录。`,`现有资料没有证明这个组里明确包含${targetMajor}，所以不能说你能报到这个专业。`,`查看该校当年招生专业目录里有没有${targetMajor}。`,`${opening}\n\n学校线能过，不等于想学的专业也能进，我不能拿学校线糊弄你。`)
 }
 
@@ -224,6 +224,12 @@ function buildNaturalMemoryBridge(memory?:ReturnType<typeof buildConversationMem
   if(targetMajor&&userContext.includes(targetMajor)&&/(?:喜欢|想学|感兴趣|想报)/.test(userContext))return `我记得你更想看${targetMajor}，咱们就围绕它说。`
   const constraints=['四年本科','不读研','必须读研','预算','学费','离家近','省内','省外'].filter(term=>userContext.includes(term))
   return constraints.length?`你前面说的${constraints.slice(0,2).join('、')}，我还记着。`:''
+}
+
+function buildDiscussionNoteBridge(context:AdvisorReplyContext){
+  const notes=(context.dashboard.savedItems??[]).filter(item=>item.note?.trim()).slice(0,2)
+  if(!notes.length)return ''
+  return `你们在家庭讨论备注里写了“${notes.map(item=>item.note!.trim()).join('；')}”，这是家里给的条件，不是官方事实，我会拿它继续追问，不会偷改排序。`
 }
 
 function buildDirectMajorReply(context:AdvisorReplyContext,targetMajor:string,memory?:ReturnType<typeof buildConversationMemory>){
@@ -239,11 +245,16 @@ function buildDirectMajorReply(context:AdvisorReplyContext,targetMajor:string,me
 }
 
 function buildLocalSchoolReply(detail:NonNullable<AdvisorReplyContext['schoolDetail']>,remembered=''){
-  const records=(detail.admissionContext?.records as Array<{year:number;unitName:string;minRank:number;risk:string|null;confidence:string;sourceUrl:string|null}>|undefined)??[]
+  const records=comparableAdmissionRecords(detail)
   const recordSummary=records.slice(0,3).map(item=>`${item.year}年${item.unitName}往年最低位次 ${item.minRank.toLocaleString()}${item.risk?`，按往年位置暂放在${item.risk}档`:''}`).join('；')
   const evidence=recordSummary||'当前档案所在省份和科类，暂时没有这所学校可直接比较的招生记录。'
   const featured=detail.featuredMajors.length?`查到 ${detail.featuredMajors.length} 条经核验的优势专业记录。`:'还没有经核验的优势专业数据。'
-  const confirmed=records.length?`${detail.school.name}当前有${new Set(records.map(item=>item.year)).size}个年份的招生记录可以比较。`:`${detail.school.name}的院校名称、层次和所在地已经核对。`
+  const confirmed=records.length?`${detail.school.name}能看，但别急着报；当前有${new Set(records.map(item=>item.year)).size}个年份的招生记录可以比较。`:`${detail.school.name}可以先看，暂时不能下报考结论；目前只核对了院校名称、层次和所在地。`
   const unknown=records.length?'这些记录不能自动证明专业组里一定有孩子想学的专业。':'当前档案所在省份和科类没有可比招生记录，不能判断报考位置。'
   return transparentAnswer(confirmed,unknown,'告诉我孩子最想学的一个专业。',`${featured}${evidence}\n\n学校线、专业组线和具体专业线不是一回事。专业组就是学校把几个专业绑在一起招生；组里没有目标专业，分数看着够也没用。${remembered?` ${remembered}`:''}`)
+}
+
+function comparableAdmissionRecords(detail:NonNullable<AdvisorReplyContext['schoolDetail']>){
+  const records=(detail.admissionContext?.records as Array<{year:number;unitType:string;unitName:string;subjectRequirement:string|null;minRank:number|null;risk:string|null;confidence:string;sourceUrl:string|null;recommendationEligible:boolean}>|undefined)??[]
+  return records.filter((record):record is typeof record & {minRank:number}=>record.recommendationEligible&&record.minRank!=null)
 }

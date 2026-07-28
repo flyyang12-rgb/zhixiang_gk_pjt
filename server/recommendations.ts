@@ -21,7 +21,7 @@ recommendationsRouter.post('/profiles/:id/recommendations/generate', async (requ
     if (!profile) { response.status(404).json({ success: false, data: null, error: '学生档案不存在', requestId: response.locals.requestId }); return }
     if (!profile.provinceRank) { response.status(422).json({ success: false, data: null, error: '生成冲稳保清单需要填写全省位次', requestId: response.locals.requestId }); return }
 
-    const [available] = await database.execute<RowDataPacket[]>(`SELECT COUNT(*) count,MAX(year) year,COUNT(DISTINCT year) yearCount,GROUP_CONCAT(DISTINCT year ORDER BY year) years FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id WHERE p.name=? AND ap.subject_group=?`, [profile.province, profile.subjectGroup])
+    const [available] = await database.execute<RowDataPacket[]>(`SELECT COUNT(*) count,MAX(year) year,COUNT(DISTINCT year) yearCount,GROUP_CONCAT(DISTINCT year ORDER BY year) years FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL`, [profile.province, profile.subjectGroup])
     if (!Number(available[0]?.count)) {
       const result = { generatedAt: new Date().toISOString(), sourceYear: null, candidates: [], warning: `当前尚未导入${profile.province}官方投档数据，不能负责任地生成冲稳保；可先使用全国院校地图。` }
       await saveSnapshot(profileId, result)
@@ -34,7 +34,7 @@ recommendationsRouter.post('/profiles/:id/recommendations/generate', async (requ
     const [sourceRows] = await database.execute<RowDataPacket[]>(
       `SELECT DISTINCT ds.title,ds.source_url sourceUrl,ds.source_year sourceYear,ds.publisher
        FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id JOIN data_sources ds ON ds.id=ap.source_id
-       WHERE p.name=? AND ap.subject_group=? AND ap.year BETWEEN ? AND ? ORDER BY ds.source_year DESC`,
+       WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.year BETWEEN ? AND ? ORDER BY ds.source_year DESC`,
       [profile.province, profile.subjectGroup, latestYear - 2, latestYear],
     )
     const sources: RecommendationSource[] = sourceRows.map(row => ({ title: String(row.title), sourceUrl: String(row.sourceUrl), sourceYear: Number(row.sourceYear), publisher: String(row.publisher) }))
@@ -43,7 +43,7 @@ recommendationsRouter.post('/profiles/:id/recommendations/generate', async (requ
       const referenceRank = row.referenceRank
       const [programRows] = row.unitType==='major_group'
         ? await database.execute<RowDataPacket[]>(`SELECT aum.raw_major_name name,ap.min_rank minRank FROM admission_unit_majors aum JOIN admission_programs ap ON ap.id=aum.admission_program_id WHERE aum.admission_program_id=? AND aum.verification_status='verified' ORDER BY aum.raw_major_name LIMIT 6`,[row.unitId])
-        : await database.execute<RowDataPacket[]>(`SELECT major_name name,min_rank minRank FROM admission_programs WHERE school_id=? AND province_id=(SELECT id FROM provinces WHERE name=?) AND subject_group=? AND year=? AND unit_type='exact_major' ORDER BY ABS(min_rank-?) LIMIT 6`,[row.schoolId,profile.province,profile.subjectGroup,latestYear,rank])
+        : await database.execute<RowDataPacket[]>(`SELECT major_name name,min_rank minRank FROM admission_programs WHERE school_id=? AND province_id=(SELECT id FROM provinces WHERE name=?) AND subject_group=? AND year=? AND unit_type='exact_major' AND recommendation_eligible=1 AND min_rank IS NOT NULL ORDER BY ABS(min_rank-?) LIMIT 6`,[row.schoolId,profile.province,profile.subjectGroup,latestYear,rank])
       const majors = programRows.map(item => ({ name: String(item.name), minRank: Number(item.minRank), fit: '可进一步了解' }))
       const { ruleScore } = scoreCandidate({ level: String(row.level), hasMatchingMajor: majors.some(item => item.fit === '较匹配') }, defaultDecisionWeights)
       candidates.push({ ...row,bestRank:referenceRank,programCount:majors.length,ruleScore,majors,reasons:[`${row.dataYears.join('、')} 年${profile.province}${row.unitType==='major_group'?'专业组':'专业'}参考投档位次约 ${referenceRank.toLocaleString()}`,row.unitType==='major_group'&&majors.length===0?'当前只有专业组线，尚不能证明该组包含具体专业':'当前规则只使用已核验的学校层次与专业证据进行同风险层比较','城市、成本、就业与距离尚缺结构化指标，当前不用于区分学校'] })

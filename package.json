@@ -17,6 +17,9 @@
     "data:henan": "tsx scripts/import-henan-admissions.ts",
     "data:henan-group-majors": "tsx scripts/import-henan-group-majors.ts",
     "data:hebei": "tsx scripts/import-hebei-admissions.ts",
+    "data:admissions": "tsx scripts/import-admission-json.ts",
+    "data:admissions:rollback": "tsx scripts/rollback-admission-import.ts",
+    "data:audit": "tsx scripts/generate-data-audit-report.ts",
     "build": "vue-tsc --noEmit && vite build && tsc -p server/tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test"

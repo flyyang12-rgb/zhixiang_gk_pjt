@@ -1,5 +1,25 @@
 import { expect, test } from '@playwright/test'
 
+test('家庭讨论备注独立保存，切换收藏状态不会覆盖', async ({ request }) => {
+  const created=await request.post('/api/profiles',{data:{studentName:`备注验收-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:500,provinceRank:120000,planningMode:'exploration'}})
+  const profileId=(await created.json()).data.id as string
+  try {
+    const schools=await request.get('/api/schools?page=1')
+    const school=(await schools.json()).data.items[0]
+    await request.put(`/api/profiles/${profileId}/saved-items`,{data:{itemType:'school',itemId:school.id,state:'target',note:'父母最担心培养成本'}})
+    await request.put(`/api/profiles/${profileId}/saved-items`,{data:{itemType:'school',itemId:school.id,state:'saved'}})
+    let dashboard=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
+    expect(dashboard.savedItems.find((item:{itemId:number})=>item.itemId===school.id).note).toBe('父母最担心培养成本')
+    const patched=await request.patch(`/api/profiles/${profileId}/saved-items/school/${school.id}/note`,{data:{note:'下一步核对实习机会'}})
+    expect(patched.ok()).toBeTruthy()
+    dashboard=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
+    expect(dashboard.savedItems.find((item:{itemId:number})=>item.itemId===school.id).note).toBe('下一步核对实习机会')
+    await request.patch(`/api/profiles/${profileId}/saved-items/school/${school.id}/note`,{data:{note:null}})
+    dashboard=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
+    expect(dashboard.savedItems.find((item:{itemId:number})=>item.itemId===school.id).note).toBeNull()
+  } finally { await request.delete(`/api/profiles/${profileId}`) }
+})
+
 test('历史家庭偏好不会改变当前候选、规则分或风险说明', async ({ request }) => {
   const profileResponse = await request.post('/api/profiles', {
     data: {
@@ -231,8 +251,8 @@ test('可在我的收藏中选择两所目标院校进行紧凑比较',async({pa
     const dashboard=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
     const schools=[...new Map(dashboard.schoolCandidates.map((item:{schoolId:number;schoolName:string})=>[item.schoolId,item])).values()].slice(0,2) as Array<{schoolId:number;schoolName:string}>
     expect(schools).toHaveLength(2)
-    for(const school of schools){
-      const saved=await request.put(`/api/profiles/${profileId}/saved-items`,{data:{itemType:'school',itemId:school.schoolId,state:'target'}})
+    for(const [index,school] of schools.entries()){
+      const saved=await request.put(`/api/profiles/${profileId}/saved-items`,{data:{itemType:'school',itemId:school.schoolId,state:'target',note:index===0?'弟弟愿意继续了解这所学校':null}})
       expect(saved.ok()).toBeTruthy()
     }
     await page.goto('/')
@@ -241,6 +261,21 @@ test('可在我的收藏中选择两所目标院校进行紧凑比较',async({pa
     await page.getByRole('button',{name:/打开我的收藏，共 2 项/}).click()
     const dialog=page.getByRole('dialog',{name:'我的收藏'})
     for(const school of schools)await dialog.getByRole('checkbox',{name:`选择 ${school.schoolName} 参与比较`}).check()
+    await page.setViewportSize({width:390,height:844})
+    await page.context().grantPermissions(['clipboard-read','clipboard-write'])
+    const briefButton=dialog.getByRole('button',{name:'给爸妈看 (2)'})
+    await briefButton.click()
+    const brief=page.getByRole('dialog',{name:'给爸妈看的学校简报'})
+    await expect(brief).toBeVisible()
+    await expect(brief).toContainText('弟弟愿意继续了解这所学校')
+    await expect(brief).toContainText('弟弟愿不愿学四年')
+    const briefBox=await brief.boundingBox();expect(briefBox?.width).toBe(390);expect(briefBox?.height).toBe(844)
+    await brief.getByRole('button',{name:'复制纯文本'}).click()
+    await expect(brief).toContainText('已复制，可以发到家庭群')
+    expect(await page.evaluate(()=>navigator.clipboard.readText())).toContain('家庭只讨论三个问题')
+    await brief.getByRole('button',{name:'关闭家庭简报'}).click()
+    await expect(brief).toBeHidden()
+    await expect(briefButton).toBeFocused()
     await dialog.getByRole('button',{name:'比较已选 2 所'}).click()
     await expect(dialog.getByRole('heading',{name:'院校对比'})).toBeVisible()
     await expect(dialog.locator('.school-comparison-column')).toHaveCount(2)
@@ -253,7 +288,6 @@ test('可在我的收藏中选择两所目标院校进行紧凑比较',async({pa
     for(const school of schools)await expect(analysis).toContainText(school.schoolName)
     const advisorHistory=(await (await request.get(`/api/profiles/${profileId}/advisor/messages`)).json()).data
     expect(advisorHistory).toHaveLength(0)
-    await page.setViewportSize({width:390,height:844})
     const dialogBox=await dialog.boundingBox();expect(dialogBox?.width).toBeLessThanOrEqual(390)
     expect(await dialog.locator('.school-comparison-grid').evaluate(element=>element.scrollWidth>=element.clientWidth)).toBeTruthy()
     await dialog.getByRole('button',{name:new RegExp(`查看 ${schools[0].schoolName} 详情`)}).click()

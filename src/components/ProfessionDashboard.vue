@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { getProfessionDashboard, getSchoolComparisonAnalysis, getSchoolDetail, removeDashboardItem, saveDashboardItem, type AdvisorFocus, type ProfessionCard, type ProfessionDashboard, type SavedItem, type SchoolDetail } from '../api'
+import { addScoreSnapshot, deleteScoreSnapshot, getProfessionDashboard, getSchoolComparisonAnalysis, getSchoolDetail, removeDashboardItem, saveDashboardItem, updateDashboardItemNote, type AdvisorFocus, type ProfessionCard, type ProfessionDashboard, type SavedItem, type SchoolDetail } from '../api'
 import { buildProfessionInsights } from '../profession-insights'
+import { describeScoreTrend } from '../score-trend'
+import FamilyBrief from './FamilyBrief.vue'
 
 const props=defineProps<{profileId:string;studentName:string;initialMajorId?:number|null}>()
 const emit=defineEmits<{school:[number];advisor:[{prompt:string;focus:AdvisorFocus}]}>()
@@ -12,6 +14,9 @@ const dialogMode=ref<'confirmation'|'collection'|null>(null)
 const collectionView=ref<'list'|'compare'>('list'),compareSelection=ref<number[]>([]),comparisonDetails=ref<SchoolDetail[]>([]),compareLoading=ref(false),compareError=ref('')
 const comparisonAnalysis=ref(''),analysisMode=ref<'ai'|'local'|null>(null),analysisLoading=ref(false),analysisError=ref('')
 const lastSaved=ref<{itemType:'major'|'school';itemName:string}|null>(null)
+const showScoreForm=ref(false),scoreSaving=ref(false),scoreError=ref('')
+const scoreForm=ref({examName:'',examDate:new Date().toISOString().slice(0,10),score:'',provinceRank:'',note:''})
+const familyBriefOpen=ref(false),familyDetails=ref<SchoolDetail[]>([]),familyLoading=ref(false),briefButton=ref<HTMLButtonElement|null>(null)
 const bands=['优先了解','值得比较','谨慎报考'] as const
 const risks=['冲','稳','保'] as const
 const cardsByBand=computed(()=>Object.fromEntries(bands.map(band=>[band,dashboard.value?.cards.filter(card=>card.band===band)??[]])) as Record<typeof bands[number],ProfessionCard[]>)
@@ -23,6 +28,7 @@ const activeCard=computed(()=>dashboard.value?.cards.find(card=>card.id===expand
 const activeBandCards=computed(()=>activeCard.value?cardsByBand.value[activeCard.value.band]:[])
 const activeCardIndex=computed(()=>activeBandCards.value.findIndex(card=>card.id===expanded.value))
 const activePosition=computed(()=>activeCardIndex.value<0?0:activeCardIndex.value+1)
+const scoreTrend=computed(()=>describeScoreTrend((dashboard.value?.scoreSnapshots??[]).map(item=>({score:item.score,provinceRank:item.provinceRank}))))
 
 onMounted(()=>{load();window.addEventListener('keydown',handleWindowKeys)})
 onBeforeUnmount(()=>window.removeEventListener('keydown',handleWindowKeys))
@@ -69,7 +75,7 @@ async function toggle(itemType:'major'|'school',itemId:number,state:SavedItem['s
       const value=await saveDashboardItem(props.profileId,{itemType,itemId,state})
       const itemName=resolveItemName(itemType,itemId)
       dashboard.value.savedItems=dashboard.value.savedItems.filter(item=>!(item.itemType===itemType&&item.itemId===itemId))
-      dashboard.value.savedItems.push({...value,itemName})
+      dashboard.value.savedItems.push({...value,note:value.note===undefined?existing?.note??null:value.note,itemName})
       if(state==='saved'||state==='target'){
         lastSaved.value={itemType,itemName}
         dialogMode.value='confirmation'
@@ -83,11 +89,16 @@ function askMajor(card:ProfessionCard){emit('advisor',{prompt:`请结合当前�
 function openCollection(){dialogMode.value='collection';collectionView.value='list';compareSelection.value=[];comparisonDetails.value=[];compareError.value='';comparisonAnalysis.value='';analysisError.value=''}
 function toggleCompareSelection(schoolId:number){if(compareSelection.value.includes(schoolId))compareSelection.value=compareSelection.value.filter(id=>id!==schoolId);else if(compareSelection.value.length<4)compareSelection.value=[...compareSelection.value,schoolId]}
 async function startComparison(){if(compareSelection.value.length<2||compareSelection.value.length>4)return;compareLoading.value=true;compareError.value='';comparisonAnalysis.value='';analysisError.value='';try{comparisonDetails.value=await Promise.all(compareSelection.value.map(id=>getSchoolDetail(id,props.profileId)));collectionView.value='compare';void loadComparisonAnalysis()}catch(value){compareError.value=value instanceof Error?value.message:'院校比较加载失败'}finally{compareLoading.value=false}}
+async function openFamilyBrief(){if(compareSelection.value.length<1||compareSelection.value.length>4)return;familyLoading.value=true;compareError.value='';try{familyDetails.value=await Promise.all(compareSelection.value.map(id=>getSchoolDetail(id,props.profileId)));familyBriefOpen.value=true}catch(value){compareError.value=value instanceof Error?value.message:'家庭简报加载失败'}finally{familyLoading.value=false}}
+async function closeFamilyBrief(){familyBriefOpen.value=false;await nextTick();briefButton.value?.focus()}
 async function loadComparisonAnalysis(){if(compareSelection.value.length<2)return;analysisLoading.value=true;analysisError.value='';analysisMode.value=null;try{const result=await getSchoolComparisonAnalysis(props.profileId,compareSelection.value);comparisonAnalysis.value=result.content;analysisMode.value=result.mode}catch(value){analysisError.value=value instanceof Error?value.message:'对比分析暂时无法生成'}finally{analysisLoading.value=false}}
 function currentAdmission(detail:SchoolDetail){return detail.admissionContext?.records[0]??null}
 function subjectSummary(detail:SchoolDetail){return [...new Set((detail.admissionContext?.records??[]).map(record=>record.subjectRequirement||'不限'))].slice(0,3).join(' / ')||'暂无记录'}
 function dataGaps(detail:SchoolDetail){const gaps:string[]=[];if(!detail.admissionContext?.records.length)gaps.push('当前档案无可比招生记录');if(!detail.featuredMajors.length)gaps.push('官方优势专业暂无核验，已提供推荐关注');if(!detail.school.officialUrl)gaps.push('学校官网待核验');if(!detail.school.admissionsUrl)gaps.push('招生官网待核验');return gaps.length?gaps:['核心信息已核验，仍需复核当年招生章程']}
 async function removeCompared(detail:SchoolDetail){await toggle('school',detail.school.id,'target');comparisonDetails.value=comparisonDetails.value.filter(item=>item.school.id!==detail.school.id);compareSelection.value=compareSelection.value.filter(id=>id!==detail.school.id);if(comparisonDetails.value.length<2)collectionView.value='list';else void loadComparisonAnalysis()}
+async function saveNote(item:SavedItem,event:Event){if(!dashboard.value)return;const note=(event.target as HTMLTextAreaElement).value.trim()||null;try{await updateDashboardItemNote(props.profileId,item.itemType,item.itemId,note);const savedItem=dashboard.value.savedItems.find(value=>value.itemType===item.itemType&&value.itemId===item.itemId);if(savedItem)savedItem.note=note;actionMessage.value='家庭讨论备注已保存'}catch(value){actionMessage.value=value instanceof Error?value.message:'备注保存失败'}}
+async function submitScore(){scoreSaving.value=true;scoreError.value='';try{await addScoreSnapshot(props.profileId,{examName:scoreForm.value.examName,examDate:scoreForm.value.examDate,score:Number(scoreForm.value.score),provinceRank:scoreForm.value.provinceRank?Number(scoreForm.value.provinceRank):null,note:scoreForm.value.note||null});showScoreForm.value=false;scoreForm.value={examName:'',examDate:new Date().toISOString().slice(0,10),score:'',provinceRank:'',note:''};await load()}catch(value){scoreError.value=value instanceof Error?value.message:'模考坐标保存失败'}finally{scoreSaving.value=false}}
+async function removeScore(snapshotId:number){try{await deleteScoreSnapshot(props.profileId,snapshotId);await load()}catch(value){scoreError.value=value instanceof Error?value.message:'模考记录删除失败'}}
 const factorLabels={coverage:'最近招聘机会多不多',directEntry:'本科毕业能不能直接做',schoolAccess:'按你位次有多少学校可选',stability:'这类工作需求稳不稳'}
 </script>
 
@@ -98,6 +109,12 @@ const factorLabels={coverage:'最近招聘机会多不多',directEntry:'本科�
     <div v-else-if="error" class="flow-error"><p>{{error}}</p><button @click="load">重新加载</button></div>
     <div v-else-if="!dashboard?.cards.length" class="empty-state"><strong>当前没有满足硬条件的专业</strong><p>请核对具体选科、位次和本省专业招生数据；系统不会用学校线或模拟专业凑数。</p></div>
     <template v-else>
+      <section class="score-timeline">
+        <header><div><span class="kicker">模考坐标</span><h3>{{scoreTrend}}</h3><p>只用当前坐标做历史参考，不平均模考，不预测高考。</p></div><button @click="showScoreForm=!showScoreForm">{{showScoreForm?'收起':'记一次模考'}}</button></header>
+        <form v-if="showScoreForm" class="score-form" @submit.prevent="submitScore"><label>考试名称<input v-model="scoreForm.examName" required maxlength="64" placeholder="例如：高二期末"></label><label>日期<input v-model="scoreForm.examDate" required type="date"></label><label>分数<input v-model="scoreForm.score" required type="number" min="100" max="750"></label><label>全省位次<input v-model="scoreForm.provinceRank" type="number" min="1" placeholder="没有就留空"></label><label class="score-note">备注<input v-model="scoreForm.note" maxlength="200" placeholder="本次考试范围或异常情况"></label><button :disabled="scoreSaving">{{scoreSaving?'保存中…':'保存为当前坐标'}}</button></form>
+        <p v-if="scoreError" class="comparison-error" role="alert">{{scoreError}}</p>
+        <ol><li v-for="snapshot in dashboard.scoreSnapshots" :key="snapshot.id"><span>{{snapshot.examDate}} · {{snapshot.examName}}</span><b>{{snapshot.score??'—'}} 分<template v-if="snapshot.provinceRank"> · 位次 {{snapshot.provinceRank.toLocaleString()}}</template></b><em v-if="snapshot.isCurrent">当前坐标</em><button v-else @click="removeScore(snapshot.id)">删除</button></li></ol>
+      </section>
       <section v-if="dashboard?.mode==='application'" class="admission-layer">
         <header><span class="section-number">01</span><div><span class="kicker">学校与专业组参考</span><h3>先看位次可达，再核对组内专业</h3><p>{{dashboard.admissionEvidence.note}}</p></div><strong>{{dashboard.admissionEvidence.confidence}}置信度<small>{{dashboard.admissionEvidence.years.join(' / ')||'暂无可比年份'}}</small></strong></header>
         <div v-if="dashboard.schoolCandidates.length" class="admission-risk-grid">
@@ -154,18 +171,18 @@ const factorLabels={coverage:'最近招聘机会多不多',directEntry:'本科�
             <template v-if="collectionView==='list'">
               <span class="collection-eyebrow">当前学生档案</span><h3>{{studentName}} 的收藏</h3><p>选择 2—4 所目标院校做一次紧凑比较，也可以直接进入详情。</p>
               <div class="collection-lists">
-                <section><header><span>专业方向</span><b>{{savedMajors.length}}</b></header><ul v-if="savedMajors.length"><li v-for="item in savedMajors" :key="`major-${item.itemId}`"><span>{{item.itemName}}</span><button :disabled="saving('major',item.itemId)" @click="toggle('major',item.itemId,'saved')">移除</button></li></ul><p v-else>还没有收藏专业</p></section>
-                <section><header><span>目标院校</span><b>{{savedSchools.length}}</b></header><ul v-if="savedSchools.length"><li v-for="item in savedSchools" :key="`school-${item.itemId}`" class="collection-school-row"><input type="checkbox" :checked="compareSelection.includes(item.itemId)" :disabled="!compareSelection.includes(item.itemId)&&compareSelection.length>=4" :aria-label="`选择 ${item.itemName} 参与比较`" @change="toggleCompareSelection(item.itemId)"><button class="collection-school-link" @click="dialogMode=null;emit('school',item.itemId)">{{item.itemName}}</button><button :disabled="saving('school',item.itemId)" @click="toggle('school',item.itemId,'target')">移除</button></li></ul><p v-else>还没有收藏学校</p></section>
+                <section><header><span>专业方向</span><b>{{savedMajors.length}}</b></header><ul v-if="savedMajors.length"><li v-for="item in savedMajors" :key="`major-${item.itemId}`" class="collection-note-row"><div><span>{{item.itemName}}</span><button :disabled="saving('major',item.itemId)" @click="toggle('major',item.itemId,'saved')">移除</button></div><textarea :value="item.note??''" maxlength="500" aria-label="`给 ${item.itemName} 添加家庭讨论备注`" placeholder="愿不愿学四年？成本担心什么？下一项查什么？" @change="saveNote(item,$event)"></textarea></li></ul><p v-else>还没有收藏专业</p></section>
+                <section><header><span>目标院校</span><b>{{savedSchools.length}}</b></header><ul v-if="savedSchools.length"><li v-for="item in savedSchools" :key="`school-${item.itemId}`" class="collection-school-row"><input type="checkbox" :checked="compareSelection.includes(item.itemId)" :disabled="!compareSelection.includes(item.itemId)&&compareSelection.length>=4" :aria-label="`选择 ${item.itemName} 参与比较`" @change="toggleCompareSelection(item.itemId)"><button class="collection-school-link" @click="dialogMode=null;emit('school',item.itemId)">{{item.itemName}}</button><button :disabled="saving('school',item.itemId)" @click="toggle('school',item.itemId,'target')">移除</button><textarea :value="item.note??''" maxlength="500" :aria-label="`给 ${item.itemName} 添加家庭讨论备注`" placeholder="愿不愿学四年？成本担心什么？下一项查什么？" @change="saveNote(item,$event)"></textarea></li></ul><p v-else>还没有收藏学校</p></section>
               </div>
               <p v-if="compareError" class="comparison-error" role="alert">{{compareError}}</p><small class="collection-storage">● 仅保存在本机 MySQL，不会上传到网络</small>
-              <footer><button class="collection-secondary" @click="dialogMode=null">完成</button><button class="collection-primary" :disabled="compareSelection.length<2||compareLoading" @click="startComparison">{{compareLoading?'正在读取详情…':`比较已选 ${compareSelection.length} 所`}}</button></footer>
+              <footer><button class="collection-secondary" @click="dialogMode=null">完成</button><button class="collection-secondary" :disabled="compareSelection.length<2||compareLoading" @click="startComparison">{{compareLoading?'正在读取详情…':`比较已选 ${compareSelection.length} 所`}}</button><button ref="briefButton" class="collection-primary" :disabled="compareSelection.length<1||familyLoading" @click="openFamilyBrief">{{familyLoading?'正在整理…':`给爸妈看 (${compareSelection.length})`}}</button></footer>
             </template>
             <template v-else>
               <button class="comparison-back" @click="collectionView='list'">← 返回收藏</button><span class="collection-eyebrow">基于当前档案</span><h3>院校对比</h3><p>只对照数据库中已有的核验事实，缺失项不会被猜测补齐。</p>
               <div class="school-comparison-grid" :style="{'--comparison-columns':comparisonDetails.length}">
                 <article v-for="detail in comparisonDetails" :key="detail.school.id" class="school-comparison-column">
                   <header><button :aria-label="`查看 ${detail.school.name} 详情`" @click="dialogMode=null;emit('school',detail.school.id)">{{detail.school.name}} ↗</button><span>{{detail.school.city}} · {{detail.school.level}}</span></header>
-                  <dl><div><dt>当前档案招生位置</dt><dd v-if="currentAdmission(detail)"><b>{{currentAdmission(detail)?.risk||'仅供核验'}} · {{currentAdmission(detail)?.confidence}}</b><span>{{currentAdmission(detail)?.year}} · 最低位次 {{currentAdmission(detail)?.minRank.toLocaleString()}}</span></dd><dd v-else>暂无可比招生记录</dd></div><div><dt>选科要求</dt><dd>{{subjectSummary(detail)}}</dd></div><div><dt>{{detail.featuredMajors.length?'优势专业':'推荐关注'}}</dt><dd>{{(detail.featuredMajors.length?detail.featuredMajors:detail.recommendedMajors).slice(0,3).map(item=>item.name).join('、')}}</dd></div><div><dt>数据缺口</dt><dd><span v-for="gap in dataGaps(detail)" :key="gap">{{gap}}</span></dd></div></dl>
+                   <dl><div><dt>当前档案招生位置</dt><dd v-if="currentAdmission(detail)"><b>{{currentAdmission(detail)?.risk||'仅供核验'}} · {{currentAdmission(detail)?.confidence}}</b><span>{{currentAdmission(detail)?.year}} · {{currentAdmission(detail)?.minRank?`最低位次 ${currentAdmission(detail)?.minRank?.toLocaleString()}`:'位次待核验'}}</span></dd><dd v-else>暂无可比招生记录</dd></div><div><dt>选科要求</dt><dd>{{subjectSummary(detail)}}</dd></div><div><dt>{{detail.featuredMajors.length?'优势专业':'推荐关注'}}</dt><dd>{{(detail.featuredMajors.length?detail.featuredMajors:detail.recommendedMajors).slice(0,3).map(item=>item.name).join('、')}}</dd></div><div><dt>数据缺口</dt><dd><span v-for="gap in dataGaps(detail)" :key="gap">{{gap}}</span></dd></div></dl>
                   <button class="comparison-remove" :disabled="saving('school',detail.school.id)" @click="removeCompared(detail)">移出收藏</button>
                 </article>
               </div>
@@ -181,5 +198,6 @@ const factorLabels={coverage:'最近招聘机会多不多',directEntry:'本科�
       </div>
     </Transition>
   </Teleport>
+  <Teleport to="body"><FamilyBrief v-if="familyBriefOpen&&dashboard" :profile-summary="dashboard.profileSummary" :details="familyDetails" :saved-items="dashboard.savedItems" @close="closeFamilyBrief" /></Teleport>
   </div>
 </template>

@@ -32,6 +32,12 @@ test('打开网站不会自动触发就业数据采集', async ({ page }) => {
   expect(automaticSyncRequests).toBe(0)
 })
 
+test('尚未选择科类时提示先选择而不是误报数据缺失', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('.data-coverage')).toContainText('选择科类后查看可比数据')
+  await expect(page.locator('.data-coverage')).not.toContainText('尚未覆盖当前科类')
+})
+
 test('专业卡片以聚焦详情过渡取代向下展开', async ({ page }) => {
   const studentName = `端到端验证-${Date.now()}`
 
@@ -334,18 +340,43 @@ test('河北物理类档案可按专业最低分对应位次生成候选', async
 test('三省 2023—2025 数据状态包含来源、记录数和更新时间', async ({ request }) => {
   const response = await request.get('/api/admin/data-status')
   expect(response.ok()).toBeTruthy()
-  const yearStatus = (await response.json()).data.yearStatus as Array<{ province: string; year: number; recordCount: number; publisher: string; sourceUrl: string; updatedAt: string }>
+  const data=await response.json()
+  const yearStatus = data.data.yearStatus as Array<{ province: string; year: number; recordCount: number; publisher: string; sourceUrl: string; updatedAt: string }>
   for (const province of ['河南', '山东', '河北']) {
     const rows = yearStatus.filter(item => item.province === province)
     expect(rows.map(item => item.year)).toEqual([2023, 2024, 2025])
     expect(rows.every(item => item.recordCount > 0 && item.publisher && item.sourceUrl && item.updatedAt)).toBeTruthy()
   }
+  const details=data.data.coverageDetails as Array<{educationLevel:string;batch:string;recommendationEligibleCount:number;auditedGapCount:number;sourceStatus:string}>
+  expect(details.length).toBeGreaterThan(0)
+  expect(details.every(item=>item.educationLevel&&item.batch&&item.recommendationEligibleCount>=0&&item.auditedGapCount>=0)).toBeTruthy()
+  expect(details.some(item=>item.sourceStatus==='pending')).toBeTruthy()
 })
 
 test('旧按需同步接口不再触发采集', async ({ request }) => {
   const response=await request.post('/api/employment/sync-if-stale')
   expect(response.ok()).toBeTruthy()
   expect((await response.json()).data).toEqual({triggered:false,reason:'manual-only'})
+})
+
+test('模考轨迹同步当前坐标，删除当前记录后恢复上一条',async({request})=>{
+  const created=await request.post('/api/profiles',{data:{studentName:`模考轨迹-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:500,provinceRank:120000,planningMode:'exploration'}})
+  const profileId=(await created.json()).data.id as string
+  try{
+    const initial=await request.get(`/api/profiles/${profileId}/score-snapshots`)
+    expect(initial.ok()).toBeTruthy()
+    expect((await initial.json()).data).toHaveLength(1)
+    const added=await request.post(`/api/profiles/${profileId}/score-snapshots`,{data:{examName:'高二期末',examDate:'2026-07-20',score:530,provinceRank:90000,note:'第一次全省联考'}})
+    expect(added.status()).toBe(201)
+    const snapshot=(await added.json()).data
+    expect(snapshot.isCurrent).toBe(true)
+    const current=(await (await request.get(`/api/profiles/${profileId}`)).json()).data
+    expect(current).toMatchObject({score:530,provinceRank:90000})
+    const removed=await request.delete(`/api/profiles/${profileId}/score-snapshots/${snapshot.id}`)
+    expect(removed.ok()).toBeTruthy()
+    const restored=(await (await request.get(`/api/profiles/${profileId}`)).json()).data
+    expect(restored).toMatchObject({score:500,provinceRank:120000})
+  }finally{await request.delete(`/api/profiles/${profileId}`)}
 })
 
 async function verifyAdvisorAndReport(request: import('@playwright/test').APIRequestContext, profileId: string) {

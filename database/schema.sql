@@ -70,22 +70,33 @@ CREATE TABLE IF NOT EXISTS admission_scores (
 
 CREATE TABLE IF NOT EXISTS admission_programs (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  record_key CHAR(64) NOT NULL,
   school_id BIGINT UNSIGNED NOT NULL,
   province_id INT UNSIGNED NOT NULL,
   year SMALLINT UNSIGNED NOT NULL,
   subject_group VARCHAR(64) NOT NULL,
+  education_level ENUM('本科', '专科') NOT NULL,
+  admission_category VARCHAR(64) NOT NULL DEFAULT '普通类',
+  batch VARCHAR(64) NOT NULL,
+  plan_type VARCHAR(64) NOT NULL DEFAULT '普通计划',
+  eligibility_requirement VARCHAR(500) NULL,
+  recommendation_eligible TINYINT(1) NOT NULL DEFAULT 0,
+  recommendation_exclusion_reason VARCHAR(255) NULL,
   unit_type ENUM('exact_major', 'major_group', 'school_line') NOT NULL DEFAULT 'exact_major',
   major_name VARCHAR(255) NOT NULL,
+  raw_school_name VARCHAR(255) NOT NULL,
+  raw_unit_name VARCHAR(500) NOT NULL,
   unit_code VARCHAR(32) NULL,
   subject_requirement VARCHAR(128) NULL,
   school_code VARCHAR(16) NULL,
   major_code VARCHAR(16) NULL,
   min_score SMALLINT UNSIGNED NULL,
-  min_rank INT UNSIGNED NOT NULL,
+  min_rank INT UNSIGNED NULL,
   enrollment_count INT UNSIGNED NULL,
   source_id BIGINT UNSIGNED NULL,
-  UNIQUE KEY uk_admission_program (school_id, province_id, year, major_name),
-  KEY idx_program_lookup (province_id, year, subject_group, min_rank),
+  UNIQUE KEY uk_admission_record_key (record_key),
+  KEY idx_program_school_fk (school_id),
+  KEY idx_program_lookup (province_id, year, subject_group, education_level, recommendation_eligible, min_rank),
   CONSTRAINT fk_program_school FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE,
   CONSTRAINT fk_program_province FOREIGN KEY (province_id) REFERENCES provinces(id)
 ) ENGINE=InnoDB;
@@ -105,6 +116,23 @@ CREATE TABLE IF NOT EXISTS student_profiles (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_profile_province FOREIGN KEY (province_id) REFERENCES provinces(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS profile_score_snapshots (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  profile_id CHAR(36) NOT NULL,
+  exam_name VARCHAR(64) NOT NULL,
+  exam_date DATE NOT NULL,
+  score SMALLINT UNSIGNED NULL,
+  province_rank INT UNSIGNED NULL,
+  note VARCHAR(200) NULL,
+  is_current TINYINT(1) NOT NULL DEFAULT 0,
+  origin_key VARCHAR(80) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_score_snapshot_origin (origin_key),
+  KEY idx_score_snapshot_timeline (profile_id, exam_date, id),
+  KEY idx_score_snapshot_current (profile_id, is_current),
+  CONSTRAINT fk_score_snapshot_profile FOREIGN KEY (profile_id) REFERENCES student_profiles(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS profile_assessments (
@@ -211,12 +239,71 @@ CREATE TABLE IF NOT EXISTS data_sources (
   UNIQUE KEY uk_source_url_year (source_url(500), source_year)
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS source_artifacts (
+  id CHAR(36) PRIMARY KEY,
+  source_id BIGINT UNSIGNED NOT NULL,
+  official_page_url VARCHAR(1000) NOT NULL,
+  download_url VARCHAR(1000) NULL,
+  mirror_url VARCHAR(1000) NULL,
+  mirror_disclosure VARCHAR(1000) NULL,
+  published_at DATE NULL,
+  collected_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  sha256 CHAR(64) NOT NULL,
+  local_path VARCHAR(1000) NOT NULL,
+  byte_size BIGINT UNSIGNED NOT NULL,
+  UNIQUE KEY uk_source_artifact_checksum (source_id, sha256),
+  CONSTRAINT fk_source_artifact_source FOREIGN KEY (source_id) REFERENCES data_sources(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS school_aliases (
+  alias VARCHAR(255) PRIMARY KEY,
+  school_id BIGINT UNSIGNED NOT NULL,
+  source_id BIGINT UNSIGNED NOT NULL,
+  verification_status ENUM('pending', 'verified', 'rejected') NOT NULL DEFAULT 'pending',
+  verified_at DATETIME NULL,
+  note VARCHAR(500) NULL,
+  KEY idx_school_alias_target (school_id, verification_status),
+  CONSTRAINT fk_school_alias_school FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE,
+  CONSTRAINT fk_school_alias_source FOREIGN KEY (source_id) REFERENCES data_sources(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS school_fact_audits (
+  school_id BIGINT UNSIGNED NOT NULL,
+  fact_type ENUM('official_website', 'admissions_website', 'featured_major', 'admission_coverage') NOT NULL,
+  status ENUM('verified', 'unavailable', 'not_applicable', 'pending') NOT NULL DEFAULT 'pending',
+  reason VARCHAR(1000) NULL,
+  source_url VARCHAR(1000) NULL,
+  checked_at DATETIME NULL,
+  PRIMARY KEY (school_id, fact_type),
+  KEY idx_school_fact_status (fact_type, status),
+  CONSTRAINT fk_school_fact_audit_school FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS admission_scope_audits (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  province_id INT UNSIGNED NOT NULL,
+  year SMALLINT UNSIGNED NOT NULL,
+  education_level ENUM('本科', '专科') NOT NULL,
+  admission_category VARCHAR(64) NOT NULL DEFAULT '*',
+  batch VARCHAR(64) NOT NULL DEFAULT '*',
+  subject_group VARCHAR(32) NOT NULL DEFAULT '*',
+  status ENUM('verified', 'unavailable', 'not_applicable', 'pending') NOT NULL DEFAULT 'pending',
+  reason VARCHAR(1000) NULL,
+  source_id BIGINT UNSIGNED NULL,
+  checked_at DATETIME NULL,
+  UNIQUE KEY uk_admission_scope_audit (province_id, year, education_level, admission_category, batch, subject_group),
+  KEY idx_admission_scope_status (province_id, year, status),
+  CONSTRAINT fk_admission_scope_province FOREIGN KEY (province_id) REFERENCES provinces(id),
+  CONSTRAINT fk_admission_scope_source FOREIGN KEY (source_id) REFERENCES data_sources(id)
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS school_featured_major_evidence (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   school_id BIGINT UNSIGNED NOT NULL,
   major_id BIGINT UNSIGNED NULL,
   major_name VARCHAR(128) NOT NULL,
   major_code VARCHAR(16) NULL,
+  education_level ENUM('本科', '高职') NOT NULL DEFAULT '本科',
   recognition_type VARCHAR(128) NOT NULL,
   recognition_year SMALLINT UNSIGNED NULL,
   source_id BIGINT UNSIGNED NOT NULL,
@@ -245,13 +332,41 @@ CREATE TABLE IF NOT EXISTS admission_unit_majors (
 CREATE TABLE IF NOT EXISTS import_batches (
   id CHAR(36) PRIMARY KEY,
   source_id BIGINT UNSIGNED NOT NULL,
-  status ENUM('running', 'completed', 'failed', 'rolled_back') NOT NULL,
+  artifact_id CHAR(36) NULL,
+  status ENUM('preflight', 'running', 'completed', 'failed', 'rolled_back') NOT NULL,
+  report JSON NULL,
   inserted_count INT UNSIGNED NOT NULL DEFAULT 0,
   updated_count INT UNSIGNED NOT NULL DEFAULT 0,
   error_message VARCHAR(1000) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   completed_at DATETIME NULL,
-  CONSTRAINT fk_batch_source FOREIGN KEY (source_id) REFERENCES data_sources(id)
+  CONSTRAINT fk_batch_source FOREIGN KEY (source_id) REFERENCES data_sources(id),
+  CONSTRAINT fk_batch_artifact FOREIGN KEY (artifact_id) REFERENCES source_artifacts(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS admission_import_rows (
+  batch_id CHAR(36) NOT NULL,
+  source_row_number INT UNSIGNED NOT NULL,
+  record_key CHAR(64) NULL,
+  normalized_record JSON NULL,
+  status ENUM('valid', 'duplicate', 'unmatched', 'rejected') NOT NULL,
+  reason VARCHAR(1000) NULL,
+  committed_program_id BIGINT UNSIGNED NULL,
+  PRIMARY KEY (batch_id, source_row_number),
+  KEY idx_import_row_status (batch_id, status),
+  CONSTRAINT fk_import_row_batch FOREIGN KEY (batch_id) REFERENCES import_batches(id) ON DELETE CASCADE,
+  CONSTRAINT fk_import_row_program FOREIGN KEY (committed_program_id) REFERENCES admission_programs(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS admission_import_changes (
+  batch_id CHAR(36) NOT NULL,
+  record_key CHAR(64) NOT NULL,
+  operation ENUM('inserted', 'updated') NOT NULL,
+  admission_program_id BIGINT UNSIGNED NOT NULL,
+  previous_record JSON NULL,
+  PRIMARY KEY (batch_id, record_key),
+  CONSTRAINT fk_import_change_batch FOREIGN KEY (batch_id) REFERENCES import_batches(id) ON DELETE CASCADE,
+  CONSTRAINT fk_import_change_program FOREIGN KEY (admission_program_id) REFERENCES admission_programs(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS job_directions (

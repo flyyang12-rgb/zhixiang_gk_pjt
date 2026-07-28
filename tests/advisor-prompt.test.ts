@@ -10,7 +10,13 @@ describe('顾问连续记忆与表达边界',()=>{
     expect(memory.summary).toContain('家里能承担四年本科')
     expect(memory.summary).toContain('第1条内容')
     const messages=buildModelMessages({methodology:'安全方法论',facts:{profile:{province:'河南'}},memory,currentMessage:'那它呢？'})
+    expect(messages[0].content).toContain('savedItems.note')
+    expect(messages[0].content).toContain('不得用趋势推断高考分数')
     expect(messages.some(item=>item.content.includes('当前数据库事实优先'))).toBe(true)
+    expect(messages.some(item=>item.content.includes('事实和推断必须分开'))).toBe(true)
+    expect(messages.some(item=>item.content.includes('任何年份、位次、分数、数量或比例都必须来自当前本地事实'))).toBe(true)
+    expect(messages.some(item=>item.content.includes('先下判断，再摆事实'))).toBe(true)
+    expect(messages.some(item=>item.content.includes('可以骂选择瞎、策略蠢、宣传扯淡，但不能骂提问的人'))).toBe(true)
     expect(messages.at(-1)).toEqual({role:'user',content:'那它呢？'})
   })
 

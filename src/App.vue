@@ -43,7 +43,8 @@ const form = reactive<ProfileInput>({
 const currentStep = computed(() => currentView.value === 'profile' ? 1 : currentView.value === 'map' ? 0 : 2)
 const progress = computed(() => currentStep.value ? Math.round(currentStep.value / 2 * 100) : 0)
 const scoreDisplay = computed(() => profile.value?.score || form.score || '—')
-const currentCoverage = computed(() => dataCoverage.value.find(item => item.province === (profile.value?.province || form.province) && item.subjectGroup === (profile.value?.subjectGroup || form.subjectGroup)))
+const currentSubjectGroup = computed(() => profile.value?.subjectGroup || form.subjectGroup)
+const currentCoverage = computed(() => dataCoverage.value.find(item => item.province === (profile.value?.province || form.province) && item.subjectGroup === currentSubjectGroup.value))
 const currentProvinceYearStatus = computed(() => dataYearStatus.value.filter(item => item.province === (profile.value?.province || form.province)))
 const selectableSubjects = computed(() => form.province === '山东' ? ['物理','历史','化学','生物','政治','地理'] as const : ['化学','生物','政治','地理'] as const)
 
@@ -350,7 +351,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
           </div>
           <div class="data-source"><i></i><span>数据模式<strong>本地 MySQL</strong></span></div>
           <div class="data-coverage">
-            <span>当前科类可比数据</span><strong v-if="dataStatusState==='loading'">正在读取…</strong><strong v-else-if="dataStatusState==='error'">数据状态暂不可用 <button class="coverage-retry" @click="refreshDataStatus">重试</button></strong><strong v-else-if="currentCoverage">{{ currentCoverage.years.join(' / ') }} · {{ currentCoverage.recordCount.toLocaleString() }} 条</strong><strong v-else>尚未覆盖当前科类</strong>
+            <span>当前科类可比数据</span><strong v-if="dataStatusState==='loading'">正在读取…</strong><strong v-else-if="dataStatusState==='error'">数据状态暂不可用 <button class="coverage-retry" @click="refreshDataStatus">重试</button></strong><strong v-else-if="!currentSubjectGroup">选择科类后查看可比数据</strong><strong v-else-if="currentCoverage">{{ currentCoverage.years.join(' / ') }} · {{ currentCoverage.recordCount.toLocaleString() }} 条</strong><strong v-else>尚未覆盖当前科类</strong>
             <div class="year-status-list">
               <a v-for="item in currentProvinceYearStatus" :key="item.year" :href="item.sourceUrl" target="_blank" rel="noreferrer">
                 <b>{{ item.year }}</b><span>{{ item.recordCount.toLocaleString() }} 条 · {{ item.subjectGroups.join('/') }}</span><small>{{ item.publisher }} · 更新 {{ new Date(item.updatedAt).toLocaleDateString('zh-CN') }}</small>

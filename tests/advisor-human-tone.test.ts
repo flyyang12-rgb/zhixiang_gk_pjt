@@ -26,16 +26,31 @@ function context():AdvisorReplyContext{
 }
 
 describe('顾问院校问答语气',()=>{
+  it('把家庭备注当作用户条件，不冒充官方事实或偷改排序',()=>{
+    const current=context()
+    current.dashboard.savedItems=[{itemType:'school',itemId:1,state:'target',note:'父母最担心培养成本'}]
+    const answer=buildLocalAdvisorReply(current,'这学校值不值得看')
+    expect(answer).toContain('家庭讨论备注')
+    expect(answer).toContain('不是官方事实')
+    expect(answer).toContain('不会偷改排序')
+  })
   it('直接回答院校怎么样，并接住用户的地域信息',()=>{
     const answer=buildLocalAdvisorReply(context(),'河南牧业经济学院怎么样，我是河南南阳人')
     expectTransparent(answer)
-    expect(answer).toContain('可以继续比较')
+    expect(answer).toContain('能看，但别急着报')
     expect(answer).toContain('南阳人')
     expect(answer).toContain('离家近是加分项，不是报考理由')
     expect(answer).toContain('你最想学什么专业')
     expect(answer).not.toContain('【先说结论】')
     expect(answer).not.toContain('接下来怎么查')
     expect(answer).not.toContain('招聘样本')
+  })
+
+  it('院校评价第一行先亮态度，允许骂错误选择但不骂用户',()=>{
+    const answer=buildLocalAdvisorReply(context(),'河南牧业经济学院到底值不值得报')
+    expect(answer.split('\n')[0]).toContain('能看，但别急着报')
+    expect(answer).toContain('这叫瞎报，不叫规划')
+    expect(answer).not.toMatch(/你(?:真|太)?(?:蠢|笨|没出息)|你家穷/)
   })
 
   it.each([

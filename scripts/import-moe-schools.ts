@@ -1,5 +1,7 @@
 import 'dotenv/config'
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import mysql from 'mysql2/promise'
 import * as XLSX from 'xlsx'
 import { config } from '../server/config.js'
@@ -25,9 +27,14 @@ const project211 = new Set(`北京交通大学|北京工业大学|北京科技�
 
 type SchoolRow = { name: string; code: string; authority: string; city: string; educationLevel: string; remark: string; province: string }
 
-const response = await fetch(SOURCE_URL)
+const response = await fetch(SOURCE_URL,{signal:AbortSignal.timeout(30_000),redirect:'follow'})
 if (!response.ok) throw new Error(`教育部名单下载失败：${response.status}`)
-const workbook = XLSX.read(Buffer.from(await response.arrayBuffer()))
+const sourceBytes=Buffer.from(await response.arrayBuffer())
+if(sourceBytes.byteLength>30*1024*1024)throw new Error('教育部名单文件超过 30MB 安全上限')
+const rawPath=resolve(`data/raw/moe/${SOURCE_YEAR}/schools.xls`)
+await mkdir(resolve(`data/raw/moe/${SOURCE_YEAR}`),{recursive:true})
+await writeFile(rawPath,sourceBytes,{flag:'wx'}).catch(error=>{if((error as NodeJS.ErrnoException).code!=='EEXIST')throw error})
+const workbook = XLSX.read(sourceBytes)
 const sheet = workbook.Sheets[workbook.SheetNames[0]!]
 const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, blankrows: false })
 const schools: SchoolRow[] = []
@@ -66,7 +73,14 @@ try {
     ['全国普通高等学校名单（截至2026年6月17日）', SOURCE_PAGE, SOURCE_YEAR],
   )
   const sourceId = sourceResult.insertId
-  await connection.execute(`INSERT INTO import_batches (id, source_id, status) VALUES (?, ?, 'running')`, [batchId, sourceId])
+  const artifactId=randomUUID()
+  await connection.execute(
+    `INSERT INTO source_artifacts(id,source_id,official_page_url,download_url,published_at,sha256,local_path,byte_size)
+     VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
+    [artifactId,sourceId,SOURCE_PAGE,SOURCE_URL,'2026-06-18',createHash('sha256').update(sourceBytes).digest('hex'),rawPath,sourceBytes.byteLength],
+  )
+  const [artifactRows]=await connection.execute<mysql.RowDataPacket[]>('SELECT id FROM source_artifacts WHERE source_id=? AND sha256=? LIMIT 1',[sourceId,createHash('sha256').update(sourceBytes).digest('hex')])
+  await connection.execute(`INSERT INTO import_batches (id, source_id, artifact_id, status) VALUES (?, ?, ?, 'running')`, [batchId, sourceId,String(artifactRows[0]!.id)])
 
   const provinceIds = new Map<string, number>()
   for (const province of [...new Set(schools.map(school => school.province))]) {
@@ -87,6 +101,13 @@ try {
        ON DUPLICATE KEY UPDATE city = VALUES(city), level = VALUES(level), school_type = VALUES(school_type), features = VALUES(features)`,
       [school.name, provinceId, school.city, level, school.remark.includes('民办') ? '民办' : '公办', features],
     )
+    const [schoolRows]=await connection.execute<mysql.RowDataPacket[]>('SELECT id FROM schools WHERE name=? LIMIT 1',[school.name])
+    for(const factType of ['official_website','admissions_website','featured_major','admission_coverage']){
+      await connection.execute(
+        `INSERT IGNORE INTO school_fact_audits(school_id,fact_type,status,reason) VALUES (?,?,'pending','尚未完成逐项官方核验')`,
+        [Number(schoolRows[0]!.id),factType],
+      )
+    }
     inserted += 1
   }
 

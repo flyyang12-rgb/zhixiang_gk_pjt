@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { RowDataPacket } from 'mysql2'
+import type { ResultSetHeader, RowDataPacket } from 'mysql2'
 import { z } from 'zod'
 import { database } from './database.js'
 import { classifySchoolRisk, rankProfessions, type ProfessionInput } from './profession-engine.js'
@@ -22,8 +22,9 @@ professionDashboardRouter.get('/profiles/:id/profession-dashboard', async (reque
 
 export async function buildProfessionDashboard(profileId: string) {
     const [profiles] = await database.query<RowDataPacket[]>(
-      `SELECT sp.planning_mode planningMode,sp.selected_subjects selectedSubjects,sp.province_rank provinceRank,
-       sp.subject_group subjectGroup,p.name province FROM student_profiles sp JOIN provinces p ON p.id=sp.province_id WHERE sp.id=?`, [profileId],
+      `SELECT sp.student_name studentName,sp.planning_mode planningMode,sp.selected_subjects selectedSubjects,
+       sp.score,sp.province_rank provinceRank,sp.subject_group subjectGroup,p.name province
+       FROM student_profiles sp JOIN provinces p ON p.id=sp.province_id WHERE sp.id=?`, [profileId],
     )
     if (!profiles[0]) throw new Error('学生档案不存在')
     const profile = profiles[0]
@@ -56,7 +57,13 @@ export async function buildProfessionDashboard(profileId: string) {
        LEFT JOIN schools s ON psi.item_type='school' AND s.id=psi.item_id
        WHERE psi.profile_id=? ORDER BY psi.created_at`, [profileId],
     )
-    return { mode: profile.planningMode as 'exploration'|'application', employment: employmentHealth, schoolCandidates:admission.candidates, admissionEvidence:admission.evidence, cards, savedItems: savedRows }
+    const [snapshotRows]=await database.query<RowDataPacket[]>(`SELECT id,exam_name examName,DATE_FORMAT(exam_date,'%Y-%m-%d') examDate,score,province_rank provinceRank,note,is_current isCurrent FROM profile_score_snapshots WHERE profile_id=? ORDER BY exam_date,id`,[profileId])
+    return {
+      mode: profile.planningMode as 'exploration'|'application',
+      profileSummary:{studentName:String(profile.studentName),planningMode:profile.planningMode,province:String(profile.province),subjectGroup:String(profile.subjectGroup),score:Number(profile.score),provinceRank:profile.provinceRank==null?null:Number(profile.provinceRank)},
+      scoreSnapshots:snapshotRows.map(row=>({...row,id:Number(row.id),score:row.score==null?null:Number(row.score),provinceRank:row.provinceRank==null?null:Number(row.provinceRank),isCurrent:Boolean(row.isCurrent)})),
+      employment: employmentHealth, schoolCandidates:admission.candidates, admissionEvidence:admission.evidence, cards, savedItems: savedRows,
+    }
 }
 
 const savedItemSchema = z.object({ itemType: z.enum(['major','school']), itemId: z.number().int().positive(), state: z.enum(['saved','excluded','target']), note: z.string().trim().max(500).nullable().optional() })
@@ -67,9 +74,27 @@ professionDashboardRouter.put('/profiles/:id/saved-items', async (request, respo
     const input = savedItemSchema.parse(request.body)
     const [profiles] = await database.query<RowDataPacket[]>(`SELECT id FROM student_profiles WHERE id=?`, [profileId])
     if (!profiles[0]) { response.status(404).json({ success: false, data: null, error: '学生档案不存在', requestId: response.locals.requestId }); return }
-    await database.execute(`INSERT INTO profile_saved_items (profile_id,item_type,item_id,state,note) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE state=VALUES(state),note=VALUES(note)`, [profileId,input.itemType,input.itemId,input.state,input.note ?? null])
+    if(input.note===undefined){
+      await database.execute(`INSERT INTO profile_saved_items (profile_id,item_type,item_id,state,note) VALUES (?,?,?,?,NULL) ON DUPLICATE KEY UPDATE state=VALUES(state)`, [profileId,input.itemType,input.itemId,input.state])
+    }else{
+      await database.execute(`INSERT INTO profile_saved_items (profile_id,item_type,item_id,state,note) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE state=VALUES(state),note=VALUES(note)`, [profileId,input.itemType,input.itemId,input.state,input.note])
+    }
     response.json({ success: true, data: input, error: null, requestId: response.locals.requestId })
   } catch (error) { next(error) }
+})
+
+const savedItemNoteSchema=z.object({note:z.string().trim().max(500).nullable()})
+
+professionDashboardRouter.patch('/profiles/:id/saved-items/:itemType/:itemId/note',async(request,response,next)=>{
+  try{
+    const profileId=z.string().uuid().parse(request.params.id)
+    const itemType=z.enum(['major','school']).parse(request.params.itemType)
+    const itemId=z.coerce.number().int().positive().parse(request.params.itemId)
+    const {note}=savedItemNoteSchema.parse(request.body)
+    const [result]=await database.execute<ResultSetHeader>(`UPDATE profile_saved_items SET note=? WHERE profile_id=? AND item_type=? AND item_id=?`,[note,profileId,itemType,itemId])
+    if(result.affectedRows===0){response.status(404).json({success:false,data:null,error:'请先收藏这一项再添加备注',requestId:response.locals.requestId});return}
+    response.json({success:true,data:{itemType,itemId,note},error:null,requestId:response.locals.requestId})
+  }catch(error){next(error)}
 })
 
 professionDashboardRouter.delete('/profiles/:id/saved-items/:itemType/:itemId', async (request, response, next) => {
@@ -102,7 +127,7 @@ async function loadEmploymentStats(majorId: number) {
 }
 
 async function loadApplicationSchools(input: { majorName:string;province:string;subjectGroup:string;rank:number }) {
-  const [rows] = await database.query<RowDataPacket[]>(`SELECT s.id,s.name,s.level,s.city,s.official_url officialUrl,s.admissions_url admissionsUrl,s.links_verified_at linksVerifiedAt,s.links_source_url linksSourceUrl,ap.year,ap.min_rank minRank,ap.major_name programName FROM admission_programs ap JOIN schools s ON s.id=ap.school_id JOIN provinces p ON p.id=ap.province_id WHERE p.name=? AND ap.subject_group=? AND ((ap.unit_type='exact_major' AND ap.major_name LIKE ?) OR (ap.unit_type='major_group' AND EXISTS (SELECT 1 FROM admission_unit_majors aum JOIN majors m ON m.id=aum.major_id WHERE aum.admission_program_id=ap.id AND aum.verification_status='verified' AND m.name=?))) AND ap.year>=(SELECT MAX(year)-2 FROM admission_programs) ORDER BY s.id,ap.year`, [input.province,input.subjectGroup,`%${input.majorName}%`,input.majorName])
+  const [rows] = await database.query<RowDataPacket[]>(`SELECT s.id,s.name,s.level,s.city,s.official_url officialUrl,s.admissions_url admissionsUrl,s.links_verified_at linksVerifiedAt,s.links_source_url linksSourceUrl,ap.year,ap.min_rank minRank,ap.major_name programName FROM admission_programs ap JOIN schools s ON s.id=ap.school_id JOIN provinces p ON p.id=ap.province_id WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL AND ((ap.unit_type='exact_major' AND ap.major_name LIKE ?) OR (ap.unit_type='major_group' AND EXISTS (SELECT 1 FROM admission_unit_majors aum JOIN majors m ON m.id=aum.major_id WHERE aum.admission_program_id=ap.id AND aum.verification_status='verified' AND m.name=?))) AND ap.year>=(SELECT MAX(year)-2 FROM admission_programs WHERE recommendation_eligible=1) ORDER BY s.id,ap.year`, [input.province,input.subjectGroup,`%${input.majorName}%`,input.majorName])
   const grouped = new Map<number, RowDataPacket[]>()
   for (const row of rows) grouped.set(Number(row.id), [...(grouped.get(Number(row.id))??[]),row])
   const candidates = [...grouped.values()].flatMap(records => {
@@ -120,7 +145,7 @@ async function loadExplorationSchools(majorName: string) {
      s.links_verified_at linksVerifiedAt,s.links_source_url linksSourceUrl,
      COUNT(DISTINCT ap.year) evidenceYears,MAX(ap.year) latestYear
      FROM admission_programs ap JOIN schools s ON s.id=ap.school_id
-     WHERE ap.major_name LIKE ?
+     WHERE ap.major_name LIKE ? AND ap.recommendation_eligible=1
      GROUP BY s.id,s.name,s.level,s.city,s.official_url,s.admissions_url,s.links_verified_at,s.links_source_url
      HAVING evidenceYears>=2
      ORDER BY FIELD(s.level,'985','211','双一流','一本','本科','二本','专科'),

@@ -24,6 +24,9 @@ setup-local.cmd
 - 硬条件过滤后按招聘覆盖、本科直接就业入口、可达院校和稳定性评分
 - 基于山东、河南、河北可比制度年份的学校/招生单元冲稳保（每档最多 2 所）；河南 2025 单年专业组的冲刺参考上限为位次比 1.15，统一标记低置信度，并与具体专业分层展示
 - 专业收藏/排除、学校目标收藏均保存在本地
+- 记录模考分数与全省位次轨迹；只用当前坐标参考历史招生，不做高考趋势预测
+- 收藏项可写家庭讨论备注，备注不会改变专业排序或冲稳保
+- 选择 1—4 所学校可打开手机全屏“给爸妈看”简报并复制纯文本，不生成公网链接
 - “我的收藏”可选择 2—4 所院校紧凑比较，并在卡片下方自动给出三行 AI 对比结论；AI 异常时回退本地规则分析
 - 主流程收敛为“基础信息 → 专业与学校”，不设置测评或答题环节
 - 专业和学校均提供三条本地证据解读，可将具体问题预填给规划顾问
@@ -57,9 +60,17 @@ npm run data:shandong # 山东 2023—2025 官方 XLS
 npm run data:henan    # 河南 2023—2025；改革前年份单独标记，镜像来源显式披露
 npm run data:henan-group-majors -- data/henan-group-majors.json # 导入经官方目录核验的专业组成员
 npm run data:hebei    # 河北 2023—2025 投档 XLSX + 官方一分一档位次
+npm run data:admissions -- data/admission-import.example.json # 生成任意批次标准 JSON 的预检批次
+npm run data:admissions -- data/verified-batch.json --commit # 人工确认后事务提交
+npm run data:admissions:rollback -- <batch-id> # 只回滚指定已提交批次
+npm run data:audit # 生成 .scratch/data-completion/audit-report.json 审计快照
 ```
 
 河南 2023 为已核验重点院校样本，2024 为考试院数据公开镜像，2025 为官方查询链接对应公开镜像；系统不会把改革前文理科与 2025 物理/历史类直接平均。河北 2023 投档表使用标注考试院来源的公开镜像，位次表仍来自考试院。上述限制会在数据状态、候选结果与 PDF 中披露；所有历史投档数据仅作分析，不构成录取承诺。
+
+当前数据库并非“三省全部批次已经补齐”：现有正式记录集中在本科普通主批次，专科、提前批、专项、定向、征集，河南 2023/2024 完整数据和河南 2025 专业组成员仍按审计范围标记为待核验。`npm run data:audit` 是交付覆盖结论的唯一实时快照；只有状态为 `verified` 的具体范围可称为已核验，`pending` 不能按 0 或“已覆盖”处理。
+
+通用招生导入格式见 `data/admission-import.example.json`。原始文件必须先保存在 `data/raw/<province>/<year>/`，导入器登记 SHA-256 和来源清单；院校只按正式名称或 `school_aliases` 中已核验别名匹配。默认命令只预检，必须人工查看逐行结果后添加 `--commit`。特殊资格批次即使提交成功也只供学校详情浏览，不参与冲稳保。
 
 招聘源配置默认必须为 `enabled: false`。只有确认来源条款允许自动读取、无需登录或验证码且页面提供结构化 `JobPosting` 数据后，才可启用。系统不会绕过 412、登录、验证码或访问控制。学校链接输入格式参见 `data/school-links.example.json`；自动发现只把候选与核验报告写入 `.scratch/`，不会修改用户可见数据库。人工复核后将记录写入 `data/school-links.json`，再运行显式导入。优势专业格式参见 `data/featured-majors.example.json`；官方名称无法映射标准专业库时仍可用于学校事实展示，但不会进入专业推荐关系。招聘来源格式参见 `data/employment-sources.example.json`。
 

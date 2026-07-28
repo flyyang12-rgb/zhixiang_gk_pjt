@@ -4,6 +4,7 @@ const schema=z.object({
   schoolName:z.string().trim().min(2).max(128),
   majorName:z.string().trim().min(2).max(128),
   majorCode:z.string().trim().max(16).optional().nullable(),
+  educationLevel:z.enum(['本科','高职']),
   recognitionType:z.string().trim().min(4).max(128),
   recognitionYear:z.number().int().min(1990).max(new Date().getFullYear()).optional().nullable(),
   sourceYear:z.number().int().min(1990).max(new Date().getFullYear()),

@@ -68,7 +68,7 @@ const unitTypeLabel={exact_major:'具体专业',major_group:'院校专业组',sc
 
             <section class="school-detail-section">
               <header><h3>优势专业</h3><span>仅展示已核验数据</span></header>
-              <template v-if="detail.featuredMajors.length"><div class="school-major-tags"><span v-for="major in visibleMajors" :key="major.id"><b>{{major.name}}</b><small>{{major.recognitionType}} · {{major.recognitionYear??`截至 ${major.sourceYear} 官方名录`}}</small><a :href="major.sourceUrl" target="_blank" rel="noreferrer">{{major.publisher}}来源 ↗</a></span></div><button v-if="detail.featuredMajors.length>12" class="school-major-more" @click="showAllMajors=!showAllMajors">{{showAllMajors?'收起':'查看全部 '+detail.featuredMajors.length+' 个'}}</button></template>
+              <template v-if="detail.featuredMajors.length"><div class="school-major-tags"><span v-for="major in visibleMajors" :key="major.id"><b>{{major.name}}</b><small>{{major.educationLevel}} · {{major.recognitionType}} · {{major.recognitionYear??`截至 ${major.sourceYear} 官方名录`}}</small><a :href="major.sourceUrl" target="_blank" rel="noreferrer">{{major.publisher}}来源 ↗</a></span></div><button v-if="detail.featuredMajors.length>12" class="school-major-more" @click="showAllMajors=!showAllMajors">{{showAllMajors?'收起':'查看全部 '+detail.featuredMajors.length+' 个'}}</button></template>
               <template v-else><p class="school-detail-empty recommendation-note">当前暂无官方优势专业认定，以下为推荐关注，不等同于官方优势专业。</p><div class="school-major-tags recommended"><span v-for="major in detail.recommendedMajors" :key="major.name"><b>{{major.name}}</b><small>{{major.evidenceLevel==='admission'?'基于真实招生记录':'办学方向建议 · 须核验是否招生'}}</small><p>{{major.basis}}</p><a v-if="major.sourceUrl" :href="major.sourceUrl" target="_blank" rel="noreferrer">核验来源 ↗</a></span></div></template>
             </section>
 
@@ -78,7 +78,7 @@ const unitTypeLabel={exact_major:'具体专业',major_group:'院校专业组',sc
               <p v-else-if="!detail.admissionContext.records.length" class="school-detail-empty">当前省份与科类暂无可比招生记录。</p>
               <div v-else class="admission-record-list">
                 <article v-for="record in detail.admissionContext.records" :key="record.id">
-                  <div><span>{{record.year}} · {{unitTypeLabel[record.unitType]}}</span><b>{{record.unitName}}</b><small><template v-if="record.subjectRequirement">选科 {{record.subjectRequirement}} · </template>最低位次 {{record.minRank.toLocaleString()}}</small></div>
+                  <div><span>{{record.year}} · {{record.educationLevel}} · {{record.batch}} · {{unitTypeLabel[record.unitType]}}</span><b>{{record.unitName}}</b><small><template v-if="record.subjectRequirement">选科 {{record.subjectRequirement}} · </template><template v-if="record.minRank">最低位次 {{record.minRank.toLocaleString()}}</template><template v-else-if="record.minScore">最低分 {{record.minScore}}</template><template v-else>分数位次待核验</template></small><small v-if="!record.recommendationEligible">仅供浏览 · {{record.recommendationExclusionReason||record.eligibilityRequirement||'不参与自动推荐'}}</small></div>
                   <em v-if="record.risk" :class="record.risk">{{record.risk}} · {{record.confidence}}</em><em v-else>仅供核验</em>
                   <a v-if="record.sourceUrl" :href="record.sourceUrl" target="_blank" rel="noreferrer">来源 ↗</a><span v-else>来源待核验</span>
                 </article>
@@ -86,7 +86,7 @@ const unitTypeLabel={exact_major:'具体专业',major_group:'院校专业组',sc
             </section>
 
             <footer class="school-detail-actions">
-              <nav><a v-if="detail.school.officialUrl" :href="detail.school.officialUrl" target="_blank" rel="noreferrer">学校官网 ↗</a><span v-else>学校官网待核验</span><a v-if="detail.school.admissionsUrl" :href="detail.school.admissionsUrl" target="_blank" rel="noreferrer">本科招生网 ↗</a><span v-else>招生官网待核验</span></nav>
+              <nav><a v-if="detail.school.officialUrl" :href="detail.school.officialUrl" target="_blank" rel="noreferrer">学校官网 ↗</a><span v-else>学校官网待核验</span><a v-if="detail.school.admissionsUrl" :href="detail.school.admissionsUrl" target="_blank" rel="noreferrer">招生官网 ↗</a><span v-else>招生官网待核验</span></nav>
               <div><button v-if="profileId" class="school-save-action" :disabled="saving" @click="toggleSaved">{{saving?'保存中…':detail.isSaved?'★ 已收藏':'☆ 收藏学校'}}</button><button v-if="profileId" class="school-advisor-action" @click="askAdvisor">问顾问 →</button><small v-else>建立档案后可收藏并向顾问追问</small></div>
             </footer>
           </template>

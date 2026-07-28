@@ -101,6 +101,9 @@ npm run data:shandong
 npm run data:henan
 npm run data:henan-group-majors -- data/henan-group-majors.json
 npm run data:hebei
+npm run data:admissions -- data/admission-import.example.json
+npm run data:admissions:rollback -- <batch-id>
+npm run data:audit
 npm test
 npm run test:e2e
 npm run build

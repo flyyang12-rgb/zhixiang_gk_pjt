@@ -1,0 +1,29 @@
+{
+  "source": {
+    "title": "官方招生投档表标题",
+    "officialPageUrl": "https://example.edu.cn/official-page",
+    "downloadUrl": "https://example.edu.cn/source.xlsx",
+    "year": 2025,
+    "publisher": "省教育考试院",
+    "publishedAt": "2025-07-20",
+    "province": "河南",
+    "subjectGroup": "物理类",
+    "educationLevel": "专科",
+    "admissionCategory": "普通类",
+    "batch": "普通高职（专科）批",
+    "planType": "普通计划",
+    "unitType": "major_group",
+    "rawFile": "data/raw/henan/2025/source.xlsx"
+  },
+  "rows": [
+    {
+      "schoolName": "院校在原表中的名称",
+      "matchSchoolName": "经人工核验的教育部正式校名",
+      "unitName": "专业组或专业原始名称",
+      "unitCode": "001",
+      "minScore": 400,
+      "minRank": 200000,
+      "enrollmentCount": 10
+    }
+  ]
+}

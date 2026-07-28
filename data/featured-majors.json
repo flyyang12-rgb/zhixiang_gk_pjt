@@ -1,6 +1,7 @@
 [
   {
     "schoolName": "北京语言大学",
+    "educationLevel": "本科",
     "recognitionType": "国家级一流本科专业建设点",
     "recognitionYear": 2020,
     "sourceYear": 2020,
@@ -11,6 +12,7 @@
   },
   {
     "schoolName": "山东大学",
+    "educationLevel": "本科",
     "recognitionType": "国家级一流本科专业建设点",
     "recognitionYear": 2019,
     "sourceYear": 2019,
@@ -21,6 +23,7 @@
   },
   {
     "schoolName": "山东大学",
+    "educationLevel": "本科",
     "recognitionType": "国家级一流本科专业建设点",
     "recognitionYear": 2020,
     "sourceYear": 2020,
@@ -31,6 +34,7 @@
   },
   {
     "schoolName": "山东大学",
+    "educationLevel": "本科",
     "recognitionType": "国家级一流本科专业建设点",
     "recognitionYear": 2021,
     "sourceYear": 2021,
@@ -41,6 +45,7 @@
   },
   {
     "schoolName": "大连理工大学",
+    "educationLevel": "本科",
     "recognitionType": "国家级一流本科专业建设点",
     "recognitionYear": null,
     "sourceYear": 2025,

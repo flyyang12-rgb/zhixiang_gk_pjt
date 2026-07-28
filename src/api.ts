@@ -35,15 +35,16 @@ export type ProfilePreferences = {
 export type School = { id: number; name: string; province: string; city: string; level: string; schoolType: string; features: Record<string, unknown> }
 export type SchoolDetail = {
   school: School & { officialUrl:string|null;admissionsUrl:string|null;linksVerifiedAt:string|null;linksSourceUrl:string|null }
-  featuredMajors:Array<{id:number;majorId:number|null;name:string;category:string|null;majorCode:string|null;recognitionType:string;recognitionYear:number|null;sourceYear:number;sourceUrl:string;publisher:string;verifiedAt:string}>
+  featuredMajors:Array<{id:number;majorId:number|null;name:string;category:string|null;majorCode:string|null;educationLevel:'本科'|'高职';recognitionType:string;recognitionYear:number|null;sourceYear:number;sourceUrl:string;publisher:string;verifiedAt:string}>
   recommendedMajors:Array<{name:string;basis:string;evidenceLevel:'admission'|'orientation';sourceUrl:string|null}>
-  admissionContext:null|{profileProvince:string;subjectGroup:string;provinceRank:number|null;years:number[];records:Array<{id:number;year:number;unitType:'exact_major'|'major_group'|'school_line';unitName:string;unitCode:string|null;subjectRequirement:string|null;minScore:number|null;minRank:number;risk:'冲'|'稳'|'保'|null;confidence:'低'|'中'|'高';sourceUrl:string|null;publisher:string|null}>}
+  admissionContext:null|{profileProvince:string;subjectGroup:string;provinceRank:number|null;years:number[];records:Array<{id:number;year:number;educationLevel:'本科'|'专科';admissionCategory:string;batch:string;planType:string;eligibilityRequirement:string|null;recommendationEligible:boolean;recommendationExclusionReason:string|null;unitType:'exact_major'|'major_group'|'school_line';unitName:string;unitCode:string|null;subjectRequirement:string|null;minScore:number|null;minRank:number|null;risk:'冲'|'稳'|'保'|null;confidence:'低'|'中'|'高';sourceUrl:string|null;publisher:string|null}>}
   interpretation:Array<{label:string;text:string}>
   isSaved:boolean
 }
 export type ProvinceMapData = { name: string; schoolCount: number; keyUniversityCount: number; vocationalCount: number }
-export type DataCoverage = { province: string; subjectGroup: string; years: number[]; recordCount: number }
-export type DataYearStatus = { province: string; year: number; recordCount: number; subjectGroups: string[]; publisher: string; sourceUrl: string; updatedAt: string }
+export type DataCoverage = { province: string; subjectGroup: string; years: number[]; recordCount: number;totalRecordCount:number }
+export type DataCoverageDetail={province:string;year:number;subjectGroup:string;educationLevel:'本科'|'专科';admissionCategory:string;batch:string;unitType:'exact_major'|'major_group'|'school_line';recordCount:number;recommendationEligibleCount:number;auditedGapCount:number;sourceStatus:'verified'|'pending'}
+export type DataYearStatus = { province: string; year: number; recordCount: number;recommendationEligibleCount:number; subjectGroups: string[];educationLevels:string[];batches:string[]; publisher: string; sourceUrl: string; updatedAt: string }
 export type RecommendationCandidate = { schoolId: number; schoolName: string; province: string; city: string; level: string; officialUrl:string; admissionsUrl:string; linksSourceUrl:string; unitId:number;unitName:string;unitType:'exact_major'|'major_group'|'school_line';subjectRequirement:string|null;sourceUrl:string; referenceRank: number; bestRank: number; programCount: number; dataYears: number[]; confidence: '低'|'中'|'高'; risk: '冲'|'稳'|'保'; ruleScore: number; majors: Array<{name:string;minRank:number;fit:string}>; reasons:string[] }
 export type RecommendationSource = { title: string; sourceUrl: string; sourceYear: number; publisher: string }
 export type RecommendationResult = { generatedAt: string; sourceYear: number|null; dataYears?: number[]; sources?: RecommendationSource[]; candidates: RecommendationCandidate[]; warning: string }
@@ -84,6 +85,11 @@ export async function updateProvinceRank(id: string, provinceRank: number) {
   return request<{ provinceRank: number }>(`/api/profiles/${id}/rank`, { method: 'PATCH', body: JSON.stringify({ provinceRank }) })
 }
 
+export type ScoreSnapshot={id:number;examName:string;examDate:string;score:number|null;provinceRank:number|null;note:string|null;isCurrent:boolean;createdAt?:string}
+export function getScoreSnapshots(profileId:string){return request<ScoreSnapshot[]>(`/api/profiles/${profileId}/score-snapshots`)}
+export function addScoreSnapshot(profileId:string,input:{examName:string;examDate:string;score:number;provinceRank:number|null;note?:string|null}){return request<ScoreSnapshot>(`/api/profiles/${profileId}/score-snapshots`,{method:'POST',body:JSON.stringify(input)})}
+export function deleteScoreSnapshot(profileId:string,snapshotId:number){return request<{id:number;restoredSnapshotId:number|null}>(`/api/profiles/${profileId}/score-snapshots/${snapshotId}`,{method:'DELETE'})}
+
 export async function getPreferences(profileId: string) {
   return request<ProfilePreferences | null>(`/api/profiles/${profileId}/preferences`)
 }
@@ -100,11 +106,12 @@ export async function getProvinceMapData() {
 }
 
 export async function getDataStatus() {
-  return request<{ schoolCount: number; provinceCount: number; coverage: DataCoverage[]; yearStatus: DataYearStatus[] }>('/api/admin/data-status')
+  return request<{ schoolCount: number; provinceCount: number; coverage: DataCoverage[];coverageDetails:DataCoverageDetail[]; yearStatus: DataYearStatus[] }>('/api/admin/data-status')
 }
 
-export type SchoolDataQuality={summary:{totalSchools:number;officialWebsite:{verified:number;missing:number};admissionsWebsite:{verified:number;missing:number};featuredMajors:{verified:number;missing:number};admissionYears:{verified:number;missing:number}};items:Array<{id:number;name:string;province:string;city:string;level:string;linksVerifiedAt:string|null;missing:string[]}>;totalPending:number;page:number;pageSize:number}
-export function getSchoolDataQuality(filters:{page?:number;pageSize?:number;q?:string}={}){const params=new URLSearchParams(Object.entries(filters).filter(([,value])=>value!==undefined&&value!=='').map(([key,value])=>[key,String(value)]));return request<SchoolDataQuality>(`/api/admin/school-data-quality?${params}`)}
+export type AuditStatusCounts={verified:number;unavailable:number;notApplicable:number;pending:number;missing:number}
+export type SchoolDataQuality={summary:{totalSchools:number;officialWebsite:AuditStatusCounts;admissionsWebsite:AuditStatusCounts;featuredMajors:AuditStatusCounts;admissionYears:AuditStatusCounts};items:Array<{id:number;name:string;province:string;city:string;level:string;linksVerifiedAt:string|null;missing:string[];facts:Array<{factType:string;status:'verified'|'unavailable'|'not_applicable'|'pending';reason:string|null;sourceUrl:string|null;checkedAt:string|null}>}>;totalPending:number;page:number;pageSize:number}
+export function getSchoolDataQuality(filters:{page?:number;pageSize?:number;q?:string;province?:string;level?:string;year?:number;factType?:string;status?:string}={}){const params=new URLSearchParams(Object.entries(filters).filter(([,value])=>value!==undefined&&value!=='').map(([key,value])=>[key,String(value)]));return request<SchoolDataQuality>(`/api/admin/school-data-quality?${params}`)}
 
 export async function getSchools(filters: { province?: string; level?: string; q?: string; page?: number } = {}) {
   const params = new URLSearchParams(Object.entries(filters).filter(([, value]) => value !== undefined && value !== '').map(([key, value]) => [key, String(value)]))
@@ -150,8 +157,10 @@ export type ProfessionCard = { id:number;code:string;name:string;category:string
 export type SavedItem = { itemType:'major'|'school';itemId:number;state:'saved'|'excluded'|'target';note?:string|null;itemName?:string|null }
 export type AdmissionUnitCandidate={schoolId:number;schoolName:string;province:string;city:string;level:string;officialUrl:string;admissionsUrl:string;linksSourceUrl:string;unitId:number;unitName:string;unitType:'exact_major'|'major_group'|'school_line';subjectRequirement:string|null;referenceRank:number;risk:'冲'|'稳'|'保';confidence:'低'|'中'|'高';dataYears:number[];sourceUrl:string}
 export type AdmissionEvidence={years:number[];unitType:'exact_major'|'major_group'|'school_line'|null;confidence:'低'|'中'|'高'|'无';recordCount:number;note:string}
-export type ProfessionDashboard = { mode:'exploration'|'application';employment:{healthySources:number;lastSuccessAt:string|null;staleDays:number|null;usable:boolean;windowDays:number};schoolCandidates:AdmissionUnitCandidate[];admissionEvidence:AdmissionEvidence;cards:ProfessionCard[];savedItems:SavedItem[] }
+export type ProfileSummary={studentName:string;planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number;provinceRank:number|null}
+export type ProfessionDashboard = { mode:'exploration'|'application';profileSummary:ProfileSummary;scoreSnapshots:ScoreSnapshot[];employment:{healthySources:number;lastSuccessAt:string|null;staleDays:number|null;usable:boolean;windowDays:number};schoolCandidates:AdmissionUnitCandidate[];admissionEvidence:AdmissionEvidence;cards:ProfessionCard[];savedItems:SavedItem[] }
 export function getProfessionDashboard(profileId:string){return request<ProfessionDashboard>(`/api/profiles/${profileId}/profession-dashboard`)}
 export function saveDashboardItem(profileId:string,item:SavedItem){return request<SavedItem>(`/api/profiles/${profileId}/saved-items`,{method:'PUT',body:JSON.stringify(item)})}
 export function removeDashboardItem(profileId:string,itemType:'major'|'school',itemId:number){return request<{itemType:string;itemId:number}>(`/api/profiles/${profileId}/saved-items/${itemType}/${itemId}`,{method:'DELETE'})}
+export function updateDashboardItemNote(profileId:string,itemType:'major'|'school',itemId:number,note:string|null){return request<{itemType:string;itemId:number;note:string|null}>(`/api/profiles/${profileId}/saved-items/${itemType}/${itemId}/note`,{method:'PATCH',body:JSON.stringify({note})})}
 export function syncEmploymentIfStale(){return request<{triggered:false;reason:'manual-only'}>('/api/employment/sync-if-stale',{method:'POST'})}
