@@ -1,0 +1,74 @@
+[
+  {
+    "majorCode": "080901",
+    "signalType": "digital_talent",
+    "signalLevel": "strong",
+    "rationale": "九部门数字人才行动明确增加数字人才有效供给，计算机专业与数字技术工程师培养直接相关。",
+    "sourceTitle": "加快数字人才培育支撑数字经济发展行动方案（2024—2026年）",
+    "sourceUrl": "https://chrm.mohrss.gov.cn/%E4%BA%BA%E5%8A%9B%E8%B5%84%E6%BA%90%E7%A4%BE%E4%BC%9A%E4%BF%9D%E9%9A%9C%E9%83%A8%E7%AD%89%E4%B9%9D%E9%83%A8%E9%97%A8%E5%8D%B0%E5%8F%91%E5%AE%9E%E6%96%BD%E5%8A%A0%E5%BF%AB%E6%95%B0%E5%AD%97%E4%BA%BA/",
+    "sourceYear": 2024,
+    "publisher": "人力资源社会保障部等九部门",
+    "reviewedAt": "2026-08-04",
+    "validUntil": "2026-12-31"
+  },
+  {
+    "majorCode": "070101",
+    "signalType": "digital_talent",
+    "signalLevel": "moderate",
+    "rationale": "数字人才行动对数据分析和数字技能形成间接需求信号，但并非针对数学专业的专项扩招或就业承诺。",
+    "sourceTitle": "加快数字人才培育支撑数字经济发展行动方案（2024—2026年）",
+    "sourceUrl": "https://chrm.mohrss.gov.cn/%E4%BA%BA%E5%8A%9B%E8%B5%84%E6%BA%90%E7%A4%BE%E4%BC%9A%E4%BF%9D%E9%9A%9C%E9%83%A8%E7%AD%89%E4%B9%9D%E9%83%A8%E9%97%A8%E5%8D%B0%E5%8F%91%E5%AE%9E%E6%96%BD%E5%8A%A0%E5%BF%AB%E6%95%B0%E5%AD%97%E4%BA%BA/",
+    "sourceYear": 2024,
+    "publisher": "人力资源社会保障部等九部门",
+    "reviewedAt": "2026-08-04",
+    "validUntil": "2026-12-31"
+  },
+  {
+    "majorCode": "080601",
+    "signalType": "industrial_transformation",
+    "signalLevel": "strong",
+    "rationale": "制造业数字化、高端化、智能化和绿色化转型直接涉及生产设备、工业互联网和自动化场景。",
+    "sourceTitle": "对十四届全国人大三次会议第1671号建议的答复",
+    "sourceUrl": "https://www.miit.gov.cn/zwgk/jytafwgk/art/2025/art_3d5e6b555c664c638c36bfd07bb465d2.html",
+    "sourceYear": 2025,
+    "publisher": "工业和信息化部",
+    "reviewedAt": "2026-08-04",
+    "validUntil": "2028-12-31"
+  },
+  {
+    "majorCode": "080202",
+    "signalType": "industrial_transformation",
+    "signalLevel": "strong",
+    "rationale": "制造业设备更新、工艺升级和数字化生产为机械设计制造提供明确的中期产业信号。",
+    "sourceTitle": "对十四届全国人大三次会议第1671号建议的答复",
+    "sourceUrl": "https://www.miit.gov.cn/zwgk/jytafwgk/art/2025/art_3d5e6b555c664c638c36bfd07bb465d2.html",
+    "sourceYear": 2025,
+    "publisher": "工业和信息化部",
+    "reviewedAt": "2026-08-04",
+    "validUntil": "2028-12-31"
+  },
+  {
+    "majorCode": "101101",
+    "signalType": "demographic_demand",
+    "signalLevel": "strong",
+    "rationale": "银发经济政策明确提出加强老年医学、护理、健康服务和养老服务相关人才培养。",
+    "sourceTitle": "国务院办公厅关于发展银发经济增进老年人福祉的意见",
+    "sourceUrl": "https://www.gov.cn/zhengce/content/202401/content_6926088.htm",
+    "sourceYear": 2024,
+    "publisher": "国务院办公厅",
+    "reviewedAt": "2026-08-04",
+    "validUntil": "2028-12-31"
+  },
+  {
+    "majorCode": "100201K",
+    "signalType": "public_service_demand",
+    "signalLevel": "strong",
+    "rationale": "医疗卫生强基工程提出到2030年持续加强基层医疗卫生人才队伍建设，形成中长期公共服务需求信号。",
+    "sourceTitle": "医疗卫生强基工程实施方案",
+    "sourceUrl": "https://www.nhc.gov.cn/wjw/xwdt/202509/e3a802cef89f470ead8b9557c2ac65ce.shtml",
+    "sourceYear": 2025,
+    "publisher": "国家卫生健康委员会等部门",
+    "reviewedAt": "2026-08-04",
+    "validUntil": "2030-12-31"
+  }
+]

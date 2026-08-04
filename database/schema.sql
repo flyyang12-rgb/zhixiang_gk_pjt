@@ -405,6 +405,21 @@ CREATE TABLE IF NOT EXISTS major_employment_profiles (
   CONSTRAINT fk_mep_major FOREIGN KEY (major_id) REFERENCES majors(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS major_outlook_evidence (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  major_id BIGINT UNSIGNED NOT NULL,
+  source_id BIGINT UNSIGNED NOT NULL,
+  signal_type ENUM('digital_talent', 'industrial_transformation', 'public_service_demand', 'demographic_demand') NOT NULL,
+  signal_level ENUM('moderate', 'strong') NOT NULL,
+  rationale VARCHAR(1000) NOT NULL,
+  reviewed_at DATE NOT NULL,
+  valid_until DATE NOT NULL,
+  UNIQUE KEY uk_major_outlook_source_signal (major_id, source_id, signal_type),
+  KEY idx_major_outlook_validity (major_id, valid_until),
+  CONSTRAINT fk_outlook_major FOREIGN KEY (major_id) REFERENCES majors(id) ON DELETE CASCADE,
+  CONSTRAINT fk_outlook_source FOREIGN KEY (source_id) REFERENCES data_sources(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS job_sources (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(128) NOT NULL UNIQUE,

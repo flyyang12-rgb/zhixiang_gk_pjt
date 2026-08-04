@@ -12,6 +12,7 @@
     "data:school-links": "tsx scripts/import-school-links.ts",
     "data:school-links:auto": "tsx scripts/collect-school-links.ts",
     "data:featured-majors": "tsx scripts/import-featured-majors.ts data/featured-majors.json",
+    "data:major-outlook": "tsx scripts/import-major-outlook-evidence.ts data/major-outlook-evidence.json",
     "data:employment-sources": "tsx scripts/import-employment-sources.ts",
     "data:shandong": "tsx scripts/import-shandong-admissions.ts",
     "data:henan": "tsx scripts/import-henan-admissions.ts",

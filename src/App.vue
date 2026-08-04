@@ -35,14 +35,16 @@ const form = reactive<ProfileInput>({
   province: '河南',
   subjectGroup: '',
   selectedSubjects: [],
-  score: 0,
+  score: null,
   provinceRank: null,
   planningMode: 'application',
 })
 
 const currentStep = computed(() => currentView.value === 'profile' ? 1 : currentView.value === 'map' ? 0 : 2)
 const progress = computed(() => currentStep.value ? Math.round(currentStep.value / 2 * 100) : 0)
-const scoreDisplay = computed(() => profile.value?.score || form.score || '—')
+const visibleScore = computed(() => profile.value?.score ?? (form.planningMode === 'application' ? form.score : null))
+const scoreDisplay = computed(() => visibleScore.value ?? '—')
+const scoreDisplayLabel = computed(() => visibleScore.value == null ? '未记录成绩' : '分数坐标')
 const currentSubjectGroup = computed(() => profile.value?.subjectGroup || form.subjectGroup)
 const currentCoverage = computed(() => dataCoverage.value.find(item => item.province === (profile.value?.province || form.province) && item.subjectGroup === currentSubjectGroup.value))
 const currentProvinceYearStatus = computed(() => dataYearStatus.value.filter(item => item.province === (profile.value?.province || form.province)))
@@ -75,8 +77,12 @@ async function refreshDataStatus(){
 async function submitProfile() {
   errorMessage.value = ''
   const expectedSubjectCount = form.province === '山东' ? 3 : 2
-  if (!form.studentName.trim() || !form.subjectGroup || !form.score || form.selectedSubjects.length !== expectedSubjectCount) {
-    errorMessage.value = `请完成学生称呼、科类、分数和${expectedSubjectCount}门选考科目。`
+  if (!form.studentName.trim() || !form.subjectGroup || form.selectedSubjects.length !== expectedSubjectCount) {
+    errorMessage.value = `请完成学生称呼、科类和${expectedSubjectCount}门选考科目。`
+    return
+  }
+  if (form.planningMode === 'application' && !form.score) {
+    errorMessage.value = '志愿填报模式请填写高考或模考分数。'
     return
   }
 
@@ -86,7 +92,8 @@ async function submitProfile() {
       ...form,
       selectedSubjects: form.province === '山东' ? form.selectedSubjects : [form.subjectGroup === '物理类' ? '物理' : '历史', ...form.selectedSubjects],
       studentName: form.studentName.trim(),
-      provinceRank: form.provinceRank || null,
+      score: form.planningMode === 'exploration' ? null : form.score,
+      provinceRank: form.planningMode === 'exploration' ? null : form.provinceRank || null,
     })
     localStorage.setItem('zhixiang.currentProfileId', result.id)
     profile.value = await getProfile(result.id)
@@ -109,7 +116,7 @@ function toggleSubject(subject: typeof selectableSubjects.value[number]) {
 function createAnotherProfile() {
   localStorage.removeItem('zhixiang.currentProfileId')
   profile.value = null
-  Object.assign(form, { studentName: '', province: '河南', subjectGroup: '', selectedSubjects: [], score: 0, provinceRank: null, planningMode: 'application' })
+  Object.assign(form, { studentName: '', province: '河南', subjectGroup: '', selectedSubjects: [], score: null, provinceRank: null, planningMode: 'application' })
   currentView.value = 'profile'
 }
 
@@ -131,7 +138,8 @@ async function switchProfile(selected: StudentProfile) {
 }
 
 async function deleteHistoryProfile(selected: StudentProfile) {
-  const confirmed = window.confirm(`确定永久删除“${selected.studentName}（${selected.score} 分）”吗？\n\n关联的候选清单、收藏和顾问聊天也会一起删除，且无法恢复。`)
+  const scoreDescription = selected.score == null ? '未记录分数' : `${selected.score} 分`
+  const confirmed = window.confirm(`确定永久删除“${selected.studentName}（${scoreDescription}）”吗？\n\n关联的候选清单、收藏和顾问聊天也会一起删除，且无法恢复。`)
   if (!confirmed) return
   await deleteProfile(selected.id)
   profileHistory.value = profileHistory.value.filter(item => item.id !== selected.id)
@@ -140,7 +148,7 @@ async function deleteHistoryProfile(selected: StudentProfile) {
     localStorage.removeItem('zhixiang.currentView')
     localStorage.removeItem('zhixiang.currentPerspective')
     profile.value = null
-    Object.assign(form, { studentName: '', province: '河南', subjectGroup: '', selectedSubjects: [], score: 0, provinceRank: null, planningMode: 'application' })
+    Object.assign(form, { studentName: '', province: '河南', subjectGroup: '', selectedSubjects: [], score: null, provinceRank: null, planningMode: 'application' })
     currentView.value = 'profile'
   }
   if (!profileHistory.value.length) showHistory.value = false
@@ -194,9 +202,9 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
               <div v-for="item in profileHistory" :key="item.id" :class="['history-item', { current: item.id === profile?.id }]">
                 <button class="history-select" @click="switchProfile(item)">
                   <span><b>{{ item.studentName }}</b><small>{{ item.province }} · {{ item.subjectGroup }} · {{ new Date(item.updatedAt).toLocaleString('zh-CN') }}</small></span>
-                  <strong>{{ item.score }}<small>分</small></strong>
+                  <strong>{{ item.score ?? '—' }}<small>{{ item.score == null ? '未记录' : '分' }}</small></strong>
                 </button>
-                <button class="history-delete" :aria-label="`删除 ${item.studentName} ${item.score} 分档案`" title="永久删除" @click="deleteHistoryProfile(item)">删除</button>
+                <button class="history-delete" :aria-label="`删除 ${item.studentName} ${item.score == null ? '未记录分数' : `${item.score} 分`}档案`" title="永久删除" @click="deleteHistoryProfile(item)">删除</button>
               </div>
             </div>
           </div>
@@ -218,9 +226,9 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
                 <div v-for="item in profileHistory" :key="item.id" :class="['history-item', { current: item.id === profile?.id }]">
                   <button class="history-select" @click="switchProfile(item)">
                     <span><b>{{ item.studentName }}</b><small>{{ item.province }} · {{ item.subjectGroup }} · {{ new Date(item.updatedAt).toLocaleString('zh-CN') }}</small></span>
-                    <strong>{{ item.score }}<small>分</small></strong>
+                    <strong>{{ item.score ?? '—' }}<small>{{ item.score == null ? '未记录' : '分' }}</small></strong>
                   </button>
-                  <button class="history-delete" :aria-label="`删除 ${item.studentName} ${item.score} 分档案`" title="永久删除" @click="deleteHistoryProfile(item)">删除</button>
+                  <button class="history-delete" :aria-label="`删除 ${item.studentName} ${item.score == null ? '未记录分数' : `${item.score} 分`}档案`" title="永久删除" @click="deleteHistoryProfile(item)">删除</button>
                 </div>
               </div>
             </div>
@@ -230,7 +238,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
           <small>整体进度 {{ progress }}%</small>
 
           <ol class="steps">
-            <li :class="{ active: currentStep === 1, done: currentStep > 1 }"><b>1</b><span>基础信息<small>建立分数坐标</small></span></li>
+            <li :class="{ active: currentStep === 1, done: currentStep > 1 }"><b>1</b><span>基础信息<small>建立学生档案</small></span></li>
             <li :class="{ active: currentStep === 2 }"><b>2</b><span>专业与学校<small>直接比较并查看解读</small></span></li>
           </ol>
         </aside>
@@ -244,9 +252,9 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
 
             <form v-else-if="currentView === 'profile'" key="profile" class="content-panel" @submit.prevent="submitProfile">
               <div class="content-head">
-                <span class="kicker">STEP 01 · 分数坐标</span>
+                <span class="kicker">STEP 01 · 基础信息</span>
                 <h2>先建立一份学生档案</h2>
-                <p>这些信息只保存在你的本地数据库，用于计算后续的院校候选。</p>
+                <p>这些信息只保存在你的本地数据库，用于筛选专业方向；有可靠位次后再计算学校候选。</p>
               </div>
 
               <div class="form-grid">
@@ -279,11 +287,15 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
                     <template v-else><option>物理类</option><option>历史类</option></template>
                   </select>
                 </label>
-                <label class="field">
+                <section v-if="form.planningMode === 'exploration'" class="exploration-note" role="note" aria-label="目标探索说明">
+                  <span>无需分数和位次</span>
+                  <p>先根据省份、科类和选科了解专业与可核验学校。以后记录联考或统考位次，学校冲稳保会自动出现。</p>
+                </section>
+                <label v-if="form.planningMode === 'application'" class="field">
                   <span>高考 / 模考分数</span>
                   <div class="suffix-input"><input v-model.number="form.score" type="number" min="100" max="750" placeholder="612" /><i>分</i></div>
                 </label>
-                <label class="field">
+                <label v-if="form.planningMode === 'application'" class="field">
                   <span>全省位次 <em>选填</em></span>
                   <div class="suffix-input"><input v-model.number="form.provinceRank" type="number" min="1" placeholder="18500" /><i>名</i></div>
                   <small>未填写时不猜学校；以后记录联考或统考全省位次会自动开启学校推荐</small>
@@ -331,7 +343,6 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
               :student-name="profile.studentName"
               :province="profile.province"
               :subject-group="profile.subjectGroup"
-              :score="profile.score"
               :province-rank="profile.provinceRank"
               :initial-prompt="advisorInitialPrompt"
               :initial-focus="advisorInitialFocus"
@@ -344,10 +355,10 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
         </section>
 
         <aside v-if="currentView !== 'map' && currentView !== 'advisor'" class="insight-panel">
-          <div class="score-orbit"><span>{{ scoreDisplay }}</span><small>分数坐标</small></div>
+          <div class="score-orbit"><span>{{ scoreDisplay }}</span><small>{{ scoreDisplayLabel }}</small></div>
           <div class="insight-card">
-            <span>为什么先填位次？</span>
-            <p>不同年份的试卷难度不同。位次比裸分更适合比较历年录取情况。</p>
+            <span>{{ visibleScore == null ? '暂时没有成绩也能开始' : '为什么先填位次？' }}</span>
+            <p>{{ visibleScore == null ? '目标探索先看专业与就业证据，不猜分数，也不生成冲稳保。' : '不同年份的试卷难度不同。位次比裸分更适合比较历年录取情况。' }}</p>
           </div>
           <div class="data-source"><i></i><span>数据模式<strong>本地 MySQL</strong></span></div>
           <div class="data-coverage">

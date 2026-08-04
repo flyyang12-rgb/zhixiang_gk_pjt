@@ -33,7 +33,10 @@ export async function buildProfessionDashboard(profileId: string) {
     const planningRank=planningCoordinate.rank
     const effectiveMode=planningRank?'application':'exploration'
     const selectedSubjects = parseJson<string[]>(profile.selectedSubjects ?? '[]')
-    const [majorRows] = await database.query<RowDataPacket[]>(`SELECT id,code,name,category FROM majors WHERE code IN ('080901','080601','080202','120203K','101101','100201K','030101K','050101','070101') ORDER BY code`)
+    const [majorRows] = await database.query<RowDataPacket[]>(`SELECT DISTINCT m.id,m.code,m.name,m.category FROM majors m
+      WHERE EXISTS (SELECT 1 FROM major_job_directions mjd WHERE mjd.major_id=m.id AND mjd.review_status='approved')
+         OR EXISTS (SELECT 1 FROM major_outlook_evidence moe WHERE moe.major_id=m.id AND moe.valid_until>=CURDATE())
+      ORDER BY m.code`)
     const employmentHealth = await loadEmploymentHealth()
     const admission = planningRank
       ? await loadAdmissionCandidates({province:String(profile.province),subjectGroup:String(profile.subjectGroup),selectedSubjects,rank:planningRank})
@@ -44,11 +47,12 @@ export async function buildProfessionDashboard(profileId: string) {
     for (const major of majorRows) {
       const jobs = await loadJobDirections(Number(major.id))
       const employment = await loadEmploymentStats(Number(major.id))
+      const outlook = await loadOutlookEvidence(Number(major.id))
       const schools = planningRank
         ? await loadApplicationSchools({ majorName: String(major.name), province: String(profile.province), subjectGroup: String(profile.subjectGroup), rank: planningRank })
         : await loadExplorationSchools(String(major.name))
-      const directEntryRatio = jobs.length ? jobs.filter(job => job.directEntry).length / jobs.length : 0
-      inputs.push({ id: Number(major.id), code: String(major.code), name: String(major.name), category: String(major.category), requiredSubjects: subjectRequirements[String(major.code)] ?? [], selectedSubjects, jobCount: employment.jobCount, provinceCount: employment.provinceCount, sourceCount: employment.sourceCount, directEntryRatio, eligibleSchoolCount: schools.length, dailyJobCounts: employment.dailyCounts, employmentUsable: employmentHealth.usable && employment.sourceCount >= 2, mode: effectiveMode })
+      const directEntryRatio = jobs.length ? jobs.filter(job => job.directEntry).length / jobs.length : null
+      inputs.push({ id: Number(major.id), code: String(major.code), name: String(major.name), category: String(major.category), requiredSubjects: subjectRequirements[String(major.code)] ?? [], selectedSubjects, jobCount: employment.jobCount, provinceCount: employment.provinceCount, sourceCount: employment.sourceCount, directEntryRatio, eligibleSchoolCount: schools.length, dailyJobCounts: employment.dailyCounts, employmentUsable: employmentHealth.usable && employment.sourceCount >= 2, outlookScore:outlook?.score??null, outlookEvidence:outlook?.rationale??null, outlookReference:outlook?.reference, mode: effectiveMode })
       details.set(Number(major.id), { jobs, schools, schoolMatchStatus:schools.length?'verified':admission.evidence.unitType==='major_group'?'group_only':'unavailable' })
     }
 
@@ -64,10 +68,17 @@ export async function buildProfessionDashboard(profileId: string) {
     const [snapshotRows]=await database.query<RowDataPacket[]>(`SELECT id,exam_name examName,DATE_FORMAT(exam_date,'%Y-%m-%d') examDate,score,province_rank provinceRank,note,is_current isCurrent FROM profile_score_snapshots WHERE profile_id=? ORDER BY exam_date,id`,[profileId])
     return {
       mode: effectiveMode as 'exploration'|'application',
-      profileSummary:{studentName:String(profile.studentName),planningMode:profile.planningMode,province:String(profile.province),subjectGroup:String(profile.subjectGroup),score:Number(profile.score),provinceRank:profile.provinceRank==null?null:Number(profile.provinceRank)},
+      profileSummary:{studentName:String(profile.studentName),planningMode:profile.planningMode,province:String(profile.province),subjectGroup:String(profile.subjectGroup),score:profile.score==null?null:Number(profile.score),provinceRank:profile.provinceRank==null?null:Number(profile.provinceRank)},
       planningCoordinate,
       scoreSnapshots:snapshotRows.map(row=>({...row,id:Number(row.id),score:row.score==null?null:Number(row.score),provinceRank:row.provinceRank==null?null:Number(row.provinceRank),isCurrent:Boolean(row.isCurrent)})),
-      employment: employmentHealth, schoolCandidates:admission.candidates, admissionEvidence:admission.evidence, cards, savedItems: savedRows,
+      employment: employmentHealth,
+      majorPool:{reviewedMajorCount:majorRows.length,displayedCount:cards.length,outlookEvidenceCount:inputs.filter(item=>item.outlookScore!=null).length},
+      dataGaps:[
+        ...(!employmentHealth.usable?['近期招聘数据不可用或已超过 7 天，招聘覆盖与稳定性暂不参与排序']:[]),
+        ...(inputs.some(item=>item.outlookScore==null)?['部分专业尚无有效期内的官方未来发展证据，保持未知']:[]),
+        ...(effectiveMode==='application'&&cards.some(card=>card.factors.schoolAccess.value==null)?['部分专业缺少可核验的专业—院校交叉记录，院校因子保持未知']:[]),
+      ],
+      schoolCandidates:admission.candidates, admissionEvidence:admission.evidence, cards, savedItems: savedRows,
     }
 }
 
@@ -113,11 +124,23 @@ professionDashboardRouter.delete('/profiles/:id/saved-items/:itemType/:itemId', 
 })
 
 async function loadEmploymentHealth() {
-  const [rows] = await database.query<RowDataPacket[]>(`SELECT SUM(status='healthy') healthySources,MAX(last_success_at) lastSuccessAt,DATEDIFF(NOW(),MAX(last_success_at)) staleDays FROM job_sources`)
+  const [rows] = await database.query<RowDataPacket[]>(`SELECT SUM(status='healthy' AND last_success_at>=DATE_SUB(NOW(),INTERVAL 7 DAY)) healthySources,MAX(last_success_at) lastSuccessAt,DATEDIFF(NOW(),MAX(last_success_at)) staleDays FROM job_sources`)
   const row = rows[0]
   const healthySources = Number(row.healthySources ?? 0)
   const staleDays = row.staleDays == null ? null : Number(row.staleDays)
   return { healthySources, lastSuccessAt: row.lastSuccessAt ?? null, staleDays, usable: healthySources >= 2 && staleDays != null && staleDays <= 7, windowDays: 30 }
+}
+
+async function loadOutlookEvidence(majorId:number){
+  const [rows]=await database.query<RowDataPacket[]>(`SELECT CASE moe.signal_level WHEN 'strong' THEN 85 ELSE 70 END score,
+    moe.rationale,ds.title,ds.publisher,ds.source_url sourceUrl,ds.source_year sourceYear,
+    DATE_FORMAT(moe.reviewed_at,'%Y-%m-%d') reviewedAt,DATE_FORMAT(moe.valid_until,'%Y-%m-%d') validUntil
+    FROM major_outlook_evidence moe JOIN data_sources ds ON ds.id=moe.source_id
+    WHERE moe.major_id=? AND moe.valid_until>=CURDATE()
+    ORDER BY FIELD(moe.signal_level,'strong','moderate'),moe.reviewed_at DESC LIMIT 1`,[majorId])
+  const row=rows[0]
+  if(!row)return null
+  return {score:Number(row.score),rationale:String(row.rationale),reference:{title:String(row.title),publisher:String(row.publisher),sourceUrl:String(row.sourceUrl),sourceYear:Number(row.sourceYear),reviewedAt:String(row.reviewedAt),validUntil:String(row.validUntil)}}
 }
 
 async function loadJobDirections(majorId: number) {

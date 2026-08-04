@@ -6,7 +6,7 @@ import { database } from '../server/database.js'
 
 async function rows(sql:string,values:unknown[]=[]){return (await database.query<RowDataPacket[]>(sql,values))[0]}
 async function run(){
-  const [admissionCoverage,scopeAudits,schoolFacts,importBatches,employmentSources,directionCoverage,groupMembers]=await Promise.all([
+  const [admissionCoverage,scopeAudits,schoolFacts,importBatches,employmentSources,directionCoverage,groupMembers,outlookCoverage]=await Promise.all([
     rows(`SELECT p.name province,ap.year,ap.education_level educationLevel,ap.batch,ap.subject_group subjectGroup,ap.unit_type unitType,
       COUNT(*) recordCount,SUM(ap.recommendation_eligible=1) recommendationEligibleCount,COUNT(DISTINCT ap.school_id) schoolCount
       FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id
@@ -28,12 +28,17 @@ async function run(){
       GROUP BY m.id) coverage`),
     rows(`SELECT COUNT(*) verifiedGroupMemberCount,COUNT(DISTINCT admission_program_id) coveredGroupCount
       FROM admission_unit_majors WHERE verification_status='verified'`),
+    rows(`SELECT COUNT(DISTINCT CASE WHEN moe.valid_until>=CURDATE() THEN moe.major_id END) majorsWithActiveEvidence,
+      COUNT(DISTINCT CASE WHEN moe.valid_until<CURDATE() THEN moe.major_id END) majorsWithExpiredEvidence,
+      COUNT(DISTINCT CASE WHEN mjd.review_status='approved' THEN mjd.major_id END) reviewedMajorPoolCount
+      FROM majors m LEFT JOIN major_job_directions mjd ON mjd.major_id=m.id
+      LEFT JOIN major_outlook_evidence moe ON moe.major_id=m.id`),
   ])
   const pendingScopes=scopeAudits.filter(row=>String(row.status)==='pending').length
   const report={
     generatedAt:new Date().toISOString(),definition:'每项以 verified / unavailable / not_applicable / pending 闭环；pending 不等同于数据已补全。',
     admissions:{coverage:admissionCoverage,scopeAudits,pendingScopeCount:pendingScopes,groupMembers:groupMembers[0]??{}},
-    schools:{factStatus:schoolFacts},employment:{sources:employmentSources,directionCoverage:directionCoverage[0]??{}},imports:{recentBatches:importBatches},
+    schools:{factStatus:schoolFacts},employment:{sources:employmentSources,directionCoverage:directionCoverage[0]??{}},professionOutlook:outlookCoverage[0]??{},imports:{recentBatches:importBatches},
   }
   const output=resolve('.scratch/data-completion/audit-report.json')
   await mkdir(resolve('.scratch/data-completion'),{recursive:true})

@@ -28,7 +28,7 @@ employmentRouter.put('/admin/employment/sources', async (request, response, next
 employmentRouter.get('/employment/status', async (_request, response, next) => {
   try {
     const [rows] = await database.query<RowDataPacket[]>(
-      `SELECT COUNT(*) sourceCount,SUM(status='healthy') healthySourceCount,MAX(last_success_at) lastSuccessAt,
+      `SELECT COUNT(*) sourceCount,SUM(status='healthy' AND last_success_at>=DATE_SUB(NOW(),INTERVAL 7 DAY)) healthySourceCount,MAX(last_success_at) lastSuccessAt,
        DATEDIFF(NOW(),MAX(last_success_at)) staleDays FROM job_sources`,
     )
     const status = rows[0]

@@ -57,6 +57,9 @@
 .major-section-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:17px;align-items:start;margin:0 0 23px}
 .major-section-head h3{font-family:'Noto Serif SC',serif;font-size:25px;margin:8px 0 5px;letter-spacing:-.035em}
 .major-section-head p{margin:0;color:#758178;font-size:11px}
+.dashboard-data-gaps{margin:-8px 0 24px;padding:14px 17px;border:1px solid #e4d6b7;border-radius:12px;background:#fffaf0;color:#65583f;font-size:11px}
+.dashboard-data-gaps strong{display:block;margin-bottom:5px;color:#594727}
+.dashboard-data-gaps ul{margin:0;padding-left:18px;line-height:1.75}
 .profession-bands{display:block}
 .profession-band{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:30px}
 .profession-band>header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:end;padding:0 3px 3px}
@@ -82,10 +85,11 @@
 .card-summary i{display:flex;align-items:center;gap:6px;color:#4b6b58;font-style:normal;font-size:9px;font-weight:700;white-space:nowrap}
 .card-summary i b{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#f0f3ef;font-size:13px}
 .card-detail{padding:24px 26px 26px;background:#fcfdfb}
-.factor-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.factor-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .factor-grid>div{min-height:116px;padding:14px;border:1px solid #e5eae4;border-radius:12px;background:#f4f6f2}
 .factor-grid span,.factor-grid small{display:block;color:#748178;font-size:9px;line-height:1.55}
 .factor-grid b{display:block;margin:8px 0 5px;color:#203b2c;font-family:'Noto Serif SC',serif;font-size:24px}
+.factor-grid a{display:inline-block;margin-top:7px;color:#315e47;font-size:9px;text-decoration:underline;text-underline-offset:2px}
 .job-directions h4,.school-evidence h4{margin:22px 0 10px;font-size:12px}
 .job-directions>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .job-directions article{display:grid;padding:13px 14px;border:1px solid #e2e8e1;border-left:3px solid #5f8a70;border-radius:10px;background:#fff}

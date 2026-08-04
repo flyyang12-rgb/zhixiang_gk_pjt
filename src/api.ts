@@ -4,7 +4,7 @@ export type StudentProfile = {
   province: string
   subjectGroup: string
   selectedSubjects: Array<'物理'|'历史'|'化学'|'生物'|'政治'|'地理'>
-  score: number
+  score: number | null
   provinceRank: number | null
   planningMode: 'exploration' | 'application'
   currentStage: 'recommendation'
@@ -151,15 +151,16 @@ export type SchoolComparisonAnalysis={content:string;mode:'ai'|'local'}
 export async function getSchoolComparisonAnalysis(profileId:string,schoolIds:number[]){return request<SchoolComparisonAnalysis>(`/api/profiles/${profileId}/advisor/comparison`,{method:'POST',body:JSON.stringify({schoolIds})})}
 export function downloadReport(profileId:string){ window.location.href=`/api/profiles/${profileId}/report.pdf` }
 
-export type ProfessionFactor = { value:number|null;weight:number;evidence:string }
+export type EvidenceReference = { title:string;publisher:string;sourceUrl:string;sourceYear:number;reviewedAt:string;validUntil:string }
+export type ProfessionFactor = { value:number|null;weight:number;evidence:string;reference?:EvidenceReference }
 export type ProfessionJob = { id:number;name:string;employmentCategory:string;requiresPostgraduate:boolean;requiresCertificate:boolean;directEntry:boolean }
 export type ProfessionSchool = { id:number;name:string;level:string;city:string;officialUrl:string|null;admissionsUrl:string|null;linksVerifiedAt:string|null;linksSourceUrl:string|null;risk?:'冲'|'稳'|'保';medianRank?:number;variability?:number;confidence?:'高'|'低';programName?:string;years?:number[];disciplineRating?:string|null;isFeatured?:boolean;evidenceYears?:number;latestYear?:number }
-export type ProfessionCard = { id:number;code:string;name:string;category:string;band:'优先了解'|'值得比较'|'谨慎报考';totalScore:number;evidenceCoverage:number;confidence:'低'|'中'|'高';schoolMatchStatus:'verified'|'group_only'|'unavailable';jobCount:number;provinceCount:number;sourceCount:number;factors:{coverage:ProfessionFactor;directEntry:ProfessionFactor;schoolAccess:ProfessionFactor;stability:ProfessionFactor};jobs:ProfessionJob[];schools:ProfessionSchool[] }
+export type ProfessionCard = { id:number;code:string;name:string;category:string;band:'优先了解'|'值得比较'|'谨慎报考';totalScore:number|null;evidenceCoverage:number;confidence:'低'|'中'|'高';schoolMatchStatus:'verified'|'group_only'|'unavailable';jobCount:number;provinceCount:number;sourceCount:number;factors:{coverage:ProfessionFactor;directEntry:ProfessionFactor;schoolAccess:ProfessionFactor;stability:ProfessionFactor;outlook:ProfessionFactor};jobs:ProfessionJob[];schools:ProfessionSchool[] }
 export type SavedItem = { itemType:'major'|'school';itemId:number;state:'saved'|'excluded'|'target';note?:string|null;itemName?:string|null }
 export type AdmissionUnitCandidate={schoolId:number;schoolName:string;province:string;city:string;level:string;officialUrl:string;admissionsUrl:string;linksSourceUrl:string;unitId:number;unitName:string;unitType:'exact_major'|'major_group'|'school_line';subjectRequirement:string|null;referenceRank:number;risk:'冲'|'稳'|'保';confidence:'低'|'中'|'高';dataYears:number[];sourceUrl:string}
 export type AdmissionEvidence={years:number[];unitType:'exact_major'|'major_group'|'school_line'|null;confidence:'低'|'中'|'高'|'无';recordCount:number;note:string}
-export type ProfileSummary={studentName:string;planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number;provinceRank:number|null}
-export type ProfessionDashboard = { mode:'exploration'|'application';profileSummary:ProfileSummary;planningCoordinate:PlanningCoordinate;scoreSnapshots:ScoreSnapshot[];employment:{healthySources:number;lastSuccessAt:string|null;staleDays:number|null;usable:boolean;windowDays:number};schoolCandidates:AdmissionUnitCandidate[];admissionEvidence:AdmissionEvidence;cards:ProfessionCard[];savedItems:SavedItem[] }
+export type ProfileSummary={studentName:string;planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number|null;provinceRank:number|null}
+export type ProfessionDashboard = { mode:'exploration'|'application';profileSummary:ProfileSummary;planningCoordinate:PlanningCoordinate;scoreSnapshots:ScoreSnapshot[];employment:{healthySources:number;lastSuccessAt:string|null;staleDays:number|null;usable:boolean;windowDays:number};majorPool:{reviewedMajorCount:number;displayedCount:number;outlookEvidenceCount:number};dataGaps:string[];schoolCandidates:AdmissionUnitCandidate[];admissionEvidence:AdmissionEvidence;cards:ProfessionCard[];savedItems:SavedItem[] }
 export function getProfessionDashboard(profileId:string){return request<ProfessionDashboard>(`/api/profiles/${profileId}/profession-dashboard`)}
 export function saveDashboardItem(profileId:string,item:SavedItem){return request<SavedItem>(`/api/profiles/${profileId}/saved-items`,{method:'PUT',body:JSON.stringify(item)})}
 export function removeDashboardItem(profileId:string,itemType:'major'|'school',itemId:number){return request<{itemType:string;itemId:number}>(`/api/profiles/${profileId}/saved-items/${itemType}/${itemId}`,{method:'DELETE'})}

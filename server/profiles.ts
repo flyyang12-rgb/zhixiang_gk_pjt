@@ -11,9 +11,13 @@ const profileInput = z.object({
   province: z.enum(['河南', '山东', '河北'], { message: '首期请选择河南、山东或河北' }),
   subjectGroup: z.string().trim().min(1, '请选择科类').max(64),
   selectedSubjects: z.array(z.enum(['物理','历史','化学','生物','政治','地理'])).max(3).default([]),
-  score: z.number().int().min(100, '分数不能低于 100').max(750, '分数不能高于 750'),
+  score: z.number().int().min(100, '分数不能低于 100').max(750, '分数不能高于 750').nullable(),
   provinceRank: z.number().int().positive('位次必须大于 0').nullable(),
   planningMode: z.enum(['exploration', 'application']).default('application'),
+}).superRefine((input, context) => {
+  if (input.planningMode === 'application' && input.score === null) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['score'], message: '志愿填报模式请填写分数' })
+  }
 })
 
 router.post('/', async (request, response, next) => {
@@ -38,7 +42,9 @@ router.post('/', async (request, response, next) => {
        VALUES (?, ?, ?, ?, ?, ?, ?, 'recommendation', ?)`,
       [id, input.studentName, provinces[0].id, input.subjectGroup, JSON.stringify(input.selectedSubjects), input.score, input.provinceRank, input.planningMode],
     )
-    await connection.execute(`INSERT INTO profile_score_snapshots(profile_id,exam_name,exam_date,score,province_rank,is_current,origin_key) VALUES (?,'建档坐标',CURDATE(),?,?,1,?)`,[id,input.score,input.provinceRank,`baseline:${id}`])
+    if (input.score !== null || input.provinceRank !== null) {
+      await connection.execute(`INSERT INTO profile_score_snapshots(profile_id,exam_name,exam_date,score,province_rank,is_current,origin_key) VALUES (?,'建档坐标',CURDATE(),?,?,1,?)`,[id,input.score,input.provinceRank,`baseline:${id}`])
+    }
     await connection.commit()
 
     response.status(201).json({ success: true, data: { id }, error: null, requestId: response.locals.requestId })
@@ -189,7 +195,7 @@ interface ProfileRow extends RowDataPacket {
   province: string
   subjectGroup: string
   selectedSubjects: string[] | string
-  score: number
+  score: number | null
   provinceRank: number | null
   currentStage: 'recommendation'
   planningMode: 'exploration' | 'application'

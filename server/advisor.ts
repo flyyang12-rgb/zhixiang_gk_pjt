@@ -214,7 +214,7 @@ async function loadContext(profileId: string,focus?:z.infer<typeof advisorFocusS
   const [profiles] = await database.execute<RowDataPacket[]>(`SELECT sp.student_name studentName,p.name province,sp.subject_group subjectGroup,sp.score,sp.province_rank provinceRank FROM student_profiles sp JOIN provinces p ON p.id=sp.province_id WHERE sp.id=?`, [profileId])
   if (!profiles[0]) throw new Error('学生档案不存在')
   const row=profiles[0]
-  const profile={studentName:String(row.studentName),province:String(row.province),subjectGroup:String(row.subjectGroup),score:Number(row.score),provinceRank:row.provinceRank==null?null:Number(row.provinceRank)}
+  const profile={studentName:String(row.studentName),province:String(row.province),subjectGroup:String(row.subjectGroup),score:row.score==null?null:Number(row.score),provinceRank:row.provinceRank==null?null:Number(row.provinceRank)}
   const dashboard = await buildProfessionDashboard(profileId)
   const resolvedFocus=focus??await resolveSchoolFocusFromMessage(message)
   const schoolDetail=resolvedFocus?.type==='school'?await loadSchoolDetail(resolvedFocus.schoolId,profileId):null

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { classifySchoolRisk, classifySingleYearRisk, rankProfessions, scoreProfession, type ProfessionInput } from '../server/profession-engine'
 import { subjectRequirementSatisfied } from '../server/admission-candidates'
 
-const base: ProfessionInput = { id: 1, code: '080901', name: '计算机科学与技术', category: '工学', requiredSubjects: ['物理'], selectedSubjects: ['物理','化学','生物'], jobCount: 1200, provinceCount: 28, sourceCount: 3, directEntryRatio: 1, eligibleSchoolCount: 6, dailyJobCounts: [100,102,98], employmentUsable: true, mode: 'application' }
+const base: ProfessionInput = { id: 1, code: '080901', name: '计算机科学与技术', category: '工学', requiredSubjects: ['物理'], selectedSubjects: ['物理','化学','生物'], jobCount: 1200, provinceCount: 28, sourceCount: 3, directEntryRatio: 1, eligibleSchoolCount: 6, dailyJobCounts: [100,102,98], employmentUsable: true, outlookScore: 85, outlookEvidence: '数字人才行动提供中期需求信号', mode: 'application' }
 
 describe('专业就业规则引擎', () => {
   it('专业硬过滤只依据选科，缺少专业院校交叉证据不会清空专业', () => {
@@ -12,15 +12,36 @@ describe('专业就业规则引擎', () => {
     expect(scoreProfession({ ...base, mode: 'exploration', eligibleSchoolCount: 0 }).eligible).toBe(true)
   })
 
-  it('使用固定四因子权重并披露缺失证据', () => {
+  it('使用当前与未来五因子权重并披露缺失证据', () => {
     const result = scoreProfession(base)
-    expect(result.factors.coverage.weight).toBe(40)
-    expect(result.factors.directEntry.weight).toBe(25)
+    expect(result.factors.coverage.weight).toBe(30)
+    expect(result.factors.directEntry.weight).toBe(20)
     expect(result.factors.schoolAccess.weight).toBe(25)
     expect(result.factors.stability.weight).toBe(10)
+    expect(result.factors.outlook.weight).toBe(15)
     expect(scoreProfession({ ...base, employmentUsable: false }).factors.coverage.value).toBeNull()
     expect(scoreProfession({ ...base, eligibleSchoolCount: 0 }).evidenceCoverage).toBe(75)
     expect(scoreProfession({ ...base, eligibleSchoolCount: 0 }).totalScore).toBeGreaterThan(70)
+  })
+
+  it('只有一个有效因子时不把未知证据放大成 0 或 100', () => {
+    const result = scoreProfession({
+      ...base,
+      directEntryRatio: 0,
+      employmentUsable: false,
+      eligibleSchoolCount: 0,
+      dailyJobCounts: [],
+      sourceCount: 0,
+      outlookScore: null,
+      outlookEvidence: null,
+    })
+    expect(result.totalScore).toBeNull()
+  })
+
+  it('两个低覆盖因子仍只披露证据，不冒充综合评分',()=>{
+    const result=scoreProfession({...base,employmentUsable:false,eligibleSchoolCount:0,dailyJobCounts:[],sourceCount:0})
+    expect(result.evidenceCoverage).toBe(35)
+    expect(result.totalScore).toBeNull()
   })
 
   it('最多输出九个并按3/3/3分档', () => {

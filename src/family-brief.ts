@@ -5,7 +5,7 @@ export type FamilyBriefSchoolInput={
 }
 export type FamilyBriefItem={schoolId:number;name:string;stance:string;evidence:[string,string];risk:string;note:string;nextAction:string}
 
-export function buildFamilyBrief(input:{planningRank:number|null;profileSummary:{planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number;provinceRank:number|null};schools:FamilyBriefSchoolInput[]}):FamilyBriefItem[]{
+export function buildFamilyBrief(input:{planningRank:number|null;profileSummary:{planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number|null;provinceRank:number|null};schools:FamilyBriefSchoolInput[]}):FamilyBriefItem[]{
   return input.schools.map(school=>{
     const hasAdmission=Boolean(school.admission?.minRank)
     const stance=!input.planningRank

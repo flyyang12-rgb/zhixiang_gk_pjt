@@ -3,7 +3,7 @@ import {computed,nextTick,onBeforeUnmount,onMounted,ref} from 'vue'
 import {createAdvisorConversation,deleteAdvisorConversation,getAdvisorConversations,getConversationMessages,sendConversationMessage,type AdvisorConversation,type AdvisorFocus,type AdvisorMessage} from '../api'
 import {parseAdvisorTransparency,plainAdvisorText} from '../advisor-transparency'
 
-const props=defineProps<{profileId:string;studentName:string;province:string;subjectGroup:string;score:number;provinceRank:number|null;initialPrompt:string;initialFocus:AdvisorFocus|null}>()
+const props=defineProps<{profileId:string;studentName:string;province:string;subjectGroup:string;provinceRank:number|null;initialPrompt:string;initialFocus:AdvisorFocus|null}>()
 const emit=defineEmits<{back:[focus:AdvisorFocus|null];recommendations:[];report:[]}>()
 const messages=ref<AdvisorMessage[]>([]),draft=ref(props.initialPrompt),sending=ref(false),loading=ref(true),list=ref<HTMLElement|null>(null)
 const conversations=ref<AdvisorConversation[]>([]),conversationPage=ref(1),conversationTotal=ref(0),activeConversation=ref<AdvisorConversation|null>(null),activeFocus=ref<AdvisorFocus|null>(props.initialFocus),error=ref(''),nextCursor=ref<number|null>(null)

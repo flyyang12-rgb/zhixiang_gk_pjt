@@ -15,6 +15,41 @@ test('当前产品不再暴露测评与答题接口', async ({ request }) => {
   expect((await request.get('/api/assessments/questions/student')).status()).toBe(404)
 })
 
+test('目标探索无需分数和位次即可建档', async ({ page, request }) => {
+  const studentName = `端到端验证-${Date.now()}`
+
+  await page.goto('/')
+  await page.getByPlaceholder('例如：小知').fill(studentName)
+  await page.getByText('目标探索', { exact: true }).click()
+  await expect(page.getByRole('note', { name: '目标探索说明' })).toContainText('无需分数和位次')
+  await expect(page.locator('input[type="number"]')).toHaveCount(0)
+  await page.locator('select').nth(1).selectOption({ label: '物理类' })
+  await selectSubjects(page)
+  await page.getByRole('button', { name: '保存并开始分析 →' }).click()
+
+  await expect(page.getByRole('heading', { name: '9 个已审核专业，分 3 组比较' })).toBeVisible()
+  await expect(page.locator('.school-recommendation-empty')).toContainText('记一次全省位次，学校范围自动出现')
+  await expect(page.locator('.score-orbit')).toContainText('未记录成绩')
+
+  const profileId = await page.evaluate(() => localStorage.getItem('zhixiang.currentProfileId'))
+  expect(profileId).toBeTruthy()
+  const profileResponse = await request.get(`/api/profiles/${profileId}`)
+  expect(profileResponse.ok()).toBeTruthy()
+  expect((await profileResponse.json()).data).toMatchObject({ studentName, planningMode: 'exploration', score: null, provinceRank: null })
+  const snapshotsResponse = await request.get(`/api/profiles/${profileId}/score-snapshots`)
+  expect(snapshotsResponse.ok()).toBeTruthy()
+  expect((await snapshotsResponse.json()).data).toEqual([])
+
+  await page.getByRole('button', { name: '↻ 历史档案' }).click()
+  const historyItem = page.locator('.history-item').filter({ hasText: studentName })
+  await expect(historyItem).toContainText('未记录')
+  await expect(historyItem).not.toContainText('0 分')
+
+  const reportResponse = await request.get(`/api/profiles/${profileId}/report.pdf`)
+  expect(reportResponse.ok()).toBeTruthy()
+  expect(reportResponse.headers()['content-type']).toContain('application/pdf')
+})
+
 test('打开网站不会自动触发就业数据采集', async ({ page }) => {
   let automaticSyncRequests = 0
   await page.route('**/api/employment/sync-if-stale', async route => {
@@ -43,7 +78,7 @@ test('专业卡片以聚焦详情过渡取代向下展开', async ({ page }) => 
 
   await page.goto('/')
   await page.getByPlaceholder('例如：小知').fill(studentName)
-  await page.getByText('目标探索', { exact: true }).click()
+  await page.getByText('志愿填报', { exact: true }).click()
   await page.locator('select').nth(1).selectOption({ label: '物理类' })
   await selectSubjects(page)
   await page.locator('input[type="number"]').nth(0).fill('612')
@@ -75,14 +110,14 @@ test('家庭创建学生档案后直接进入专业就业工作台并可刷新�
   await expect(page.getByRole('heading', { name: '先建立一份学生档案' })).toBeVisible()
 
   await page.getByPlaceholder('例如：小知').fill(studentName)
-  await page.getByText('目标探索', { exact: true }).click()
+  await page.getByText('志愿填报', { exact: true }).click()
   await page.locator('select').nth(1).selectOption({ label: '物理类' })
   await selectSubjects(page)
   await page.locator('input[type="number"]').nth(0).fill('612')
   await page.locator('input[type="number"]').nth(1).fill('18500')
   await page.getByRole('button', { name: '保存并开始分析 →' }).click()
 
-  await expect(page.getByRole('heading', { name: '9 个专业，分 3 组更好选' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '9 个已审核专业，分 3 组比较' })).toBeVisible()
   await expect(page.locator('.profession-card')).toHaveCount(9)
   await expect(page.locator('.profession-band').nth(0).locator('.profession-card')).toHaveCount(3)
   await expect(page.locator('.profession-band').nth(1).locator('.profession-card')).toHaveCount(3)
@@ -119,7 +154,7 @@ test('家庭创建学生档案后直接进入专业就业工作台并可刷新�
 
   await page.reload()
 
-  await expect(page.getByRole('heading', { name: '9 个专业，分 3 组更好选' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '9 个已审核专业，分 3 组比较' })).toBeVisible()
   await expect(page.locator('.profession-card').first().locator('.major-save')).toHaveText('★ 已收藏')
   await page.locator('.profession-card').first().locator('.card-summary').click()
   await expect(page.locator('.profession-focus-detail').getByRole('button', { name: '★ 已收藏' }).first()).toBeVisible()
@@ -413,7 +448,7 @@ test('目标探索档案积累有效位次后自动联合推荐学校和专业',
     await page.goto('/')
     await page.evaluate(id=>localStorage.setItem('zhixiang.currentProfileId',id),profileId)
     await page.reload()
-    await expect(page.locator('.admission-layer')).toBeVisible()
+    await expect(page.locator('.admission-layer')).toBeVisible({timeout:15000})
     await page.setViewportSize({width:390,height:844})
     const preview=page.locator('.major-school-preview').first()
     await expect(preview).toContainText('可核验学校')

@@ -5,7 +5,7 @@ import type {loadSchoolDetail} from './school-detail.js'
 import {buildConversationMemory,buildModelMessages,isSafeAdvisorAnswer,isTransparentAdvisorAnswer,type AdvisorHistoryMessage} from './advisor-prompt.js'
 
 export type AdvisorReplyContext={
-  profile:{studentName:string;province:string;subjectGroup:string;score:number;provinceRank:number|null}
+  profile:{studentName:string;province:string;subjectGroup:string;score:number|null;provinceRank:number|null}
   dashboard:Awaited<ReturnType<typeof buildProfessionDashboard>>
   schoolDetail:Awaited<ReturnType<typeof loadSchoolDetail>>|null
   focusedMajor:Awaited<ReturnType<typeof buildProfessionDashboard>>['cards'][number]|null
