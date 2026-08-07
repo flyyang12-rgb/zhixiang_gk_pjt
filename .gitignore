@@ -1,6 +1,9 @@
 node_modules/
 dist/
+server-dist/
 .env
+.env.docker
+.deploy/
 .scratch/
 logs/
 coverage/

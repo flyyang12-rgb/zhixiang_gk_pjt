@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+!.env.example
+!.env.docker.example
+.scratch
+coverage
+dist
+logs
+node_modules
+playwright-report
+server-dist
+test-results
+*.log
+

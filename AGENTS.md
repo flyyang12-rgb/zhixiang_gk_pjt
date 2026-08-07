@@ -50,7 +50,7 @@
 - AI：OpenAI 兼容聊天接口，当前可配置 DeepSeek；异常时回退本地规则解释。
 - PDF：服务端根据已保存档案和候选生成。
 
-当前版本不使用 Docker、NestJS、ORM、大型 UI 框架或前端状态管理框架。未经明确需求，不得为“以后可能需要”引入这些依赖。
+本地开发不使用 Docker；Linux 私有服务器可使用仓库内 Docker Compose 运行 Nginx、Express 与 MySQL 8。未经明确需求，不得把 Docker 引入本地开发链路，也不得为“以后可能需要”引入 NestJS、ORM、大型 UI 框架或前端状态管理框架。
 
 职责边界：
 
@@ -407,4 +407,5 @@ AI_MODEL=deepseek-v4-flash
 - `database/schema.sql`：数据库初始化结构。
 - `README.md`：面向使用者的安装、运行和数据维护说明。
 - `.env.example`：不含真实秘密的配置模板。
+- `.env.docker.example`、`Dockerfile`、`compose.yaml`、`docker/`：Linux 私有服务器容器部署模板；真实 `.env.docker`、Basic Auth 文件、备份和数据卷不得提交。
 - `PLAN.md`：早期历史计划，不作为当前实现依据。

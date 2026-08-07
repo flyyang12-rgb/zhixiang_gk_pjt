@@ -10,9 +10,77 @@
 setup-local.cmd
 ```
 
-以后双击 `start-local.cmd`，浏览器访问 `http://localhost:5173`。当前版本不需要 Docker；公网部署时建议将前端、API 与托管 MySQL 分离部署，并通过 HTTPS、账号体系和加密备份保护用户数据。
+以后双击 `start-local.cmd`，浏览器访问 `http://localhost:5173`。本地开发不需要 Docker；需要在一台 Linux 服务器上私有试用时，可使用仓库内的 Docker Compose 配置。面向陌生用户正式开放前，仍须增加账号隔离、HTTPS、访问审计和加密备份。
 
 顾问支持 DeepSeek 的 OpenAI 兼容接口。在 `.env` 中配置 `AI_BASE_URL=https://api.deepseek.com`、`AI_API_KEY` 和 `AI_MODEL=deepseek-v4-flash` 后生效；15 秒超时、限流或输出越界时自动回退到同样通俗的本地解释。API Key 只允许保存在 `.env`，不要写入前端代码或提交到版本库。
+
+## Docker Compose 私有服务器部署
+
+该方式在同一台 Linux 服务器上运行四个容器：Nginx 前端、Express API、一次性数据库初始化任务和 MySQL 8。宿主机只开放网站端口；API 与 MySQL 只在 Compose 内部网络可访问。MySQL 数据保存在命名卷 `zhixiang_mysql_data`，重建容器不会删除该卷。
+
+服务器需要已安装 Docker Engine 与 Docker Compose v2。不要再在宿主机安装 Node.js、Nginx 或 MySQL，也不要把 3000、3306 端口加入云安全组。
+
+首次部署：
+
+```bash
+cd /home/doujiao/zhixiang_gk_pj
+cp .env.docker.example .env.docker
+chmod 600 .env.docker
+nano .env.docker
+mkdir -p .deploy
+docker run --rm -i httpd:2.4-alpine htpasswd -niB zhixiang > .deploy/nginx.htpasswd
+chmod 600 .deploy/nginx.htpasswd
+docker compose --env-file .env.docker up -d --build
+docker compose --env-file .env.docker ps
+```
+
+`.env.docker` 中的 `DB_PASSWORD` 与 `MYSQL_ROOT_PASSWORD` 必须使用两个不同的长随机密码。`AI_API_KEY` 可以暂时留空。生成网页访问密码时，`htpasswd` 会交互式要求输入两遍密码；不要把密码写进命令或聊天记录。
+
+首次启动会创建基础结构。随后按实际数据范围显式导入审核数据：
+
+```bash
+docker compose --env-file .env.docker run --rm db-init npm run data:schools
+docker compose --env-file .env.docker run --rm db-init npm run data:school-links
+docker compose --env-file .env.docker run --rm db-init npm run data:featured-majors
+docker compose --env-file .env.docker run --rm db-init npm run data:major-outlook
+docker compose --env-file .env.docker run --rm db-init npm run data:shandong
+docker compose --env-file .env.docker run --rm db-init npm run data:henan
+docker compose --env-file .env.docker run --rm db-init npm run data:henan-group-majors -- data/henan-group-majors.json
+docker compose --env-file .env.docker run --rm db-init npm run data:hebei
+docker compose --env-file .env.docker run --rm db-init npm run data:audit
+```
+
+检查状态与日志：
+
+```bash
+docker compose --env-file .env.docker ps
+docker compose --env-file .env.docker logs --tail=100 api
+docker compose --env-file .env.docker logs --tail=100 web
+docker compose --env-file .env.docker logs --tail=100 db
+```
+
+更新代码后重新构建；该操作保留数据库卷：
+
+```bash
+git pull --ff-only
+docker compose --env-file .env.docker up -d --build
+```
+
+备份数据库：
+
+```bash
+mkdir -p backups
+docker compose --env-file .env.docker exec -T db sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction zhixiang' > backups/zhixiang-$(date +%F-%H%M%S).sql
+chmod 600 backups/*.sql
+```
+
+恢复会覆盖同名记录，只能在确认备份文件和目标环境后执行：
+
+```bash
+docker compose --env-file .env.docker exec -T db sh -c 'exec mysql -uroot -p"$MYSQL_ROOT_PASSWORD" zhixiang' < backups/要恢复的文件.sql
+```
+
+停止容器使用 `docker compose --env-file .env.docker down`。不要添加 `--volumes`，除非明确要永久删除 MySQL 数据。当前 Basic Auth 只适合少量受信任人员私有试用，不等于多用户账号隔离；正式公网运营仍属于后续安全建设范围。
 
 ## 当前能力
 

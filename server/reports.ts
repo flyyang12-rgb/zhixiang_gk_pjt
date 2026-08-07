@@ -13,7 +13,7 @@ reportsRouter.get('/profiles/:id/report.pdf', async (request, response, next) =>
     if (!profiles[0]) { response.status(404).send('学生档案不存在'); return }
     const [snapshots] = await database.execute<RowDataPacket[]>(`SELECT result,generated_at generatedAt FROM recommendation_snapshots WHERE profile_id=?`, [id])
     const report = { profile: profiles[0], recommendation: snapshots[0] ?? null }
-    const browser = await chromium.launch({ headless: true, channel: 'chrome' })
+    const browser = await chromium.launch({ headless: true })
     try {
       const page = await browser.newPage()
       await page.setContent(renderReport(report), { waitUntil: 'load' })

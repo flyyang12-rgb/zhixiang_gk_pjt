@@ -171,7 +171,7 @@
 - 后端：Node.js、Express、TypeScript、Zod、`mysql2`。
 - 数据库：本地 MySQL 8，数据库名 `zhixiang`。
 - 本地启动：`npm install`、`npm run db:init`、`npm run dev`。
-- MVP 不使用 Docker；架构不得阻碍后续公网部署。
+- 本地 MVP 不依赖 Docker；Linux 私有服务器可使用仓库内 Docker Compose 运行 Nginx、Express 与 MySQL 8，且只允许网站入口暴露宿主机端口。Compose 私有部署不替代正式公网所需的账号隔离、HTTPS、审计和加密备份。
 
 ### 5.2 API
 
