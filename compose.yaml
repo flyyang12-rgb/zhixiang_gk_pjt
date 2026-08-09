@@ -58,6 +58,7 @@ services:
         condition: service_healthy
     networks:
       - backend
+      - imports
     logging:
       driver: json-file
       options:
@@ -124,6 +125,7 @@ networks:
   frontend:
   backend:
     internal: true
+  imports:
 
 volumes:
   mysql_data:

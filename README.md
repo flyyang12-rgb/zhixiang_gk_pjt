@@ -16,7 +16,7 @@ setup-local.cmd
 
 ## Docker Compose 私有服务器部署
 
-该方式在同一台 Linux 服务器上运行四个容器：Nginx 前端、Express API、一次性数据库初始化任务和 MySQL 8。宿主机只开放网站端口；API 与 MySQL 只在 Compose 内部网络可访问。MySQL 数据保存在命名卷 `zhixiang_mysql_data`，重建容器不会删除该卷。
+该方式在同一台 Linux 服务器上运行四个容器：Nginx 前端、Express API、一次性数据库初始化任务和 MySQL 8。宿主机只开放网站端口；API 与 MySQL 只在 Compose 内部网络可访问。一次性 `db-init` 额外连接无入站端口的导入网络，用于下载教育部和省考试院公开文件；MySQL 数据保存在命名卷 `zhixiang_mysql_data`，重建容器不会删除该卷。
 
 服务器需要已安装 Docker Engine 与 Docker Compose v2。推荐使用独享的 2 核 4 GiB 实例；2 GiB 只能作为没有其他常驻服务的私有试用下限。Compose 已限制 MySQL、API 和 Nginx 的内存、进程数与日志大小，但在共享的小内存服务器上生成 PDF 或与 RabbitMQ 等服务并行运行仍可能进入 Swap 并显著变慢。不要再在宿主机安装 Node.js、Nginx 或 MySQL，也不要把 3000、3306 端口加入云安全组。
 
