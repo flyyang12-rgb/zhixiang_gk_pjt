@@ -28,13 +28,14 @@ cp .env.docker.example .env.docker
 chmod 600 .env.docker
 nano .env.docker
 mkdir -p .deploy
+chmod 700 .deploy
 docker run --rm -i httpd:2.4-alpine htpasswd -niB zhixiang > .deploy/nginx.htpasswd
-chmod 600 .deploy/nginx.htpasswd
+chmod 604 .deploy/nginx.htpasswd
 docker compose --env-file .env.docker up -d --build
 docker compose --env-file .env.docker ps
 ```
 
-`.env.docker` 中的 `DB_PASSWORD` 与 `MYSQL_ROOT_PASSWORD` 必须使用两个不同的长随机密码。`AI_API_KEY` 可以暂时留空。生成网页访问密码时，`htpasswd` 会交互式要求输入两遍密码；不要把密码写进命令或聊天记录。
+`.env.docker` 中的 `DB_PASSWORD` 与 `MYSQL_ROOT_PASSWORD` 必须使用两个不同的长随机密码。`AI_API_KEY` 可以暂时留空。生成网页访问密码时，`htpasswd` 会交互式要求输入两遍密码；不要把密码写进命令或聊天记录。`.deploy` 目录保持 `700`，阻止宿主机其他普通用户进入；哈希文件使用 `604`，让容器内的非 root Nginx 工作进程能够只读校验密码。
 
 首次启动会创建基础结构。随后按实际数据范围显式导入审核数据：
 
