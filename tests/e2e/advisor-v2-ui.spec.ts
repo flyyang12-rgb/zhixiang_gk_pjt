@@ -59,3 +59,20 @@ test('手机端聊天记录弹层可打开、关闭并恢复按钮焦点',async(
     await expect(trigger).toBeFocused()
   }finally{await request.delete(`/api/profiles/${profileId}`)}
 })
+
+test('浏览器不提供 randomUUID 时仍可发送顾问问题',async({page,request})=>{
+  await page.addInitScript(()=>{
+    Object.defineProperty(globalThis.crypto,'randomUUID',{configurable:true,value:undefined})
+  })
+  const profileId=await createProfile(request)
+  try{
+    await page.goto('/')
+    await page.evaluate(id=>localStorage.setItem('zhixiang.currentProfileId',id),profileId)
+    await page.reload()
+    await page.getByRole('button',{name:'规划顾问'}).click()
+    await page.locator('#advisor-question').fill('请先告诉我现在最需要核验什么？')
+    await page.getByRole('button',{name:'发送 →'}).click()
+    await expect(page.locator('.message.user')).toContainText('最需要核验什么')
+    await expect(page.locator('.message.assistant')).toHaveCount(1,{timeout:30_000})
+  }finally{await request.delete(`/api/profiles/${profileId}`)}
+})

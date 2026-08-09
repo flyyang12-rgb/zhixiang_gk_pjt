@@ -2,6 +2,7 @@
 import {computed,nextTick,onBeforeUnmount,onMounted,ref} from 'vue'
 import {createAdvisorConversation,deleteAdvisorConversation,getAdvisorConversations,getConversationMessages,sendConversationMessage,type AdvisorConversation,type AdvisorFocus,type AdvisorMessage} from '../api'
 import {parseAdvisorTransparency,plainAdvisorText} from '../advisor-transparency'
+import {createClientMessageId} from '../client-message-id'
 
 const props=defineProps<{profileId:string;studentName:string;province:string;subjectGroup:string;provinceRank:number|null;initialPrompt:string;initialFocus:AdvisorFocus|null}>()
 const emit=defineEmits<{back:[focus:AdvisorFocus|null];recommendations:[];report:[]}>()
@@ -32,7 +33,7 @@ async function openConversation(conversation:AdvisorConversation){
 async function loadOlder(){if(!activeConversation.value||!nextCursor.value)return;const page=await getConversationMessages(props.profileId,activeConversation.value.id,nextCursor.value);messages.value=[...page.items,...messages.value];nextCursor.value=page.nextCursor}
 async function send(text=draft.value,retryId?:string){
   const content=text.trim();if(!content||sending.value)return
-  const clientMessageId=retryId??crypto.randomUUID()
+  const clientMessageId=retryId??createClientMessageId()
   let optimistic=messages.value.find(item=>item.clientMessageId===clientMessageId&&item.role==='user')
   if(!optimistic){optimistic={role:'user',content,createdAt:new Date().toISOString(),clientMessageId,status:'pending'};messages.value.push(optimistic)}else optimistic.status='pending'
   optimistic.retryText=undefined;draft.value='';sending.value=true;error.value='';await nextTick();scrollToLatest('smooth')
