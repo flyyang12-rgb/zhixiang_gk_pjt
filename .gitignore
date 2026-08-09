@@ -4,6 +4,7 @@ server-dist/
 .env
 .env.docker
 .deploy/
+backups/
 .scratch/
 logs/
 coverage/
