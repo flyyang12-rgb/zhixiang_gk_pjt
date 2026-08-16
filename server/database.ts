@@ -36,13 +36,31 @@ function shouldUseSsl(connectionString: string) {
   }
 }
 
+export function normalizePostgresConnectionString(connectionString: string) {
+  try {
+    const url = new URL(connectionString)
+    const isSupabase = url.hostname === 'supabase.com' || url.hostname.endsWith('.supabase.com')
+    if (isSupabase && url.searchParams.get('sslmode') === 'require' && !url.searchParams.has('uselibpqcompat')) {
+      // Supabase's managed pooler requires TLS but its certificate chain is not
+      // available in Vercel's Node trust store. Match libpq's `sslmode=require`:
+      // encrypt the connection without treating it as `verify-full`.
+      url.searchParams.set('uselibpqcompat', 'true')
+    }
+    return url.toString()
+  } catch {
+    return connectionString
+  }
+}
+
+const databaseUrl = normalizePostgresConnectionString(config.DATABASE_URL)
+
 const pool = new Pool({
-  connectionString: config.DATABASE_URL,
+  connectionString: databaseUrl,
   max: config.DB_POOL_MAX,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 10_000,
   allowExitOnIdle: process.env.NODE_ENV === 'test',
-  ssl: shouldUseSsl(config.DATABASE_URL) ? { rejectUnauthorized: true } : false,
+  ssl: shouldUseSsl(databaseUrl) ? { rejectUnauthorized: true } : false,
 })
 
 export function toPostgresPlaceholders(sql: string) {
