@@ -192,12 +192,12 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
         <div class="wordmark"><strong>知向</strong><span>志愿规划工作台</span></div>
         <div class="topbar-actions">
           <button v-if="currentView === 'advisor'" class="history-trigger" @click="openHistory"><span>↻</span> 历史档案</button>
-          <div class="save-state"><i></i>{{ profile ? '已保存到本地' : '本地隐私模式' }}</div>
+          <div class="save-state"><i></i>{{ profile ? '已保存到公开档案' : '公开共享模式' }}</div>
         </div>
         <Transition name="notice">
           <div v-if="currentView === 'advisor' && showHistory" class="history-popover topbar-history">
-            <header><strong>本地历史档案</strong><button @click="showHistory = false">×</button></header>
-            <p>全部保存在这台电脑的 MySQL 中</p>
+            <header><strong>公开历史档案</strong><button @click="showHistory = false">×</button></header>
+            <p>所有访客都能查看、修改和永久删除</p>
             <div class="history-list">
               <div v-for="item in profileHistory" :key="item.id" :class="['history-item', { current: item.id === profile?.id }]">
                 <button class="history-select" @click="switchProfile(item)">
@@ -220,8 +220,8 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
 
           <Transition name="notice">
             <div v-if="showHistory" class="history-popover">
-              <header><strong>本地历史档案</strong><button @click="showHistory = false">×</button></header>
-              <p>全部保存在这台电脑的 MySQL 中</p>
+              <header><strong>公开历史档案</strong><button @click="showHistory = false">×</button></header>
+              <p>所有访客都能查看、修改和永久删除</p>
               <div class="history-list">
                 <div v-for="item in profileHistory" :key="item.id" :class="['history-item', { current: item.id === profile?.id }]">
                   <button class="history-select" @click="switchProfile(item)">
@@ -360,7 +360,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
             <span>{{ visibleScore == null ? '暂时没有成绩也能开始' : '为什么先填位次？' }}</span>
             <p>{{ visibleScore == null ? '目标探索先看专业与就业证据，不猜分数，也不生成冲稳保。' : '不同年份的试卷难度不同。位次比裸分更适合比较历年录取情况。' }}</p>
           </div>
-          <div class="data-source"><i></i><span>数据模式<strong>本地 MySQL</strong></span></div>
+          <div class="data-source"><i></i><span>数据模式<strong>Supabase 公开共享</strong></span></div>
           <div class="data-coverage">
             <span>当前科类可比数据</span><strong v-if="dataStatusState==='loading'">正在读取…</strong><strong v-else-if="dataStatusState==='error'">数据状态暂不可用 <button class="coverage-retry" @click="refreshDataStatus">重试</button></strong><strong v-else-if="!currentSubjectGroup">选择科类后查看可比数据</strong><strong v-else-if="currentCoverage">{{ currentCoverage.years.join(' / ') }} · {{ currentCoverage.recordCount.toLocaleString() }} 条</strong><strong v-else>尚未覆盖当前科类</strong>
             <div class="year-status-list">

@@ -1,7 +1,7 @@
 import { buildAdmissionRecordKey, recommendationEligibility, type AdmissionUnitType, type EducationLevel } from './admission-record-policy.js'
 import { randomUUID } from 'node:crypto'
 import { createHash } from 'node:crypto'
-import type mysql from 'mysql2/promise'
+import type { DatabaseConnection, DatabaseResult, DatabaseRow } from './database.js'
 
 export type AdmissionImportSource = {
   provinceId: number
@@ -100,14 +100,14 @@ function positive(value: number | null | undefined) {
   return Number.isFinite(value) && Number(value) > 0
 }
 
-type ImportConnection = Pick<mysql.Connection, 'query' | 'execute' | 'beginTransaction' | 'commit' | 'rollback'>
+type ImportConnection = Pick<DatabaseConnection, 'query' | 'execute' | 'beginTransaction' | 'commit' | 'rollback'>
 
 export async function registerSourceArtifact(connection: ImportConnection, input: {
   sourceId:number;officialPageUrl:string;downloadUrl?:string|null;mirrorUrl?:string|null;mirrorDisclosure?:string|null;
   publishedAt?:string|null;bytes:Uint8Array;localPath:string
 }) {
   const sha256=createHash('sha256').update(input.bytes).digest('hex')
-  const [existing]=await connection.execute<mysql.RowDataPacket[]>(`SELECT id FROM source_artifacts WHERE source_id=? AND sha256=? LIMIT 1`,[input.sourceId,sha256])
+  const [existing]=await connection.execute<DatabaseRow[]>(`SELECT id FROM source_artifacts WHERE source_id=? AND sha256=? LIMIT 1`,[input.sourceId,sha256])
   if(existing[0])return {id:String(existing[0].id),sha256}
   const id=randomUUID()
   await connection.execute(
@@ -139,12 +139,12 @@ export async function persistAdmissionPreflight(connection: ImportConnection, in
 export async function commitAdmissionPreflight(connection: ImportConnection, batchId: string) {
   await connection.beginTransaction()
   try {
-    const [batches] = await connection.execute<mysql.RowDataPacket[]>(`SELECT source_id sourceId,status FROM import_batches WHERE id=? FOR UPDATE`, [batchId])
+    const [batches] = await connection.execute<DatabaseRow[]>(`SELECT source_id sourceId,status FROM import_batches WHERE id=? FOR UPDATE`, [batchId])
     const batch = batches[0]
     if (!batch) throw new Error('导入预检批次不存在')
     if (String(batch.status) !== 'preflight') throw new Error('只有预检状态的批次可以提交')
     await connection.execute(`UPDATE import_batches SET status='running' WHERE id=?`, [batchId])
-    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    const [rows] = await connection.execute<DatabaseRow[]>(
       `SELECT source_row_number rowNumber,normalized_record normalizedRecord FROM admission_import_rows WHERE batch_id=? AND status='valid' ORDER BY source_row_number`,
       [batchId],
     )
@@ -152,7 +152,7 @@ export async function commitAdmissionPreflight(connection: ImportConnection, bat
     let updated = 0
     for (const row of rows) {
       const record = parseRecord(row.normalizedRecord)
-      const [existingRows] = await connection.execute<mysql.RowDataPacket[]>(`SELECT * FROM admission_programs WHERE record_key=? LIMIT 1`, [record.recordKey])
+      const [existingRows] = await connection.execute<DatabaseRow[]>(`SELECT * FROM admission_programs WHERE record_key=? LIMIT 1`, [record.recordKey])
       const existing = existingRows[0]
       if (existing) {
         await connection.execute(
@@ -188,10 +188,10 @@ export async function commitAdmissionPreflight(connection: ImportConnection, bat
 export async function rollbackAdmissionImport(connection: ImportConnection, batchId: string) {
   await connection.beginTransaction()
   try {
-    const [batches] = await connection.execute<mysql.RowDataPacket[]>(`SELECT status FROM import_batches WHERE id=? FOR UPDATE`, [batchId])
+    const [batches] = await connection.execute<DatabaseRow[]>(`SELECT status FROM import_batches WHERE id=? FOR UPDATE`, [batchId])
     if (!batches[0]) throw new Error('导入批次不存在')
     if (String(batches[0].status) !== 'completed') throw new Error('只有已完成批次可以回滚')
-    const [changes] = await connection.execute<mysql.RowDataPacket[]>(
+    const [changes] = await connection.execute<DatabaseRow[]>(
       `SELECT operation,admission_program_id programId,previous_record previousRecord FROM admission_import_changes WHERE batch_id=? ORDER BY admission_program_id DESC`,
       [batchId],
     )
@@ -230,11 +230,11 @@ function admissionValues(record: NormalizedAdmissionRecord, sourceId: number) {
 }
 
 function insertAdmissionRecord(connection: ImportConnection, record: NormalizedAdmissionRecord, sourceId: number) {
-  return connection.execute<mysql.ResultSetHeader>(
+  return connection.execute<DatabaseResult>(
     `INSERT INTO admission_programs(record_key,school_id,province_id,year,subject_group,education_level,admission_category,batch,plan_type,
      eligibility_requirement,recommendation_eligible,recommendation_exclusion_reason,unit_type,major_name,raw_school_name,raw_unit_name,
      unit_code,subject_requirement,school_code,major_code,min_score,min_rank,enrollment_count,source_id)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
     admissionValues(record, sourceId),
   )
 }

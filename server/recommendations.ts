@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseRow as RowDataPacket } from './database.js'
 import { z } from 'zod'
 import { database } from './database.js'
 import { defaultDecisionWeights, scoreCandidate } from './recommendation-scoring.js'
@@ -23,7 +23,7 @@ recommendationsRouter.post('/profiles/:id/recommendations/generate', async (requ
     const planningCoordinate=await loadPlanningCoordinate(profileId,profile.provinceRank==null?null:Number(profile.provinceRank))
     if (!planningCoordinate.rank) { response.status(422).json({ success: false, data: null, error: '生成冲稳保清单需要填写全省位次', requestId: response.locals.requestId }); return }
 
-    const [available] = await database.execute<RowDataPacket[]>(`SELECT COUNT(*) count,MAX(year) year,COUNT(DISTINCT year) yearCount,GROUP_CONCAT(DISTINCT year ORDER BY year) years FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL`, [profile.province, profile.subjectGroup])
+    const [available] = await database.execute<RowDataPacket[]>(`SELECT COUNT(*) count,MAX(year) year,COUNT(DISTINCT year) yearCount,STRING_AGG(DISTINCT year::text, ',' ORDER BY year::text) years FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL`, [profile.province, profile.subjectGroup])
     if (!Number(available[0]?.count)) {
       const result = { generatedAt: new Date().toISOString(), sourceYear: null, candidates: [], planningCoordinate, warning: `当前尚未导入${profile.province}官方投档数据，不能负责任地生成冲稳保；可先使用全国院校地图。` }
       await saveSnapshot(profileId, result)
@@ -71,6 +71,6 @@ recommendationsRouter.get('/profiles/:id/recommendations', async (request, respo
 })
 
 async function saveSnapshot(profileId: string, result: unknown) {
-  await database.execute(`INSERT INTO recommendation_snapshots (profile_id,result) VALUES (?,?) ON DUPLICATE KEY UPDATE result=VALUES(result),generated_at=NOW()`, [profileId, JSON.stringify(result)])
+  await database.execute(`INSERT INTO recommendation_snapshots (profile_id,result) VALUES (?,?) ON CONFLICT (profile_id) DO UPDATE SET result=EXCLUDED.result,generated_at=NOW()`, [profileId, JSON.stringify(result)])
 }
 function json<T = unknown>(value: T | string): T { return typeof value === 'string' ? JSON.parse(value) as T : value }

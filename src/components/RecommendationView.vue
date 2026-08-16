@@ -61,7 +61,7 @@ async function saveRankAndGenerate() {
       <span>还差一项关键信息</span><h3>补填全省位次后即可生成</h3>
       <p>不同年份试卷难度不同，冲稳保必须用成绩单上的全省位次计算，不能只看当前分数。</p>
       <form @submit.prevent="saveRankAndGenerate"><input v-model.number="provinceRank" type="number" min="1" placeholder="例如：全省第 8,500 名" autofocus><button class="primary-action">保存位次并生成 →</button></form>
-      <small>位次只保存在本机 MySQL；如果暂时不知道，可以在高考成绩单或本省一分一段表中查询。</small>
+      <small>位次会保存到公开档案，所有访客都能查看和修改；如果暂时不知道，可以在高考成绩单或本省一分一段表中查询。</small>
     </div>
     <div v-else-if="error" class="error-notice">{{ error }}</div>
     <template v-else-if="result">

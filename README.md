@@ -1,98 +1,38 @@
 # 知向 · 高考志愿推荐
 
-一个以专业就业证据和专业组历史位次为核心的高考志愿规划工具。
+一个以专业就业证据和专业组历史位次为核心、供亲友共同使用的高考志愿规划工具。
 
 ## 本地运行
 
-首次运行先复制 `.env.example` 为 `.env`，填写本机 MySQL 8 的账号密码，然后双击：
+首次运行先复制 `.env.example` 为 `.env`，填写 Supabase PostgreSQL 的 `DATABASE_URL`，然后双击：
 
 ```powershell
 setup-local.cmd
 ```
 
-以后双击 `start-local.cmd`，浏览器访问 `http://localhost:5173`。本地开发不需要 Docker；需要在一台 Linux 服务器上私有试用时，可使用仓库内的 Docker Compose 配置。面向陌生用户正式开放前，仍须增加账号隔离、HTTPS、访问审计和加密备份。
+以后双击 `start-local.cmd`，浏览器访问 `http://localhost:5173`。本地前后端直接连接同一个 Supabase 数据库，因此在本机创建、修改或删除的档案也会影响所有访客看到的公开数据。不要把数据库连接串写入前端代码或提交到版本库。
 
 顾问支持 DeepSeek 的 OpenAI 兼容接口。在 `.env` 中配置 `AI_BASE_URL=https://api.deepseek.com`、`AI_API_KEY` 和 `AI_MODEL=deepseek-v4-flash` 后生效；15 秒超时、限流或输出越界时自动回退到同样通俗的本地解释。API Key 只允许保存在 `.env`，不要写入前端代码或提交到版本库。
 
-## Docker Compose 私有服务器部署
+## 数据与公开访问
 
-该方式在同一台 Linux 服务器上运行四个容器：Nginx 前端、Express API、一次性数据库初始化任务和 MySQL 8。宿主机只开放网站端口；API 与 MySQL 只在 Compose 内部网络可访问。一次性 `db-init` 额外连接无入站端口的导入网络，用于下载教育部和省考试院公开文件；MySQL 数据保存在命名卷 `zhixiang_mysql_data`，重建容器不会删除该卷。
+正式数据库统一使用新加坡区域的 Supabase PostgreSQL。Vue 浏览器端不直接连接 Supabase，所有读写仍经过 Express API；数据库连接和 AI Key 只能放在服务端环境变量中。旧 Docker Compose/MySQL 私有部署已经退役，后续网站托管使用 Vercel，域名接入另行实施。
 
-服务器需要已安装 Docker Engine 与 Docker Compose v2。推荐使用独享的 2 核 4 GiB 实例；2 GiB 只能作为没有其他常驻服务的私有试用下限。Compose 已限制 MySQL、API 和 Nginx 的内存、进程数与日志大小，但在共享的小内存服务器上生成 PDF 或与 RabbitMQ 等服务并行运行仍可能进入 Swap 并显著变慢。不要再在宿主机安装 Node.js、Nginx 或 MySQL，也不要把 3000、3306 端口加入云安全组。
+当前产品按用户明确选择采用“无注册、全公开”模式：任何访客都能查看、修改和永久删除全部学生档案、收藏及顾问聊天，不存在家庭间的数据隔离。请只填写愿意公开给亲友的信息。PDF 每次即时生成并下载，不保存在 Supabase 或 Vercel。
 
-首次部署：
-
-```bash
-cd /home/doujiao/zhixiang_gk_pjt
-cp .env.docker.example .env.docker
-chmod 600 .env.docker
-nano .env.docker
-mkdir -p .deploy
-chmod 700 .deploy
-docker run --rm -i httpd:2.4-alpine htpasswd -niB zhixiang > .deploy/nginx.htpasswd
-chmod 604 .deploy/nginx.htpasswd
-docker compose --env-file .env.docker up -d --build
-docker compose --env-file .env.docker ps
-```
-
-`.env.docker` 中的 `DB_PASSWORD` 与 `MYSQL_ROOT_PASSWORD` 必须使用两个不同的长随机密码。`AI_API_KEY` 可以暂时留空。生成网页访问密码时，`htpasswd` 会交互式要求输入两遍密码；不要把密码写进命令或聊天记录。`.deploy` 目录保持 `700`，阻止宿主机其他普通用户进入；哈希文件使用 `604`，让容器内的非 root Nginx 工作进程能够只读校验密码。
-
-首次启动会创建基础结构。随后按实际数据范围显式导入审核数据：
-
-```bash
-docker compose --env-file .env.docker run --rm db-init npm run data:schools
-docker compose --env-file .env.docker run --rm db-init npm run data:school-links
-docker compose --env-file .env.docker run --rm db-init npm run data:featured-majors
-docker compose --env-file .env.docker run --rm db-init npm run data:major-outlook
-docker compose --env-file .env.docker run --rm db-init npm run data:shandong
-docker compose --env-file .env.docker run --rm db-init npm run data:henan
-docker compose --env-file .env.docker run --rm db-init npm run data:henan-group-majors -- data/henan-group-majors.json
-docker compose --env-file .env.docker run --rm db-init npm run data:hebei
-docker compose --env-file .env.docker run --rm db-init npm run data:audit
-```
-
-检查状态与日志：
-
-```bash
-docker compose --env-file .env.docker ps
-docker compose --env-file .env.docker logs --tail=100 api
-docker compose --env-file .env.docker logs --tail=100 web
-docker compose --env-file .env.docker logs --tail=100 db
-```
-
-更新代码后重新构建；该操作保留数据库卷：
-
-```bash
-git pull --ff-only
-docker compose --env-file .env.docker up -d --build
-```
-
-备份数据库：
-
-```bash
-mkdir -p backups
-docker compose --env-file .env.docker exec -T db sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction zhixiang' > backups/zhixiang-$(date +%F-%H%M%S).sql
-chmod 600 backups/*.sql
-```
-
-恢复会覆盖同名记录，只能在确认备份文件和目标环境后执行：
-
-```bash
-docker compose --env-file .env.docker exec -T db sh -c 'exec mysql -uroot -p"$MYSQL_ROOT_PASSWORD" zhixiang' < backups/要恢复的文件.sql
-```
-
-停止容器使用 `docker compose --env-file .env.docker down`。不要添加 `--volumes`，除非明确要永久删除 MySQL 数据。当前 Basic Auth 只适合少量受信任人员私有试用，不等于多用户账号隔离；正式公网运营仍属于后续安全建设范围。
+本次迁移只把院校、专业、招生、就业和来源核验等公共基础数据复制到 Supabase；旧电脑里的学生档案和聊天没有上传。一次性迁移脚本 `npm run data:migrate-public-from-mysql` 只用于开发者迁移旧公共数据，不属于日常启动流程。
 
 ## 当前能力
 
 - 全国院校分布示意地图，支持按 985 / 211 / 一本 / 二本 / 专科筛选
 - 学校搜索、分页列表与地图联动；点击学校在右侧查看属性、优势专业、本省招生记录和来源
+- 地图的院校名单截至日期来自正式导入来源；加载、搜索或分页失败时会保留已有结果并提供重试
 - 省份、科类和选科录入；志愿填报模式支持分数与位次
 - 目标探索与志愿填报双模式；目标探索无需分数和位次即可建档，后续形成规划位次会自动开启学校推荐，无需重建档案
 - 从数据库已审核专业池展示最多 9 张专业卡片（每档最多 3 张），每专业最多 3 个经人工审核的就业方向
 - 硬条件过滤后同时参考近期招聘、本科直接就业入口、可达院校、近期稳定性和带官方来源的未来发展证据；有效因子少于两个或证据覆盖低于 50% 时显示“暂不评分”，不把未知显示成 0
 - 基于山东、河南、河北可比制度年份的学校/招生单元冲稳保（每档最多 2 所）；河南 2025 单年专业组的冲刺参考上限为位次比 1.15，统一标记低置信度，并与具体专业分层展示
-- 专业收藏/排除、学校目标收藏均保存在本地
+- 专业收藏/排除、学校目标收藏均保存在 Supabase，并对所有访客公开
 - 记录模考分数与全省位次轨迹；学校推荐使用最近最多 5 次有效位次的中位数，显示样本数和波动，并在专业卡直接预览可核验学校，不做高考趋势预测
 - 收藏项可写家庭讨论备注，备注不会改变专业排序或冲稳保
 - 选择 1—4 所学校可打开手机全屏“给爸妈看”简报并复制纯文本，不生成公网链接
@@ -100,15 +40,16 @@ docker compose --env-file .env.docker exec -T db sh -c 'exec mysql -uroot -p"$MY
 - 主流程收敛为“基础信息 → 专业与学校”，不设置测评或答题环节
 - 专业和学校均提供三条本地证据解读，可将具体问题预填给规划顾问
 - 从专业或学校详情进入顾问时只建立本地草稿并预填问题，第一次发送才保存；同一会话记住前文，刷新后可继续，并按当前历史会话返回对应详情
+- 顾问比较学校时先看目标专业的具体证据，再看位次风险、调剂缺口、城市成本和学校名气；可以明确推荐或劝退，但不能改变规则排序与冲稳保
 - 聊天记录分页展示类型、最后消息、消息数和更新时间，支持手机端查看、失败幂等重发和二次确认删除
-- 网站启动时只读取已保存的最近 30 天招聘统计，不自动采集外部数据；只有本机管理员明确手动同步，来源不足或超过 7 天会停止就业排名
+- 网站启动时只读取已保存的最近 30 天招聘统计，不自动采集外部数据；只有维护者明确手动同步，来源不足或超过 7 天会停止就业排名
 - AI 顾问用高中毕业生和不熟悉术语的父母也能听懂的短句回答；简单问题直接聊，不强套四段模板、不复读前文、不绕到无关专业，复杂比较才展开说明。可以批评错误选择但不攻击学生或家庭；不冒充任何真人
 - 学校会话仍会逐轮理解问题：想学某专业时核对该校的具体专业证据；指出重复或答非所问时会承认并重新回答，不再重放学校模板
-- AI 只解释本地规则结果；聊天保存在本机 MySQL，配置外部 AI 后只发送回答所需的最少上下文，不发送密码、Key 或无关学生信息
+- AI 只解释规则结果；聊天保存在 Supabase 的公开档案中，配置外部 AI 后只发送回答所需的最少上下文，不发送密码、Key 或无关学生信息
 - 历史测评与家庭偏好仅作旧档案兼容保留，不参与当前推荐、顾问或 PDF
 - 地图、顾问、学校详情和本地数据维护按需加载，首屏不下载 ECharts
 - 一键导出 PDF 家庭讨论报告
-- 本地 MySQL 8 数据库结构设计
+- Supabase PostgreSQL 数据库结构与服务端参数化访问
 
 ## 项目文档
 
@@ -148,5 +89,5 @@ npm run data:audit # 生成 .scratch/data-completion/audit-report.json 审计快
 
 1. 招聘状态必须至少有 2 个健康来源，最后成功时间不超过 7 天。
 2. 学校官网和招生官网只能导入经过来源核验的地址，不能根据校名猜域名。
-3. 公网部署必须增加账号隔离、HTTPS、访问审计、删除机制和加密备份。
+3. 公网部署保持无注册、全公开；Vercel 服务端不得把 `DATABASE_URL` 或 AI Key 暴露给浏览器。
 4. 推荐结果必须展示数据年份、来源与不确定性，并明确不构成录取承诺。

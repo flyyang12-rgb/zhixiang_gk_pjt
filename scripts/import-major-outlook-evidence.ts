@@ -1,9 +1,8 @@
 import 'dotenv/config'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import type { RowDataPacket } from 'mysql2'
 import { z } from 'zod'
-import { database } from '../server/database.js'
+import { database, type DatabaseRow as RowDataPacket } from '../server/database.js'
 
 const recordSchema=z.object({
   majorCode:z.string().trim().min(4).max(16),
@@ -28,10 +27,10 @@ async function run(){
     const connection=await database.getConnection()
     try{
       await connection.beginTransaction()
-      await connection.execute(`INSERT INTO data_sources(source_type,title,source_url,source_year,publisher,collected_at) VALUES('major',?,?,?,?,?) ON DUPLICATE KEY UPDATE title=VALUES(title),publisher=VALUES(publisher),collected_at=VALUES(collected_at)`,[record.sourceTitle,record.sourceUrl,record.sourceYear,record.publisher,new Date(record.reviewedAt)])
+      await connection.execute(`INSERT INTO data_sources(source_type,title,source_url,source_year,publisher,collected_at) VALUES('major',?,?,?,?,?) ON CONFLICT (source_url,source_year) DO UPDATE SET title=EXCLUDED.title,publisher=EXCLUDED.publisher,collected_at=EXCLUDED.collected_at`,[record.sourceTitle,record.sourceUrl,record.sourceYear,record.publisher,new Date(record.reviewedAt)])
       const [sources]=await connection.query<RowDataPacket[]>('SELECT id FROM data_sources WHERE source_url=? AND source_year=? LIMIT 1',[record.sourceUrl,record.sourceYear])
       const [existing]=await connection.query<RowDataPacket[]>('SELECT id FROM major_outlook_evidence WHERE major_id=? AND source_id=? AND signal_type=?',[majors[0]!.id,sources[0]!.id,record.signalType])
-      await connection.execute(`INSERT INTO major_outlook_evidence(major_id,source_id,signal_type,signal_level,rationale,reviewed_at,valid_until) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE signal_level=VALUES(signal_level),rationale=VALUES(rationale),reviewed_at=VALUES(reviewed_at),valid_until=VALUES(valid_until)`,[majors[0]!.id,sources[0]!.id,record.signalType,record.signalLevel,record.rationale,record.reviewedAt,record.validUntil])
+      await connection.execute(`INSERT INTO major_outlook_evidence(major_id,source_id,signal_type,signal_level,rationale,reviewed_at,valid_until) VALUES(?,?,?,?,?,?,?) ON CONFLICT (major_id,source_id,signal_type) DO UPDATE SET signal_level=EXCLUDED.signal_level,rationale=EXCLUDED.rationale,reviewed_at=EXCLUDED.reviewed_at,valid_until=EXCLUDED.valid_until`,[majors[0]!.id,sources[0]!.id,record.signalType,record.signalLevel,record.rationale,record.reviewedAt,record.validUntil])
       await connection.commit()
       if(existing.length)updated+=1;else inserted+=1
     }catch(error){await connection.rollback();throw error}finally{connection.release()}

@@ -2,8 +2,7 @@ import 'dotenv/config'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { z } from 'zod'
-import type { ResultSetHeader, RowDataPacket } from 'mysql2'
-import { database } from '../server/database.js'
+import { database, type DatabaseResult as ResultSetHeader, type DatabaseRow as RowDataPacket } from '../server/database.js'
 import { commitAdmissionPreflight, persistAdmissionPreflight, preflightAdmissionRows, registerSourceArtifact } from '../server/admission-import.js'
 
 const sourceSchema=z.object({
@@ -32,7 +31,7 @@ async function run(){
   const provinceId=Number(provinces[0].id)
   const [sourceResult]=await database.execute<ResultSetHeader>(
     `INSERT INTO data_sources(source_type,title,source_url,source_year,publisher,published_at,collected_at)
-     VALUES('admission',?,?,?,?,?,NOW()) ON DUPLICATE KEY UPDATE title=VALUES(title),publisher=VALUES(publisher),published_at=VALUES(published_at),id=LAST_INSERT_ID(id)`,
+     VALUES('admission',?,?,?,?,?,NOW()) ON CONFLICT (source_url,source_year) DO UPDATE SET title=EXCLUDED.title,publisher=EXCLUDED.publisher,published_at=EXCLUDED.published_at RETURNING id`,
     [input.source.title,input.source.officialPageUrl,input.source.year,input.source.publisher,input.source.publishedAt??null],
   )
   const sourceId=sourceResult.insertId
@@ -60,7 +59,7 @@ async function run(){
   await connection.execute(
     `INSERT INTO admission_scope_audits(province_id,year,education_level,admission_category,batch,subject_group,status,reason,source_id,checked_at)
      VALUES (?,?,?,?,?,?,?, ?,?,NOW())
-     ON DUPLICATE KEY UPDATE status=VALUES(status),reason=VALUES(reason),source_id=VALUES(source_id),checked_at=VALUES(checked_at)`,
+     ON CONFLICT (province_id,year,education_level,admission_category,batch,subject_group) DO UPDATE SET status=EXCLUDED.status,reason=EXCLUDED.reason,source_id=EXCLUDED.source_id,checked_at=EXCLUDED.checked_at`,
     [provinceId,input.source.year,input.source.educationLevel,input.source.admissionCategory,input.source.batch,input.source.subjectGroup,
       closed?'verified':'pending',closed?null:commitResult?'仍有未匹配或拒绝记录，尚未闭环':'预检已生成，等待人工确认后提交',sourceId],
   )

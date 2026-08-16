@@ -4,6 +4,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import chinaGeoJson from '../assets/china.json'
 import { getProvinceMapData, getSchools, type ProvinceMapData, type School } from '../api'
 import { toDatabaseProvinceName, toMapProvinceName } from '../province-names'
+import { formatChineseSourceDate } from '../source-date'
 
 const emit = defineEmits<{ back: []; school: [number] }>()
 const chartElement = ref<HTMLElement | null>(null)
@@ -15,12 +16,16 @@ const query = ref('')
 const total = ref(0)
 const page = ref(1)
 const loading = ref(true)
+const initialError=ref('')
+const schoolError=ref('')
+const source=ref<Awaited<ReturnType<typeof getProvinceMapData>>['source']|null>(null)
 const loadingMore = ref(false)
 const suggestionsOpen=ref(false)
 const activeSuggestion=ref(-1)
 const loadedQuery=ref('')
 let chart: echarts.ECharts | null = null
 let schoolRequest=0
+let failedAppend=false
 let blurTimer:number|undefined
 const totalSchoolCount=computed(()=>provinces.value.reduce((sum,item)=>sum+Number(item.schoolCount),0))
 const provinceCount=computed(()=>provinces.value.filter(item=>Number(item.schoolCount)>0).length)
@@ -32,19 +37,32 @@ const suggestedSchools=computed(()=>{
 const suggestionsLoading=computed(()=>Boolean(query.value.trim())&&loadedQuery.value!==query.value.trim())
 
 async function loadSchools(append=false) {
-  if(!append)page.value=1
   const request=++schoolRequest
   const search=query.value.trim()
-  const result = await getSchools({ province: selectedProvince.value, level: selectedLevel.value, q: search,page:page.value })
-  if(request!==schoolRequest)return
-  schools.value = append?[...schools.value,...result.items]:result.items
-  total.value = result.total
-  loadedQuery.value=search
+  const requestedPage=append?page.value+1:1
+  try{
+    const result = await getSchools({ province: selectedProvince.value, level: selectedLevel.value, q: search,page:requestedPage })
+    if(request!==schoolRequest)return false
+    schools.value = append?[...schools.value,...result.items]:result.items
+    total.value = result.total
+    page.value=requestedPage
+    loadedQuery.value=search
+    schoolError.value=''
+    return true
+  }catch{
+    if(request!==schoolRequest)return false
+    failedAppend=append
+    loadedQuery.value=search
+    schoolError.value=append?'更多院校没有加载成功，当前列表已经保留。':'院校列表没有加载成功，当前结果已经保留。'
+    return false
+  }
 }
-async function loadMore(){if(loadingMore.value||schools.value.length>=total.value)return;loadingMore.value=true;page.value+=1;try{await loadSchools(true)}finally{loadingMore.value=false}}
+async function loadMore(){if(loadingMore.value||schools.value.length>=total.value)return;loadingMore.value=true;try{await loadSchools(true)}finally{loadingMore.value=false}}
+async function retrySchoolList(){schoolError.value='';if(failedAppend)await loadMore();else await loadSchools()}
 
 function renderMap() {
   if (!chartElement.value) return
+  chart?.dispose()
   echarts.registerMap('china', chinaGeoJson as never)
   chart = echarts.init(chartElement.value)
   chart.setOption({
@@ -55,14 +73,22 @@ function renderMap() {
   chart.on('click', ({ name }: { name: string }) => { selectedProvince.value = toDatabaseProvinceName(name); void loadSchools() })
 }
 
-onMounted(async () => {
-  provinces.value = await getProvinceMapData()
-  await loadSchools()
-  loading.value = false
-  await nextTick()
-  renderMap()
-  window.addEventListener('resize', resize)
-})
+async function loadMap(){
+  loading.value=true;initialError.value='';schoolError.value=''
+  try{
+    const result=await getProvinceMapData()
+    provinces.value=result.items
+    source.value=result.source
+    if(!await loadSchools())throw new Error('院校列表暂时无法加载')
+    loading.value=false
+    await nextTick()
+    renderMap()
+  }catch(value){
+    initialError.value=value instanceof Error?value.message:'院校数据暂时无法加载'
+    loading.value=false
+  }
+}
+onMounted(() => {void loadMap();window.addEventListener('resize', resize)})
 onBeforeUnmount(() => { window.removeEventListener('resize', resize); window.clearTimeout(timer);window.clearTimeout(blurTimer);chart?.dispose() })
 watch(selectedLevel,()=>void loadSchools())
 let timer: number | undefined
@@ -85,10 +111,12 @@ function onSearchKeydown(event:KeyboardEvent){
   <div class="map-page">
     <header class="map-head"><div><span class="kicker">全国院校库 · 2026</span><h2>从地图开始看学校</h2><p>点击省份查看院校分布，再按层次与名称缩小范围。</p></div><button class="secondary-action" @click="emit('back')">返回规划</button></header>
     <div v-if="loading" class="loading-panel"><span class="spinner"></span><p>正在加载全国院校数据…</p></div>
+    <div v-else-if="initialError" class="map-error-state" role="alert"><b>院校数据暂时无法加载</b><p>{{initialError}}</p><button type="button" @click="loadMap">重新加载</button></div>
     <template v-else>
-      <section class="map-layout"><div ref="chartElement" class="china-map"></div><aside class="map-stat"><strong>{{totalSchoolCount.toLocaleString()}}</strong><span>教育部普通高校</span><div><b>{{provinceCount}}</b><small>省级地区</small></div><div><b>{{ selectedProvince ? total : '全国' }}</b><small>{{ selectedProvince || '当前范围' }}</small></div><p>数据截至 2026 年 6 月 17 日，来源为教育部公开名单。</p></aside></section>
+      <section class="map-layout"><div ref="chartElement" class="china-map"></div><aside class="map-stat"><strong>{{totalSchoolCount.toLocaleString()}}</strong><span>教育部普通高校</span><div><b>{{provinceCount}}</b><small>省级地区</small></div><div><b>{{ selectedProvince ? total : '全国' }}</b><small>{{ selectedProvince || '当前范围' }}</small></div><p v-if="source">数据截至 {{formatChineseSourceDate(source.effectiveAt)}}，来源为<a :href="source.sourceUrl" target="_blank" rel="noreferrer">{{source.publisher}}</a>公开名单。</p></aside></section>
       <section class="school-browser">
         <div class="filter-row"><div class="province-chip" :class="{ active: selectedProvince }">{{ selectedProvince || '全国' }}<button v-if="selectedProvince" @click="clearProvince">×</button></div><div class="school-search"><input v-model="query" role="combobox" aria-label="搜索院校或城市" aria-autocomplete="list" aria-controls="school-search-suggestions" :aria-expanded="suggestionsOpen" :aria-activedescendant="activeSuggestion>=0?`school-suggestion-${suggestedSchools[activeSuggestion]?.id}`:undefined" placeholder="搜索院校或城市" @focus="openSuggestions" @blur="closeSuggestions" @keydown="onSearchKeydown"/><Transition name="school-suggestions"><div v-if="suggestionsOpen" id="school-search-suggestions" class="school-suggestions" role="listbox" aria-label="院校搜索建议"><p v-if="suggestionsLoading">正在查找院校…</p><template v-else-if="suggestedSchools.length"><button v-for="(school,index) in suggestedSchools" :id="`school-suggestion-${school.id}`" :key="school.id" type="button" role="option" :aria-selected="index===activeSuggestion" :class="{active:index===activeSuggestion}" @mouseenter="activeSuggestion=index" @mousedown.prevent="selectSuggestion(school)"><strong>{{school.name}}</strong><span>{{school.city}} · {{school.level}}</span></button></template><p v-else>没有匹配的学校名称</p></div></Transition></div><select v-model="selectedLevel"><option value="">全部层次</option><option>985</option><option>211</option><option>本科</option><option>专科</option></select><span>找到 {{ total }} 所</span></div>
+        <div v-if="schoolError" class="map-list-error" role="alert"><span>{{schoolError}}</span><button type="button" @click="retrySchoolList">重新加载</button></div>
         <div class="school-grid"><button v-for="school in schools" :key="school.id" type="button" :aria-label="`查看 ${school.name} 详情`" @click="emit('school',school.id)"><span :class="['school-level', school.level]">{{ school.level }}</span><h3>{{ school.name }}</h3><p>{{ school.province }} · {{ school.city }} · {{ school.schoolType }}</p><i>查看详情 →</i></button></div>
         <button v-if="schools.length<total" class="school-load-more" :disabled="loadingMore" @click="loadMore">{{loadingMore?'正在加载…':`加载更多 · 还有 ${total-schools.length} 所`}}</button>
       </section>

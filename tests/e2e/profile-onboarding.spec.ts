@@ -144,7 +144,7 @@ test('家庭创建学生档案后直接进入专业就业工作台并可刷新�
   await expect(page.getByRole('dialog', { name: '收藏成功' })).toBeVisible()
   await page.getByRole('button', { name: '查看我的收藏 →' }).click()
   await expect(page.getByRole('heading', { name: `${studentName} 的收藏` })).toBeVisible()
-  await expect(page.getByText('仅保存在本机 MySQL，不会上传到网络')).toBeVisible()
+  await expect(page.getByText('保存在公开共享数据库，所有访客都能查看和修改')).toBeVisible()
   await page.locator('.collection-school-link').first().click()
   await expect(page.getByRole('dialog', { name: '学校详情' })).toBeVisible()
   await page.getByRole('button', { name: '关闭学校详情' }).click()

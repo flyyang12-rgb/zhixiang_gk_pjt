@@ -2,13 +2,14 @@ import 'dotenv/config'
 import { createHash, randomUUID } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import mysql from 'mysql2/promise'
 import * as XLSX from 'xlsx'
-import { config } from '../server/config.js'
+import { database, type DatabaseResult, type DatabaseRow } from '../server/database.js'
 
 const SOURCE_URL = 'https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/202606/W020260618416094865984.xls'
 const SOURCE_PAGE = 'https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/202606/t20260618_1441074.html'
 const SOURCE_YEAR = 2026
+const SOURCE_PUBLISHED_AT = '2026-06-18'
+const SOURCE_EFFECTIVE_AT = '2026-06-17'
 
 const provinceAliases: Record<string, string> = {
   北京市: '北京', 天津市: '天津', 上海市: '上海', 重庆市: '重庆',
@@ -58,34 +59,31 @@ for (const row of rows) {
   })
 }
 
-const connection = await mysql.createConnection({
-  host: config.DB_HOST, port: config.DB_PORT, database: config.DB_NAME,
-  user: config.DB_USER, password: config.DB_PASSWORD,
-})
+const connection = await database.getConnection()
 const batchId = randomUUID()
 
 try {
   await connection.beginTransaction()
-  const [sourceResult] = await connection.execute<mysql.ResultSetHeader>(
-    `INSERT INTO data_sources (source_type, title, source_url, source_year, publisher, published_at)
-     VALUES ('school_list', ?, ?, ?, '中华人民共和国教育部', '2026-06-18')
-     ON DUPLICATE KEY UPDATE title = VALUES(title), publisher = VALUES(publisher), id = LAST_INSERT_ID(id)`,
-    ['全国普通高等学校名单（截至2026年6月17日）', SOURCE_PAGE, SOURCE_YEAR],
+  const [sourceResult] = await connection.execute<DatabaseResult>(
+    `INSERT INTO data_sources (source_type, title, source_url, source_year, publisher, published_at, effective_at)
+     VALUES ('school_list', ?, ?, ?, '中华人民共和国教育部', ?, ?)
+     ON CONFLICT (source_url,source_year) DO UPDATE SET title=EXCLUDED.title,publisher=EXCLUDED.publisher,published_at=EXCLUDED.published_at,effective_at=EXCLUDED.effective_at RETURNING id`,
+    ['全国普通高等学校名单（截至2026年6月17日）', SOURCE_PAGE, SOURCE_YEAR, SOURCE_PUBLISHED_AT, SOURCE_EFFECTIVE_AT],
   )
   const sourceId = sourceResult.insertId
   const artifactId=randomUUID()
   await connection.execute(
     `INSERT INTO source_artifacts(id,source_id,official_page_url,download_url,published_at,sha256,local_path,byte_size)
-     VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
-    [artifactId,sourceId,SOURCE_PAGE,SOURCE_URL,'2026-06-18',createHash('sha256').update(sourceBytes).digest('hex'),rawPath,sourceBytes.byteLength],
+     VALUES (?,?,?,?,?,?,?,?) ON CONFLICT (source_id,sha256) DO UPDATE SET official_page_url=EXCLUDED.official_page_url`,
+    [artifactId,sourceId,SOURCE_PAGE,SOURCE_URL,SOURCE_PUBLISHED_AT,createHash('sha256').update(sourceBytes).digest('hex'),rawPath,sourceBytes.byteLength],
   )
-  const [artifactRows]=await connection.execute<mysql.RowDataPacket[]>('SELECT id FROM source_artifacts WHERE source_id=? AND sha256=? LIMIT 1',[sourceId,createHash('sha256').update(sourceBytes).digest('hex')])
+  const [artifactRows]=await connection.execute<DatabaseRow[]>('SELECT id FROM source_artifacts WHERE source_id=? AND sha256=? LIMIT 1',[sourceId,createHash('sha256').update(sourceBytes).digest('hex')])
   await connection.execute(`INSERT INTO import_batches (id, source_id, artifact_id, status) VALUES (?, ?, ?, 'running')`, [batchId, sourceId,String(artifactRows[0]!.id)])
 
   const provinceIds = new Map<string, number>()
   for (const province of [...new Set(schools.map(school => school.province))]) {
-    await connection.execute(`INSERT INTO provinces (name, exam_mode, max_score) VALUES (?, NULL, 750) ON DUPLICATE KEY UPDATE name = VALUES(name)`, [province])
-    const [found] = await connection.execute<mysql.RowDataPacket[]>(`SELECT id FROM provinces WHERE name = ?`, [province])
+    await connection.execute(`INSERT INTO provinces (name, exam_mode, max_score) VALUES (?, NULL, 750) ON CONFLICT (name) DO UPDATE SET name=EXCLUDED.name`, [province])
+    const [found] = await connection.execute<DatabaseRow[]>(`SELECT id FROM provinces WHERE name = ?`, [province])
     provinceIds.set(province, Number(found[0]!.id))
   }
 
@@ -98,13 +96,13 @@ try {
     await connection.execute(
       `INSERT INTO schools (name, province_id, city, level, school_type, features)
        VALUES (?, ?, ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE city = VALUES(city), level = VALUES(level), school_type = VALUES(school_type), features = VALUES(features)`,
+       ON CONFLICT (name,province_id) DO UPDATE SET city=EXCLUDED.city,level=EXCLUDED.level,school_type=EXCLUDED.school_type,features=EXCLUDED.features`,
       [school.name, provinceId, school.city, level, school.remark.includes('民办') ? '民办' : '公办', features],
     )
-    const [schoolRows]=await connection.execute<mysql.RowDataPacket[]>('SELECT id FROM schools WHERE name=? LIMIT 1',[school.name])
+    const [schoolRows]=await connection.execute<DatabaseRow[]>('SELECT id FROM schools WHERE name=? LIMIT 1',[school.name])
     for(const factType of ['official_website','admissions_website','featured_major','admission_coverage']){
       await connection.execute(
-        `INSERT IGNORE INTO school_fact_audits(school_id,fact_type,status,reason) VALUES (?,?,'pending','尚未完成逐项官方核验')`,
+        `INSERT INTO school_fact_audits(school_id,fact_type,status,reason) VALUES (?,?,'pending','尚未完成逐项官方核验') ON CONFLICT (school_id,fact_type) DO NOTHING`,
         [Number(schoolRows[0]!.id),factType],
       )
     }
@@ -118,5 +116,6 @@ try {
   await connection.rollback()
   throw error
 } finally {
-  await connection.end()
+  connection.release()
+  await database.end()
 }

@@ -1,4 +1,4 @@
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseRow as RowDataPacket } from './database.js'
 import { database } from './database.js'
 import { classifySchoolRisk, classifySingleYearRisk } from './profession-engine.js'
 
@@ -32,7 +32,7 @@ export type AdmissionCandidate = {
 
 export async function loadAdmissionCandidates(input:{province:string;subjectGroup:string;selectedSubjects:string[];rank:number}) {
   const [coverage] = await database.query<RowDataPacket[]>(
-    `SELECT ap.unit_type unitType,COUNT(*) recordCount,GROUP_CONCAT(DISTINCT ap.year ORDER BY ap.year) years
+    `SELECT ap.unit_type unitType,COUNT(*) recordCount,STRING_AGG(DISTINCT ap.year::text, ',' ORDER BY ap.year::text) years
      FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id
      WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL
      AND ap.year=(SELECT MAX(ap2.year) FROM admission_programs ap2 JOIN provinces p2 ON p2.id=ap2.province_id WHERE p2.name=? AND ap2.subject_group=? AND ap2.recommendation_eligible=1 AND ap2.min_rank IS NOT NULL)
@@ -77,7 +77,7 @@ async function loadExactMajorCandidates(input:{province:string;subjectGroup:stri
   const [rows] = await database.query<RowDataPacket[]>(
     `SELECT s.id schoolId,s.name schoolName,hp.name province,s.city,s.level,s.official_url officialUrl,s.admissions_url admissionsUrl,s.links_source_url linksSourceUrl,
      MAX(year_rank.unitId) unitId,'专业投档记录汇总' unitName,NULL subjectRequirement,ROUND(AVG(year_rank.referenceRank)) referenceRank,
-     GROUP_CONCAT(year_rank.referenceRank ORDER BY year_rank.year) ranks,GROUP_CONCAT(year_rank.year ORDER BY year_rank.year) years,COUNT(*) yearCount,MAX(year_rank.sourceUrl) sourceUrl
+     STRING_AGG(year_rank.referenceRank::text, ',' ORDER BY year_rank.year) ranks,STRING_AGG(year_rank.year::text, ',' ORDER BY year_rank.year) years,COUNT(*) yearCount,MAX(year_rank.sourceUrl) sourceUrl
      FROM (SELECT ap2.school_id,ap2.year,MAX(ap2.id) unitId,MAX(ap2.min_rank) referenceRank,MAX(ds2.source_url) sourceUrl FROM admission_programs ap2 JOIN provinces p2 ON p2.id=ap2.province_id LEFT JOIN data_sources ds2 ON ds2.id=ap2.source_id
        WHERE p2.name=? AND ap2.subject_group=? AND ap2.unit_type='exact_major' AND ap2.recommendation_eligible=1 AND ap2.min_rank IS NOT NULL
        AND ap2.year>=(SELECT MAX(ap3.year)-2 FROM admission_programs ap3 JOIN provinces p3 ON p3.id=ap3.province_id WHERE p3.name=? AND ap3.subject_group=? AND ap3.unit_type='exact_major' AND ap3.recommendation_eligible=1 AND ap3.min_rank IS NOT NULL)

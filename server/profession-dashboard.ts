@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { ResultSetHeader, RowDataPacket } from 'mysql2'
+import type { DatabaseResult as ResultSetHeader, DatabaseRow as RowDataPacket } from './database.js'
 import { z } from 'zod'
 import { database } from './database.js'
 import { classifySchoolRisk, rankProfessions, type ProfessionInput } from './profession-engine.js'
@@ -35,7 +35,7 @@ export async function buildProfessionDashboard(profileId: string) {
     const selectedSubjects = parseJson<string[]>(profile.selectedSubjects ?? '[]')
     const [majorRows] = await database.query<RowDataPacket[]>(`SELECT DISTINCT m.id,m.code,m.name,m.category FROM majors m
       WHERE EXISTS (SELECT 1 FROM major_job_directions mjd WHERE mjd.major_id=m.id AND mjd.review_status='approved')
-         OR EXISTS (SELECT 1 FROM major_outlook_evidence moe WHERE moe.major_id=m.id AND moe.valid_until>=CURDATE())
+         OR EXISTS (SELECT 1 FROM major_outlook_evidence moe WHERE moe.major_id=m.id AND moe.valid_until>=CURRENT_DATE)
       ORDER BY m.code`)
     const employmentHealth = await loadEmploymentHealth()
     const admission = planningRank
@@ -65,7 +65,7 @@ export async function buildProfessionDashboard(profileId: string) {
        LEFT JOIN schools s ON psi.item_type='school' AND s.id=psi.item_id
        WHERE psi.profile_id=? ORDER BY psi.created_at`, [profileId],
     )
-    const [snapshotRows]=await database.query<RowDataPacket[]>(`SELECT id,exam_name examName,DATE_FORMAT(exam_date,'%Y-%m-%d') examDate,score,province_rank provinceRank,note,is_current isCurrent FROM profile_score_snapshots WHERE profile_id=? ORDER BY exam_date,id`,[profileId])
+    const [snapshotRows]=await database.query<RowDataPacket[]>(`SELECT id,exam_name examName,TO_CHAR(exam_date,'YYYY-MM-DD') examDate,score,province_rank provinceRank,note,is_current isCurrent FROM profile_score_snapshots WHERE profile_id=? ORDER BY exam_date,id`,[profileId])
     return {
       mode: effectiveMode as 'exploration'|'application',
       profileSummary:{studentName:String(profile.studentName),planningMode:profile.planningMode,province:String(profile.province),subjectGroup:String(profile.subjectGroup),score:profile.score==null?null:Number(profile.score),provinceRank:profile.provinceRank==null?null:Number(profile.provinceRank)},
@@ -91,9 +91,9 @@ professionDashboardRouter.put('/profiles/:id/saved-items', async (request, respo
     const [profiles] = await database.query<RowDataPacket[]>(`SELECT id FROM student_profiles WHERE id=?`, [profileId])
     if (!profiles[0]) { response.status(404).json({ success: false, data: null, error: '学生档案不存在', requestId: response.locals.requestId }); return }
     if(input.note===undefined){
-      await database.execute(`INSERT INTO profile_saved_items (profile_id,item_type,item_id,state,note) VALUES (?,?,?,?,NULL) ON DUPLICATE KEY UPDATE state=VALUES(state)`, [profileId,input.itemType,input.itemId,input.state])
+      await database.execute(`INSERT INTO profile_saved_items (profile_id,item_type,item_id,state,note) VALUES (?,?,?,?,NULL) ON CONFLICT (profile_id,item_type,item_id) DO UPDATE SET state=EXCLUDED.state`, [profileId,input.itemType,input.itemId,input.state])
     }else{
-      await database.execute(`INSERT INTO profile_saved_items (profile_id,item_type,item_id,state,note) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE state=VALUES(state),note=VALUES(note)`, [profileId,input.itemType,input.itemId,input.state,input.note])
+      await database.execute(`INSERT INTO profile_saved_items (profile_id,item_type,item_id,state,note) VALUES (?,?,?,?,?) ON CONFLICT (profile_id,item_type,item_id) DO UPDATE SET state=EXCLUDED.state,note=EXCLUDED.note`, [profileId,input.itemType,input.itemId,input.state,input.note])
     }
     response.json({ success: true, data: input, error: null, requestId: response.locals.requestId })
   } catch (error) { next(error) }
@@ -124,7 +124,7 @@ professionDashboardRouter.delete('/profiles/:id/saved-items/:itemType/:itemId', 
 })
 
 async function loadEmploymentHealth() {
-  const [rows] = await database.query<RowDataPacket[]>(`SELECT SUM(status='healthy' AND last_success_at>=DATE_SUB(NOW(),INTERVAL 7 DAY)) healthySources,MAX(last_success_at) lastSuccessAt,DATEDIFF(NOW(),MAX(last_success_at)) staleDays FROM job_sources`)
+  const [rows] = await database.query<RowDataPacket[]>(`SELECT COUNT(*) FILTER (WHERE status='healthy' AND last_success_at>=NOW()-INTERVAL '7 days') healthySources,MAX(last_success_at) lastSuccessAt,CURRENT_DATE-MAX(last_success_at)::date staleDays FROM job_sources`)
   const row = rows[0]
   const healthySources = Number(row.healthySources ?? 0)
   const staleDays = row.staleDays == null ? null : Number(row.staleDays)
@@ -134,10 +134,10 @@ async function loadEmploymentHealth() {
 async function loadOutlookEvidence(majorId:number){
   const [rows]=await database.query<RowDataPacket[]>(`SELECT CASE moe.signal_level WHEN 'strong' THEN 85 ELSE 70 END score,
     moe.rationale,ds.title,ds.publisher,ds.source_url sourceUrl,ds.source_year sourceYear,
-    DATE_FORMAT(moe.reviewed_at,'%Y-%m-%d') reviewedAt,DATE_FORMAT(moe.valid_until,'%Y-%m-%d') validUntil
+    TO_CHAR(moe.reviewed_at,'YYYY-MM-DD') reviewedAt,TO_CHAR(moe.valid_until,'YYYY-MM-DD') validUntil
     FROM major_outlook_evidence moe JOIN data_sources ds ON ds.id=moe.source_id
-    WHERE moe.major_id=? AND moe.valid_until>=CURDATE()
-    ORDER BY FIELD(moe.signal_level,'strong','moderate'),moe.reviewed_at DESC LIMIT 1`,[majorId])
+    WHERE moe.major_id=? AND moe.valid_until>=CURRENT_DATE
+    ORDER BY CASE moe.signal_level WHEN 'strong' THEN 1 WHEN 'moderate' THEN 2 ELSE 3 END,moe.reviewed_at DESC LIMIT 1`,[majorId])
   const row=rows[0]
   if(!row)return null
   return {score:Number(row.score),rationale:String(row.rationale),reference:{title:String(row.title),publisher:String(row.publisher),sourceUrl:String(row.sourceUrl),sourceYear:Number(row.sourceYear),reviewedAt:String(row.reviewedAt),validUntil:String(row.validUntil)}}
@@ -149,8 +149,8 @@ async function loadJobDirections(majorId: number) {
 }
 
 async function loadEmploymentStats(majorId: number) {
-  const [totals] = await database.query<RowDataPacket[]>(`SELECT COUNT(DISTINCT jp.fingerprint) jobCount,COUNT(DISTINCT jp.province) provinceCount,COUNT(DISTINCT jp.source_id) sourceCount FROM job_postings jp JOIN major_job_directions mjd ON mjd.job_direction_id=jp.job_direction_id WHERE mjd.major_id=? AND mjd.review_status='approved' AND jp.published_at>=DATE_SUB(CURDATE(),INTERVAL 30 DAY) AND jp.expires_at>=CURDATE()`, [majorId])
-  const [daily] = await database.query<RowDataPacket[]>(`SELECT stat_date statDate,SUM(job_count) jobCount FROM job_daily_stats WHERE major_id=? AND stat_date>=DATE_SUB(CURDATE(),INTERVAL 30 DAY) GROUP BY stat_date ORDER BY stat_date`, [majorId])
+  const [totals] = await database.query<RowDataPacket[]>(`SELECT COUNT(DISTINCT jp.fingerprint) jobCount,COUNT(DISTINCT jp.province) provinceCount,COUNT(DISTINCT jp.source_id) sourceCount FROM job_postings jp JOIN major_job_directions mjd ON mjd.job_direction_id=jp.job_direction_id WHERE mjd.major_id=? AND mjd.review_status='approved' AND jp.published_at>=CURRENT_DATE-INTERVAL '30 days' AND jp.expires_at>=CURRENT_DATE`, [majorId])
+  const [daily] = await database.query<RowDataPacket[]>(`SELECT stat_date statDate,SUM(job_count) jobCount FROM job_daily_stats WHERE major_id=? AND stat_date>=CURRENT_DATE-INTERVAL '30 days' GROUP BY stat_date ORDER BY stat_date`, [majorId])
   return { jobCount:Number(totals[0]?.jobCount??0),provinceCount:Number(totals[0]?.provinceCount??0),sourceCount:Number(totals[0]?.sourceCount??0),dailyCounts:daily.map(row=>Number(row.jobCount)) }
 }
 
@@ -175,8 +175,8 @@ async function loadExplorationSchools(majorName: string) {
      FROM admission_programs ap JOIN schools s ON s.id=ap.school_id
      WHERE ap.major_name LIKE ? AND ap.recommendation_eligible=1
      GROUP BY s.id,s.name,s.level,s.city,s.official_url,s.admissions_url,s.links_verified_at,s.links_source_url
-     HAVING evidenceYears>=2
-     ORDER BY FIELD(s.level,'985','211','双一流','一本','本科','二本','专科'),
+     HAVING COUNT(DISTINCT ap.year)>=2
+     ORDER BY CASE s.level WHEN '985' THEN 1 WHEN '211' THEN 2 WHEN '双一流' THEN 3 WHEN '一本' THEN 4 WHEN '本科' THEN 5 WHEN '二本' THEN 6 WHEN '专科' THEN 7 ELSE 8 END,
      (s.official_url IS NOT NULL AND s.admissions_url IS NOT NULL AND s.links_source_url IS NOT NULL) DESC,
      evidenceYears DESC,latestYear DESC,s.name
      LIMIT 6`,

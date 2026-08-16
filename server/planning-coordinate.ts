@@ -1,4 +1,4 @@
-import type {RowDataPacket} from 'mysql2'
+import type {DatabaseRow as RowDataPacket} from './database.js'
 import {database} from './database.js'
 
 export type PlanningStability='single'|'preliminary'|'stable'|'moderate'|'volatile'

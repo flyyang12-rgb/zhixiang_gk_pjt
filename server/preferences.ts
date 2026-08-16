@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseRow as RowDataPacket } from './database.js'
 import { z } from 'zod'
 import { database } from './database.js'
 
@@ -55,9 +55,9 @@ router.put('/profiles/:id/preferences', async (request, response, next) => {
       `INSERT INTO profile_preferences
         (profile_id, postgraduate_tendency, family_conditions, student_ranking, parent_ranking, final_weights, status)
        VALUES (?, ?, ?, ?, ?, ?, 'completed')
-       ON DUPLICATE KEY UPDATE postgraduate_tendency = VALUES(postgraduate_tendency),
-         family_conditions = VALUES(family_conditions), student_ranking = VALUES(student_ranking),
-         parent_ranking = VALUES(parent_ranking), final_weights = VALUES(final_weights), status = 'completed'`,
+       ON CONFLICT (profile_id) DO UPDATE SET postgraduate_tendency = EXCLUDED.postgraduate_tendency,
+         family_conditions = EXCLUDED.family_conditions, student_ranking = EXCLUDED.student_ranking,
+         parent_ranking = EXCLUDED.parent_ranking, final_weights = EXCLUDED.final_weights, status = 'completed'`,
       [profileId, input.postgraduateTendency, JSON.stringify(input.familyConditions), JSON.stringify(input.studentRanking), JSON.stringify(input.parentRanking), JSON.stringify(input.finalWeights)],
     )
     response.json({ success: true, data: { ...input, status: 'completed' }, error: null, requestId: response.locals.requestId })

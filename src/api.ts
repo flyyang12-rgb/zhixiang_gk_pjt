@@ -103,7 +103,7 @@ export async function savePreferences(profileId: string, preferences: ProfilePre
 }
 
 export async function getProvinceMapData() {
-  return request<ProvinceMapData[]>('/api/map/provinces')
+  return request<{items:ProvinceMapData[];source:{title:string;sourceUrl:string;publisher:string;publishedAt:string;effectiveAt:string}}>('/api/map/provinces')
 }
 
 export async function getDataStatus() {

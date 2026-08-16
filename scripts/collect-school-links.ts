@@ -3,7 +3,7 @@ import { execFile } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { promisify } from 'node:util'
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseRow as RowDataPacket } from '../server/database.js'
 import { database } from '../server/database.js'
 import { extractAdmissionsCandidates, extractSchoolWebsiteRows, pageConfirmsSchool } from './school-link-verification.js'
 

@@ -19,7 +19,7 @@ async function run(){
   for(const item of records){
     await database.execute(
       `INSERT INTO job_sources(name,source_type,base_url,access_policy_url,collection_policy,status)
-       VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE source_type=VALUES(source_type),base_url=VALUES(base_url),access_policy_url=VALUES(access_policy_url),collection_policy=VALUES(collection_policy),status=VALUES(status)`,
+       VALUES (?,?,?,?,?,?) ON CONFLICT (name) DO UPDATE SET source_type=EXCLUDED.source_type,base_url=EXCLUDED.base_url,access_policy_url=EXCLUDED.access_policy_url,collection_policy=EXCLUDED.collection_policy,status=EXCLUDED.status`,
       [item.name,item.sourceType,item.baseUrl,item.termsUrl??null,item.collectionPolicy,item.enabled?'degraded':'paused'],
     )
     imported+=1

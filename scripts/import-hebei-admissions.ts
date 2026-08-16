@@ -2,9 +2,8 @@ import 'dotenv/config'
 import { readFile, writeFile } from 'node:fs/promises'
 import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import mysql from 'mysql2/promise'
 import * as XLSX from 'xlsx'
-import { config } from '../server/config.js'
+import { database, type DatabaseResult, type DatabaseRow } from '../server/database.js'
 import { commitAdmissionPreflight, persistAdmissionPreflight, preflightAdmissionRows, registerSourceArtifact, type RawAdmissionImportRow } from '../server/admission-import.js'
 
 type RankRow={score:number;physicsRank:number|null;historyRank:number|null}
@@ -25,14 +24,14 @@ const years=[
   ]},
 ] as const
 
-const connection=await mysql.createConnection({host:config.DB_HOST,port:config.DB_PORT,database:config.DB_NAME,user:config.DB_USER,password:config.DB_PASSWORD})
+const connection=await database.getConnection()
 try{
-  const [provinceRows]=await connection.query<mysql.RowDataPacket[]>(`SELECT id FROM provinces WHERE name='河北'`)
+  const [provinceRows]=await connection.query<DatabaseRow[]>(`SELECT id FROM provinces WHERE name='河北'`)
   const provinceId=Number(provinceRows[0]?.id)
   if(!provinceId)throw new Error('河北省份数据不存在，请先执行 npm run db:init')
-  const [schoolRows]=await connection.query<mysql.RowDataPacket[]>(`SELECT id,name FROM schools`)
+  const [schoolRows]=await connection.query<DatabaseRow[]>(`SELECT id,name FROM schools`)
   const schools=schoolRows.map(row=>({id:Number(row.id),name:String(row.name)})),schoolNames=new Set(schools.map(school=>school.name))
-  const [aliasRows]=await connection.query<mysql.RowDataPacket[]>(`SELECT alias,school_id schoolId FROM school_aliases WHERE verification_status='verified'`)
+  const [aliasRows]=await connection.query<DatabaseRow[]>(`SELECT alias,school_id schoolId FROM school_aliases WHERE verification_status='verified'`)
   const verifiedAliases=aliasRows.map(row=>({alias:String(row.alias),schoolId:Number(row.schoolId)})),aliasNames=new Set(verifiedAliases.map(alias=>alias.alias))
 
   for(const yearConfig of years){
@@ -43,8 +42,8 @@ try{
       const bytes=await readFile(file.path)
       const workbook=XLSX.read(bytes)
       const rows=XLSX.utils.sheet_to_json<unknown[]>(workbook.Sheets[workbook.SheetNames[0]!]!,{header:1,blankrows:false}).slice(5)
-      const [sourceResult]=await connection.execute<mysql.ResultSetHeader>(
-        `INSERT INTO data_sources(source_type,title,source_url,source_year,publisher,published_at) VALUES('admission',?,?,?,?,?) ON DUPLICATE KEY UPDATE title=VALUES(title),publisher=VALUES(publisher),published_at=VALUES(published_at),id=LAST_INSERT_ID(id)`,
+      const [sourceResult]=await connection.execute<DatabaseResult>(
+        `INSERT INTO data_sources(source_type,title,source_url,source_year,publisher,published_at) VALUES('admission',?,?,?,?,?) ON CONFLICT (source_url,source_year) DO UPDATE SET title=EXCLUDED.title,publisher=EXCLUDED.publisher,published_at=EXCLUDED.published_at RETURNING id`,
         [`河北省${yearConfig.year}年本科批${file.subjectGroup}平行志愿投档情况（位次映射：${yearConfig.rankSourceUrl}）`,file.sourceUrl,yearConfig.year,file.publisher,yearConfig.publishedAt],
       )
       const sourceId=sourceResult.insertId
@@ -62,7 +61,7 @@ try{
     await writeFile(new URL(`../data/hebei-${yearConfig.year}-import-report.json`,import.meta.url),JSON.stringify(report,null,2),'utf8')
     console.log(JSON.stringify(report,null,2))
   }
-}finally{await connection.end()}
+}finally{connection.release();await database.end()}
 
 function matchableSchoolName(raw:string,schoolNames:Set<string>,aliasNames:Set<string>){
   const candidates=[raw,raw.replace(/\[[^\]]+]/g,'').trim(),raw.replace(/\([^)]*市\)/g,'').replace(/\[[^\]]+]/g,'').trim()].map(value=>value.replaceAll('(','（').replaceAll(')','）'))

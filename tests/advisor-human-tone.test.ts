@@ -37,7 +37,7 @@ describe('顾问院校问答语气',()=>{
   it('直接回答院校怎么样，并接住用户的地域信息',()=>{
     const answer=buildLocalAdvisorReply(context(),'河南牧业经济学院怎么样，我是河南南阳人')
     expectTransparent(answer)
-    expect(answer).toContain('能看，但别急着报')
+    expect(answer).toContain('不建议现在把河南牧业经济学院放在前面')
     expect(answer).toContain('南阳人')
     expect(answer).toContain('离家近是加分项，不是报考理由')
     expect(answer).toContain('你最想学什么专业')
@@ -48,9 +48,24 @@ describe('顾问院校问答语气',()=>{
 
   it('院校评价第一行先亮态度，允许骂错误选择但不骂用户',()=>{
     const answer=buildLocalAdvisorReply(context(),'河南牧业经济学院到底值不值得报')
-    expect(answer.split('\n')[0]).toContain('能看，但别急着报')
+    expect(answer.split('\n')[0]).toContain('不建议现在把河南牧业经济学院放在前面')
     expect(answer).toContain('这叫瞎报，不叫规划')
     expect(answer).not.toMatch(/你(?:真|太)?(?:蠢|笨|没出息)|你家穷/)
+  })
+
+  it('没有目标专业证据时直接劝退，不拿校名糊弄家庭',()=>{
+    const answer=buildLocalAdvisorReply(context(),'我想学计算机科学与技术，这学校怎么样')
+    expect(answer).toContain('不建议现在把河南牧业经济学院当成计算机科学与技术的核心目标')
+    expect(answer).toContain('拿专业去赌')
+    expect(answer).toContain('下一步只做：查看该校当年招生专业目录')
+  })
+
+  it('“那它的会计怎么样”继续核对专业，不退回学校通稿',()=>{
+    const answer=buildLocalAdvisorReply(context(),'那它的会计怎么样')
+    expect(answer).toContain('河南牧业经济学院')
+    expect(answer).toContain('会计')
+    expect(answer).toContain('不建议现在把河南牧业经济学院当成会计的核心目标')
+    expect(answer).not.toContain('离家近是加分项')
   })
 
   it.each([
@@ -60,7 +75,7 @@ describe('顾问院校问答语气',()=>{
     ['我现在很迷茫，不知道怎么办','怕的不是纠结','【为什么这么说】'],
     ['这个专业是不是必须考研','别把考研当成默认答案','【接下来怎么查】'],
     ['计算机科学与技术就业怎么样','有岗位，不等于普通本科生一定够得着','【先说结论】'],
-    ['到底优先选学校还是专业','有明确职业门槛的方向，优先保专业','【这事最容易踩的坑】'],
+    ['到底优先选学校还是专业','我的态度很明确，先保想学的专业，再选学校','【这事最容易踩的坑】'],
   ])('不同问题都先接当前这句话：%s',(question,expected,mechanicalHeading)=>{
     const current=context()
     current.schoolDetail=null

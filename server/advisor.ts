@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { Router } from 'express'
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseResult, DatabaseRow as RowDataPacket } from './database.js'
 import { z } from 'zod'
 import { config } from './config.js'
 import { database } from './database.js'
@@ -34,7 +34,7 @@ advisorRouter.post('/profiles/:id/advisor/messages', async (request, response, n
     const id = z.string().uuid().parse(request.params.id)
     const { message,focus } = messageSchema.parse(request.body)
     const context = await loadContext(id,focus,message)
-    const [insertedUser] = await database.execute<import('mysql2').ResultSetHeader>(`INSERT INTO advisor_messages(profile_id,role,content) VALUES (?,'user',?)`, [id, message])
+    const [insertedUser] = await database.execute<DatabaseResult>(`INSERT INTO advisor_messages(profile_id,role,content) VALUES (?,'user',?) RETURNING id`, [id, message])
     const publicFocus=context.schoolDetail?{type:'school' as const,schoolId:context.schoolDetail.school.id,schoolName:context.schoolDetail.school.name}:undefined
     const [oldRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content FROM advisor_messages WHERE profile_id=? AND id<? ORDER BY id DESC LIMIT 16`,[id,insertedUser.insertId])
     const generated=await generateAdvisorReply({context,message,history:oldRows.reverse().map(row=>({id:Number(row.id),role:row.role,content:String(row.content)}))})
@@ -104,7 +104,7 @@ advisorRouter.post('/profiles/:id/advisor/conversations/:conversationId/messages
 })
 
 advisorRouter.delete('/profiles/:id/advisor/conversations/:conversationId',async(request,response,next)=>{
-  try{const profileId=z.string().uuid().parse(request.params.id),conversationId=z.string().uuid().parse(request.params.conversationId);const [result]=await database.execute<import('mysql2').ResultSetHeader>(`DELETE FROM advisor_conversations WHERE id=? AND profile_id=?`,[conversationId,profileId]);if(!result.affectedRows){response.status(404).json({success:false,data:null,error:'会话不存在',requestId:response.locals.requestId});return}response.status(204).end()}catch(error){next(error)}
+  try{const profileId=z.string().uuid().parse(request.params.id),conversationId=z.string().uuid().parse(request.params.conversationId);const [result]=await database.execute<DatabaseResult>(`DELETE FROM advisor_conversations WHERE id=? AND profile_id=?`,[conversationId,profileId]);if(!result.affectedRows){response.status(404).json({success:false,data:null,error:'会话不存在',requestId:response.locals.requestId});return}response.status(204).end()}catch(error){next(error)}
 })
 
 async function getConversation(profileId:string,conversationId:string){
@@ -136,7 +136,7 @@ async function completeConversationMessage(profileId:string,conversationId:strin
   if(!focus&&resolvedTurnFocus){const resolvedName=context.schoolDetail?.school.name??context.focusedMajor?.name??'当前讨论';await database.execute(`UPDATE advisor_conversations SET focus_type=?,focus_id=?,focus_name=?,title=? WHERE id=? AND profile_id=? AND focus_type='general'`,[resolvedTurnFocus.type,resolvedTurnFocus.type==='school'?resolvedTurnFocus.schoolId:resolvedTurnFocus.majorId,resolvedName,`讨论${resolvedName}`,conversationId,profileId])}
   const [historyRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content FROM advisor_conversation_messages WHERE conversation_id=? AND id<? AND id>? ORDER BY id`,[conversationId,user.id,Number(conversation.summarized_through_message_id??0)])
   const generated=await generateAdvisorReply({context,message:String(user.content),history:historyRows.map(row=>({id:Number(row.id),role:row.role,content:String(row.content)})),existingSummary:conversation.memory_summary})
-  const [inserted]=await database.execute<import('mysql2').ResultSetHeader>(`INSERT INTO advisor_conversation_messages(conversation_id,role,content,reply_to_message_id,generation_status) VALUES (?,'assistant',?,?,'complete')`,[conversationId,generated.answer,user.id])
+  const [inserted]=await database.execute<DatabaseResult>(`INSERT INTO advisor_conversation_messages(conversation_id,role,content,reply_to_message_id,generation_status) VALUES (?,'assistant',?,?,'complete') RETURNING id`,[conversationId,generated.answer,user.id])
   await database.execute(`UPDATE advisor_conversation_messages SET generation_status='complete' WHERE id=?`,[user.id])
   await database.execute(`UPDATE advisor_conversations SET memory_summary=?,summarized_through_message_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`,[generated.memory.summary||null,generated.memory.summarizedThroughMessageId,conversationId])
   const [assistantRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content,reply_to_message_id replyToMessageId,generation_status status,created_at createdAt FROM advisor_conversation_messages WHERE id=?`,[inserted.insertId])
@@ -149,7 +149,7 @@ advisorRouter.post('/profiles/:id/advisor/comparison',async(request,response,nex
     const profileId=z.string().uuid().parse(request.params.id)
     const {schoolIds}=comparisonSchema.parse(request.body)
     const context=await loadComparisonContext(profileId,schoolIds)
-    let content=buildLocalComparisonAnalysis(context.details)
+    let content=buildLocalComparisonAnalysis(context.details,context.targetMajor)
     let mode:'ai'|'local'='local'
     if(config.AI_BASE_URL&&config.AI_API_KEY&&config.AI_MODEL){
       try{
@@ -169,20 +169,22 @@ advisorRouter.post('/profiles/:id/advisor/comparison',async(request,response,nex
 async function loadComparisonContext(profileId:string,schoolIds:number[]){
   const [profiles]=await database.execute<RowDataPacket[]>(`SELECT sp.student_name studentName,p.name province,sp.subject_group subjectGroup,sp.province_rank provinceRank FROM student_profiles sp JOIN provinces p ON p.id=sp.province_id WHERE sp.id=?`,[profileId])
   if(!profiles[0])throw new SchoolDetailLookupError(404,'学生档案不存在')
+  const [majorRows]=await database.execute<RowDataPacket[]>(`SELECT m.id,m.name FROM profile_saved_items psi JOIN majors m ON m.id=psi.item_id WHERE psi.profile_id=? AND psi.item_type='major' AND psi.state='saved' ORDER BY psi.updated_at DESC LIMIT 1`,[profileId])
   const details=await Promise.all(schoolIds.map(id=>loadSchoolDetail(id,profileId)))
-  return {profile:profiles[0],details}
+  return {profile:profiles[0],details,targetMajor:majorRows[0]?{id:Number(majorRows[0].id),name:String(majorRows[0].name)}:null}
 }
 
 async function askComparisonModel(context:Awaited<ReturnType<typeof loadComparisonContext>>){
   const controller=new AbortController()
   const timeout=setTimeout(()=>controller.abort(),12_000)
-  const promptContext={profile:context.profile,schools:context.details.map(detail=>{
+  const promptContext={profile:context.profile,targetMajor:context.targetMajor,schools:context.details.map(detail=>{
     const records=((detail.admissionContext?.records as Array<{year:number;unitType:string;unitName:string;subjectRequirement:string|null;minRank:number|null;risk:string|null;confidence:string;recommendationEligible:boolean}>|undefined)??[]).filter(record=>record.recommendationEligible&&record.minRank!=null)
-    return {name:detail.school.name,city:detail.school.city,level:detail.school.level,admissionRecords:records.slice(0,3),verifiedFeaturedMajors:detail.featuredMajors.slice(0,3).map(item=>item.name),dataGaps:{admission:!records.length,featuredMajors:!detail.featuredMajors.length,officialWebsite:!detail.school.officialUrl,admissionsWebsite:!detail.school.admissionsUrl}}
+    const targetMajor=context.targetMajor?.name
+    return {name:detail.school.name,city:detail.school.city,level:detail.school.level,admissionRecords:records.slice(0,3),verifiedFeaturedMajors:detail.featuredMajors.slice(0,3).map(item=>item.name),targetMajorEvidence:targetMajor?{exactAdmission:records.some(record=>record.unitType==='exact_major'&&record.unitName.includes(targetMajor)),verifiedFeatured:detail.featuredMajors.some(item=>item.name.includes(targetMajor)||targetMajor.includes(item.name))}:null,dataGaps:{admission:!records.length,featuredMajors:!detail.featuredMajors.length,officialWebsite:!detail.school.officialUrl,admissionsWebsite:!detail.school.admissionsUrl}}
   })}
   try{
     const response=await fetch(`${config.AI_BASE_URL.replace(/\/$/,'')}/chat/completions`,{method:'POST',signal:controller.signal,headers:{Authorization:`Bearer ${config.AI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:config.AI_MODEL,temperature:.2,thinking:{type:'disabled'},messages:[
-      {role:'system',content:`你是“知向院校对比助手”。只能引用输入 JSON 中的当前学生档案、招生记录、选科要求、已核验优势专业和数据缺口。不得改变冲稳保、声称录取概率、补造事实或给出无条件的“最佳院校”。必须点名每所院校。只输出三行，每行一句，总字数不超过 240 字：\n优先核对：…\n关键差异：…\n填报风险：…`},
+      {role:'system',content:`你是“知向院校对比助手”。只能引用输入 JSON 中的当前学生档案、招生记录、选科要求、已核验优势专业和数据缺口。硬条件通过后先看 targetMajor 的具体证据，再看位次风险和数据缺口，最后才看城市和学校名气。targetMajor 为空或各校都没有目标专业证据时，必须明确说现在硬选就是看校名瞎报，不得强行站队；证据能分出高下时必须明确说更建议哪所，也可以说另一所不划算或是在赌专业。不得改变冲稳保、声称录取概率或补造事实。必须点名每所院校。只输出四行，每行一句，总字数不超过 360 字：\n我的建议：…\n专业依据：…\n最大风险：…\n下一步只做：…`},
       {role:'user',content:JSON.stringify(promptContext)}
     ]})})
     if(!response.ok)throw new Error(`AI 服务返回 ${response.status}`)
@@ -191,23 +193,34 @@ async function askComparisonModel(context:Awaited<ReturnType<typeof loadComparis
   }finally{clearTimeout(timeout)}
 }
 
-export function buildLocalComparisonAnalysis(details:Array<Awaited<ReturnType<typeof loadSchoolDetail>>>){
+export function buildLocalComparisonAnalysis(details:Array<Awaited<ReturnType<typeof loadSchoolDetail>>>,targetMajor:{id:number;name:string}|null=null){
   const facts=details.map(detail=>{
     const records=((detail.admissionContext?.records as Array<{risk:string|null;confidence:string;year:number;minRank:number|null;recommendationEligible:boolean}>|undefined)??[]).filter((record):record is {risk:string|null;confidence:string;year:number;minRank:number;recommendationEligible:true}=>record.recommendationEligible&&record.minRank!=null)
     const record=records[0]
     const position=record?`${record.risk||'核验'}·${record.confidence}，${record.year}位次 ${record.minRank.toLocaleString()}`:'无可比位次'
     const majors=detail.featuredMajors.slice(0,2).map(item=>item.name).join('、')||'优势专业待核验'
-    return {name:detail.school.name,position,majors}
+    const exactTarget=targetMajor?((detail.admissionContext?.records as Array<{unitType:string;unitName:string;recommendationEligible:boolean}>|undefined)??[]).some(record=>record.recommendationEligible&&record.unitType==='exact_major'&&record.unitName.includes(targetMajor.name)):false
+    const featuredTarget=targetMajor?detail.featuredMajors.some(item=>item.name.includes(targetMajor.name)||targetMajor.name.includes(item.name)):false
+    return {name:detail.school.name,position,majors,targetEvidence:exactTarget?2:featuredTarget?1:0}
   })
   const missing=details.filter(detail=>!((detail.admissionContext?.records as unknown[]|undefined)?.length)||!detail.featuredMajors.length).map(detail=>detail.school.name)
-  return `优先核对：${facts.map(item=>`${item.name}（${item.position}）`).join('；')}\n关键差异：${facts.map(item=>`${item.name}：${item.majors}`).join('；')}\n填报风险：${missing.length?`${missing.join('、')}有数据缺口；`:'各校仍需'}复核当年计划、专业组和章程。`
+  const bestEvidence=Math.max(...facts.map(item=>item.targetEvidence))
+  const leaders=facts.filter(item=>item.targetEvidence===bestEvidence)
+  const advice=!targetMajor
+    ?`先不在${facts.map(item=>item.name).join('和')}里硬选；没定想学的专业，只按校名站队就是瞎报。`
+    :bestEvidence===0
+      ?`先不站队；${facts.map(item=>item.name).join('和')}都没有${targetMajor.name}的明确证据，现在硬选就是拿专业去赌。`
+      :leaders.length===1
+        ?`我更建议先看${leaders[0]!.name}；它的${targetMajor.name}证据更明确，其他学校暂时不值得排在前面。`
+        :`先把${leaders.map(item=>item.name).join('和')}留在同一组；它们的${targetMajor.name}证据暂时分不出高下，不能为了装果断硬选。`
+  return `我的建议：${advice}\n专业依据：${facts.map(item=>`${item.name}：${targetMajor?item.targetEvidence===2?`有${targetMajor.name}具体招生记录`:item.targetEvidence===1?`${targetMajor.name}有已核验优势证据`:`没有${targetMajor.name}明确证据`:item.majors}`).join('；')}。\n最大风险：${facts.map(item=>`${item.name}（${item.position}）`).join('；')}${missing.length?`；${missing.join('、')}还有数据缺口`:''}。\n下一步只做：${targetMajor?`核对这些学校今年${targetMajor.name}的招生专业目录。`:'先从收藏专业里定一个最想学的专业。'}`
 }
 
 export function isSafeComparisonAnswer(answer:string,schoolNames:string[]){
   const lines=answer.split(/\r?\n/).filter(Boolean)
-  const required=['优先核对：','关键差异：','填报风险：']
+  const required=['我的建议：','专业依据：','最大风险：','下一步只做：']
   const forbidden=[/录取概率/,/确保录取/,/一定能上/,/最佳院校/]
-  return answer.length<=260&&lines.length===3&&required.every((title,index)=>lines[index]?.startsWith(title))&&schoolNames.every(name=>answer.includes(name))&&forbidden.every(pattern=>!pattern.test(answer))
+  return answer.length<=420&&lines.length===4&&required.every((title,index)=>lines[index]?.startsWith(title))&&schoolNames.every(name=>answer.includes(name))&&forbidden.every(pattern=>!pattern.test(answer))
 }
 
 async function loadContext(profileId: string,focus?:z.infer<typeof advisorFocusSchema>,message='') {

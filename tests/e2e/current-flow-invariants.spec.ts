@@ -293,9 +293,10 @@ test('可在我的收藏中选择两所目标院校进行紧凑比较',async({pa
     await expect(dialog).toContainText('当前档案招生位置')
     await expect(dialog).toContainText('数据缺口')
     const analysis=dialog.locator('.comparison-analysis')
-    await expect(analysis).toContainText('优先核对：',{timeout:30_000})
-    await expect(analysis).toContainText('关键差异：')
-    await expect(analysis).toContainText('填报风险：')
+    await expect(analysis).toContainText('我的建议：',{timeout:30_000})
+    await expect(analysis).toContainText('专业依据：')
+    await expect(analysis).toContainText('最大风险：')
+    await expect(analysis).toContainText('下一步只做：')
     for(const school of schools)await expect(analysis).toContainText(school.schoolName)
     const advisorHistory=(await (await request.get(`/api/profiles/${profileId}/advisor/messages`)).json()).data
     expect(advisorHistory).toHaveLength(0)

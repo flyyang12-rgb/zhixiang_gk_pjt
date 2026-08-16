@@ -2,7 +2,7 @@ import 'dotenv/config'
 import { mkdir,readFile,writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { z } from 'zod'
-import { database } from '../server/database.js'
+import { database, type DatabaseResult, type DatabaseRow } from '../server/database.js'
 import { registerSourceArtifact } from '../server/admission-import.js'
 
 const inputSchema=z.object({
@@ -14,7 +14,7 @@ async function run(){
   const inputPath=resolve(process.argv[2]??'data/henan-group-majors.json')
   const inputBytes=await readFile(inputPath)
   const input=inputSchema.parse(JSON.parse(inputBytes.toString('utf8')))
-  const [sourceResult]=await database.execute<import('mysql2').ResultSetHeader>(`INSERT INTO data_sources(source_type,title,source_url,source_year,publisher,published_at) VALUES('admission',?,?,?,?,?) ON DUPLICATE KEY UPDATE title=VALUES(title),publisher=VALUES(publisher),published_at=VALUES(published_at),id=LAST_INSERT_ID(id)`,[input.source.title,input.source.url,input.source.year,input.source.publisher,input.source.publishedAt??null])
+  const [sourceResult]=await database.execute<DatabaseResult>(`INSERT INTO data_sources(source_type,title,source_url,source_year,publisher,published_at) VALUES('admission',?,?,?,?,?) ON CONFLICT (source_url,source_year) DO UPDATE SET title=EXCLUDED.title,publisher=EXCLUDED.publisher,published_at=EXCLUDED.published_at RETURNING id`,[input.source.title,input.source.url,input.source.year,input.source.publisher,input.source.publishedAt??null])
   const sourceId=sourceResult.insertId
   const connection=await database.getConnection()
   await registerSourceArtifact(connection,{sourceId,officialPageUrl:input.source.url,publishedAt:input.source.publishedAt,bytes:inputBytes,localPath:inputPath})
@@ -23,11 +23,11 @@ async function run(){
   await connection.beginTransaction()
   try{
   for(const record of input.records){
-    const [units]=await connection.query<import('mysql2').RowDataPacket[]>(`SELECT ap.id FROM admission_programs ap JOIN schools s ON s.id=ap.school_id JOIN provinces p ON p.id=ap.province_id WHERE p.name='河南' AND ap.year=? AND ap.subject_group=? AND ap.unit_type='major_group' AND ap.unit_code=? AND s.name=? LIMIT 2`,[input.source.year,record.subjectGroup,record.unitCode,record.schoolName])
+    const [units]=await connection.query<DatabaseRow[]>(`SELECT ap.id FROM admission_programs ap JOIN schools s ON s.id=ap.school_id JOIN provinces p ON p.id=ap.province_id WHERE p.name='河南' AND ap.year=? AND ap.subject_group=? AND ap.unit_type='major_group' AND ap.unit_code=? AND s.name=? LIMIT 2`,[input.source.year,record.subjectGroup,record.unitCode,record.schoolName])
     if(units.length!==1){unmatchedUnits+=1;errors.push(`${record.schoolName}/${record.unitCode}：招生单元${units.length?'不唯一':'不存在'}`);continue}
-    const [majors]=await connection.query<import('mysql2').RowDataPacket[]>(`SELECT id FROM majors WHERE (? IS NOT NULL AND code=?) OR name=? LIMIT 2`,[record.majorCode??null,record.majorCode??null,record.majorName])
+    const [majors]=await connection.query<DatabaseRow[]>(`SELECT id FROM majors WHERE (? IS NOT NULL AND code=?) OR name=? LIMIT 2`,[record.majorCode??null,record.majorCode??null,record.majorName])
     if(majors.length!==1){unmatchedMajors+=1;errors.push(`${record.majorName}：标准专业${majors.length?'不唯一':'不存在'}`);continue}
-    await connection.execute(`INSERT INTO admission_unit_majors(admission_program_id,raw_major_name,major_id,source_id,verification_status,verified_at) VALUES(?,?,?,?, 'verified',NOW()) ON DUPLICATE KEY UPDATE major_id=VALUES(major_id),source_id=VALUES(source_id),verification_status='verified',verified_at=NOW()`,[units[0].id,record.majorName,majors[0].id,sourceId])
+    await connection.execute(`INSERT INTO admission_unit_majors(admission_program_id,raw_major_name,major_id,source_id,verification_status,verified_at) VALUES(?,?,?,?, 'verified',NOW()) ON CONFLICT (admission_program_id,raw_major_name) DO UPDATE SET major_id=EXCLUDED.major_id,source_id=EXCLUDED.source_id,verification_status='verified',verified_at=NOW()`,[units[0].id,record.majorName,majors[0].id,sourceId])
     verified+=1
   }
   await connection.commit()

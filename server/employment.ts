@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseRow as RowDataPacket } from './database.js'
 import { z } from 'zod'
 import { collectEmploymentData } from './job-collector.js'
 import { database } from './database.js'
@@ -20,7 +20,7 @@ employmentRouter.put('/admin/employment/sources', async (request, response, next
   try {
     if (!isLoopback(request.ip)) { response.status(403).json({ success:false,data:null,error:'数据源管理仅允许在服务器本机执行',requestId:response.locals.requestId }); return }
     const input=sourceSchema.parse(request.body)
-    await database.execute(`INSERT INTO job_sources(name,source_type,base_url,access_policy_url,collection_policy,status) VALUES (?,?,?,?,?,'degraded') ON DUPLICATE KEY UPDATE name=VALUES(name),source_type=VALUES(source_type),access_policy_url=VALUES(access_policy_url),collection_policy=VALUES(collection_policy),status='degraded'`,[input.name,input.sourceType,input.baseUrl,input.termsUrl??null,input.collectionPolicy])
+    await database.execute(`INSERT INTO job_sources(name,source_type,base_url,access_policy_url,collection_policy,status) VALUES (?,?,?,?,?,'degraded') ON CONFLICT (base_url) DO UPDATE SET name=EXCLUDED.name,source_type=EXCLUDED.source_type,access_policy_url=EXCLUDED.access_policy_url,collection_policy=EXCLUDED.collection_policy,status='degraded'`,[input.name,input.sourceType,input.baseUrl,input.termsUrl??null,input.collectionPolicy])
     response.json({success:true,data:input,error:null,requestId:response.locals.requestId})
   } catch (error) { next(error) }
 })
@@ -28,8 +28,8 @@ employmentRouter.put('/admin/employment/sources', async (request, response, next
 employmentRouter.get('/employment/status', async (_request, response, next) => {
   try {
     const [rows] = await database.query<RowDataPacket[]>(
-      `SELECT COUNT(*) sourceCount,SUM(status='healthy' AND last_success_at>=DATE_SUB(NOW(),INTERVAL 7 DAY)) healthySourceCount,MAX(last_success_at) lastSuccessAt,
-       DATEDIFF(NOW(),MAX(last_success_at)) staleDays FROM job_sources`,
+      `SELECT COUNT(*) sourceCount,COUNT(*) FILTER (WHERE status='healthy' AND last_success_at>=NOW()-INTERVAL '7 days') healthySourceCount,MAX(last_success_at) lastSuccessAt,
+       CURRENT_DATE-MAX(last_success_at)::date staleDays FROM job_sources`,
     )
     const status = rows[0]
     response.json({ success: true, data: { sourceCount: Number(status.sourceCount ?? 0), healthySourceCount: Number(status.healthySourceCount ?? 0), lastSuccessAt: status.lastSuccessAt ?? null, staleDays: status.staleDays == null ? null : Number(status.staleDays), usable: Number(status.healthySourceCount ?? 0) >= 2 && Number(status.staleDays ?? 99) <= 7 }, error: null, requestId: response.locals.requestId })

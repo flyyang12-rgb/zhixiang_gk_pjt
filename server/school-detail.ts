@@ -1,4 +1,4 @@
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseRow as RowDataPacket } from './database.js'
 import { database } from './database.js'
 import { classifySchoolRisk, classifySingleYearRisk } from './profession-engine.js'
 import { orientationRecommendations } from './school-major-recommendations.js'

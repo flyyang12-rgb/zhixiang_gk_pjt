@@ -25,7 +25,7 @@ onBeforeUnmount(()=>window.removeEventListener('keydown',onKey))
 <template>
   <div class="family-brief-backdrop" @click.self="emit('close')">
     <section class="family-brief" role="dialog" aria-modal="true" aria-label="给爸妈看的学校简报">
-      <header><div><small>仅保存在本机</small><h2>给爸妈看</h2><p>{{profileSummary.province}} · {{profileSummary.subjectGroup}} · {{planningCoordinate.rank?`综合规划位次 ${planningCoordinate.rank.toLocaleString()}（${planningCoordinate.sampleCount} 次）`:'暂无可靠位次'}}</p></div><button aria-label="关闭家庭简报" @click="emit('close')">×</button></header>
+      <header><div><small>来自公开共享档案</small><h2>给爸妈看</h2><p>{{profileSummary.province}} · {{profileSummary.subjectGroup}} · {{planningCoordinate.rank?`综合规划位次 ${planningCoordinate.rank.toLocaleString()}（${planningCoordinate.sampleCount} 次）`:'暂无可靠位次'}}</p></div><button aria-label="关闭家庭简报" @click="emit('close')">×</button></header>
       <div class="family-brief-schools">
         <article v-for="item in brief" :key="item.name">
           <h3>{{item.name}}</h3><strong>{{item.stance}}</strong>

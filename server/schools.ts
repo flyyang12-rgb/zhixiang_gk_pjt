@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseRow as RowDataPacket } from './database.js'
 import { z } from 'zod'
 import { database } from './database.js'
 import { loadSchoolDetail, SchoolDetailLookupError } from './school-detail.js'
@@ -27,7 +27,7 @@ schoolsRouter.get('/schools', async (request, response, next) => {
     const [items] = await database.query<RowDataPacket[]>(
       `SELECT s.id, s.name, p.name province, s.city, s.level, s.school_type schoolType, s.features
        FROM schools s JOIN provinces p ON p.id = s.province_id ${where}
-       ORDER BY FIELD(s.level, '985', '211', '双一流', '一本', '二本', '本科', '专科'), s.name LIMIT ? OFFSET ?`,
+       ORDER BY CASE s.level WHEN '985' THEN 1 WHEN '211' THEN 2 WHEN '双一流' THEN 3 WHEN '一本' THEN 4 WHEN '二本' THEN 5 WHEN '本科' THEN 6 WHEN '专科' THEN 7 ELSE 8 END, s.name LIMIT ? OFFSET ?`,
       [...values, query.pageSize, offset],
     )
     const [counts] = await database.query<RowDataPacket[]>(
@@ -60,16 +60,36 @@ schoolsRouter.get('/schools/:id', async (request, response, next) => {
 
 schoolsRouter.get('/map/provinces', async (_request, response, next) => {
   try {
+    const [sourceRows]=await database.query<RowDataPacket[]>(
+      `SELECT ds.title,ds.source_url sourceUrl,ds.publisher,ds.published_at publishedAt,ds.effective_at effectiveAt
+       FROM data_sources ds
+       WHERE ds.source_type='school_list'
+         AND EXISTS(SELECT 1 FROM import_batches ib WHERE ib.source_id=ds.id AND ib.status='completed')
+       ORDER BY ds.source_year DESC,ds.collected_at DESC LIMIT 1`,
+    )
+    const source=sourceRows[0]
+    if(!source?.effectiveAt){
+      response.status(503).json({success:false,data:null,error:'院校名单缺少可核验的截至日期，请重新导入教育部院校名单',requestId:response.locals.requestId})
+      return
+    }
     const [rows] = await database.query<RowDataPacket[]>(
       `SELECT p.name, COUNT(s.id) schoolCount,
-       SUM(s.level IN ('985','211','双一流')) keyUniversityCount,
-       SUM(s.level = '专科') vocationalCount
+       COUNT(s.id) FILTER (WHERE s.level IN ('985','211','双一流')) keyUniversityCount,
+       COUNT(s.id) FILTER (WHERE s.level = '专科') vocationalCount
        FROM provinces p LEFT JOIN schools s ON s.province_id = p.id
        GROUP BY p.id, p.name ORDER BY schoolCount DESC`,
     )
-    response.json({ success: true, data: rows.map(row => ({ name: row.name, schoolCount: Number(row.schoolCount), keyUniversityCount: Number(row.keyUniversityCount), vocationalCount: Number(row.vocationalCount) })), error: null, requestId: response.locals.requestId })
+    response.json({ success: true, data: {
+      items:rows.map(row => ({ name: row.name, schoolCount: Number(row.schoolCount), keyUniversityCount: Number(row.keyUniversityCount), vocationalCount: Number(row.vocationalCount) })),
+      source:{title:String(source.title),sourceUrl:String(source.sourceUrl),publisher:String(source.publisher),publishedAt:toDateOnly(source.publishedAt),effectiveAt:toDateOnly(source.effectiveAt)},
+    }, error: null, requestId: response.locals.requestId })
   } catch (error) { next(error) }
 })
+
+function toDateOnly(value:unknown){
+  if(value instanceof Date)return `${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}`
+  return String(value).slice(0,10)
+}
 
 schoolsRouter.get('/admin/data-status', async (_request, response, next) => {
   try {
@@ -77,36 +97,36 @@ schoolsRouter.get('/admin/data-status', async (_request, response, next) => {
     const [sources] = await database.query<RowDataPacket[]>('SELECT title, source_url sourceUrl, source_year sourceYear, publisher, published_at publishedAt FROM data_sources ORDER BY collected_at DESC')
     const [coverageRows] = await database.query<RowDataPacket[]>(
       `SELECT p.name province,ap.subject_group subjectGroup,
-       GROUP_CONCAT(DISTINCT IF(ap.recommendation_eligible=1,ap.year,NULL) ORDER BY ap.year) years,
-       COUNT(*) totalRecordCount,SUM(ap.recommendation_eligible=1) recordCount
+       STRING_AGG(DISTINCT ap.year::text, ',' ORDER BY ap.year::text) FILTER (WHERE ap.recommendation_eligible=1) years,
+       COUNT(*) totalRecordCount,COUNT(*) FILTER (WHERE ap.recommendation_eligible=1) recordCount
        FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id
        WHERE p.name IN ('河南','山东','河北') GROUP BY p.name,ap.subject_group ORDER BY p.name,ap.subject_group`,
     )
     const [coverageDetailRows] = await database.query<RowDataPacket[]>(
       `SELECT p.name province,ap.year,ap.subject_group subjectGroup,ap.education_level educationLevel,ap.admission_category admissionCategory,ap.batch,
-       ap.unit_type unitType,COUNT(*) recordCount,SUM(ap.recommendation_eligible=1) recommendationEligibleCount,
+       ap.unit_type unitType,COUNT(*) recordCount,COUNT(*) FILTER (WHERE ap.recommendation_eligible=1) recommendationEligibleCount,
        (SELECT COUNT(*) FROM admission_scope_audits asa WHERE asa.province_id=ap.province_id AND asa.year=ap.year
          AND asa.education_level=ap.education_level AND asa.status='pending'
          AND asa.admission_category IN ('*',ap.admission_category) AND asa.batch IN ('*',ap.batch)
          AND asa.subject_group IN ('*',ap.subject_group)) auditedGapCount,
-       IF(EXISTS(SELECT 1 FROM admission_scope_audits asa WHERE asa.province_id=ap.province_id AND asa.year=ap.year
+       CASE WHEN EXISTS(SELECT 1 FROM admission_scope_audits asa WHERE asa.province_id=ap.province_id AND asa.year=ap.year
          AND asa.education_level=ap.education_level AND asa.status='pending'
          AND asa.admission_category IN ('*',ap.admission_category) AND asa.batch IN ('*',ap.batch)
-         AND asa.subject_group IN ('*',ap.subject_group)),'pending','verified') sourceStatus
+         AND asa.subject_group IN ('*',ap.subject_group)) THEN 'pending' ELSE 'verified' END sourceStatus
        FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id
        WHERE p.name IN ('河南','山东','河北') AND ap.year BETWEEN 2023 AND 2025
        GROUP BY ap.province_id,p.name,ap.year,ap.subject_group,ap.education_level,ap.admission_category,ap.batch,ap.unit_type
-       ORDER BY FIELD(p.name,'河南','山东','河北'),ap.year,ap.education_level,ap.batch,ap.subject_group`,
+       ORDER BY CASE p.name WHEN '河南' THEN 1 WHEN '山东' THEN 2 WHEN '河北' THEN 3 ELSE 4 END,ap.year,ap.education_level,ap.batch,ap.subject_group`,
     )
     const [yearRows] = await database.query<RowDataPacket[]>(
-      `SELECT p.name province,ap.year,COUNT(*) recordCount,SUM(ap.recommendation_eligible=1) recommendationEligibleCount,
-       GROUP_CONCAT(DISTINCT ap.subject_group ORDER BY ap.subject_group) subjectGroups,
-       GROUP_CONCAT(DISTINCT ap.education_level ORDER BY ap.education_level) educationLevels,
-       GROUP_CONCAT(DISTINCT ap.batch ORDER BY ap.batch SEPARATOR '｜') batches,
-       GROUP_CONCAT(DISTINCT ds.publisher SEPARATOR '；') publisher,MAX(ds.source_url) sourceUrl,MAX(ds.collected_at) updatedAt
+      `SELECT p.name province,ap.year,COUNT(*) recordCount,COUNT(*) FILTER (WHERE ap.recommendation_eligible=1) recommendationEligibleCount,
+       STRING_AGG(DISTINCT ap.subject_group, ',' ORDER BY ap.subject_group) subjectGroups,
+       STRING_AGG(DISTINCT ap.education_level, ',' ORDER BY ap.education_level) educationLevels,
+       STRING_AGG(DISTINCT ap.batch, '｜' ORDER BY ap.batch) batches,
+       STRING_AGG(DISTINCT ds.publisher, '；') publisher,MAX(ds.source_url) sourceUrl,MAX(ds.collected_at) updatedAt
        FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id LEFT JOIN data_sources ds ON ds.id=ap.source_id
        WHERE p.name IN ('河南','山东','河北') AND ap.year BETWEEN 2023 AND 2025
-       GROUP BY p.name,ap.year ORDER BY FIELD(p.name,'河南','山东','河北'),ap.year`,
+       GROUP BY p.name,ap.year ORDER BY CASE p.name WHEN '河南' THEN 1 WHEN '山东' THEN 2 WHEN '河北' THEN 3 ELSE 4 END,ap.year`,
     )
     const coverage = coverageRows.map(row => ({ province: String(row.province), subjectGroup: String(row.subjectGroup), years: row.years?String(row.years).split(',').map(Number):[], recordCount: Number(row.recordCount),totalRecordCount:Number(row.totalRecordCount) }))
     const coverageDetails=coverageDetailRows.map(row=>({province:String(row.province),year:Number(row.year),subjectGroup:String(row.subjectGroup),educationLevel:String(row.educationLevel),admissionCategory:String(row.admissionCategory),batch:String(row.batch),unitType:String(row.unitType),recordCount:Number(row.recordCount),recommendationEligibleCount:Number(row.recommendationEligibleCount),auditedGapCount:Number(row.auditedGapCount),sourceStatus:String(row.sourceStatus)}))

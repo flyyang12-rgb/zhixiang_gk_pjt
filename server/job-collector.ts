@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import type { RowDataPacket } from 'mysql2'
+import type { DatabaseResult, DatabaseRow as RowDataPacket } from './database.js'
 import { database } from './database.js'
 
 type JobPosting = {
@@ -46,10 +46,10 @@ export async function collectEmploymentData(now = new Date()) {
         const expiresAt = addDays(publishedAt, 30)
         if (expiresAt < now.toISOString().slice(0, 10)) { summary.skipped += 1; continue }
         const fingerprint = postingFingerprint({ employer, directionId, city, education, publishedAt })
-        const [result] = await database.execute<import('mysql2').ResultSetHeader>(
-          `INSERT IGNORE INTO job_postings
+        const [result] = await database.execute<DatabaseResult>(
+          `INSERT INTO job_postings
            (fingerprint,source_id,job_direction_id,employer,title,province,city,education,published_at,source_url,expires_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+           VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (fingerprint,source_id) DO NOTHING`,
           [fingerprint, source.id, directionId, employer, title, province, city, education, publishedAt, posting.url ?? source.baseUrl, expiresAt],
         )
         summary.inserted += result.affectedRows
@@ -57,12 +57,12 @@ export async function collectEmploymentData(now = new Date()) {
       await database.execute(`UPDATE job_sources SET status='healthy',last_success_at=NOW(),failure_count=0 WHERE id=?`, [source.id])
       summary.succeeded += 1
     } catch {
-      await database.execute(`UPDATE job_sources SET status=IF(failure_count>=2,'degraded',status),last_failure_at=NOW(),failure_count=failure_count+1 WHERE id=?`, [source.id])
+      await database.execute(`UPDATE job_sources SET status=CASE WHEN failure_count>=2 THEN 'degraded' ELSE status END,last_failure_at=NOW(),failure_count=failure_count+1 WHERE id=?`, [source.id])
       summary.failed += 1
     }
   }
 
-  await database.execute(`DELETE FROM job_postings WHERE expires_at < CURDATE() OR published_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)`)
+  await database.execute(`DELETE FROM job_postings WHERE expires_at < CURRENT_DATE OR published_at < CURRENT_DATE-INTERVAL '30 days'`)
   await rebuildDailyStats(now)
   return summary
 }
@@ -140,7 +140,7 @@ async function rebuildDailyStats(now: Date) {
     `INSERT INTO job_daily_stats (stat_date,major_id,province,job_count,source_count)
      SELECT ?,mjd.major_id,jp.province,COUNT(DISTINCT jp.fingerprint),COUNT(DISTINCT jp.source_id)
      FROM job_postings jp JOIN major_job_directions mjd ON mjd.job_direction_id=jp.job_direction_id AND mjd.review_status='approved'
-     WHERE jp.published_at >= DATE_SUB(?, INTERVAL 30 DAY) AND jp.expires_at >= ?
+     WHERE jp.published_at >= ?::date-INTERVAL '30 days' AND jp.expires_at >= ?
      GROUP BY mjd.major_id,jp.province`,
     [statDate, statDate, statDate],
   )

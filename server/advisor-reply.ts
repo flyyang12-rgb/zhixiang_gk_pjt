@@ -72,12 +72,14 @@ function planReply(message:string,memory?:ReturnType<typeof buildConversationMem
   const majorMatch=normalized.match(/(?:能不能|能否|可以|能)报(?:考)?\s*([^，。！？?]{2,12}?)(?:专业)?[吗么嘛？?]?$/)||normalized.match(/^\s*([^，。！？?]{2,12}?)(?:专业)?(?:能不能|能否|可以|能)报/)
   const targetMajor=majorMatch?.[1]?.replace(/^(?:我|我们|孩子|这个位次|现在)+/,'').replace(/[吗么嘛呢呀啊]$/,'').trim()
   if(targetMajor)return {style:'concise',kind:'major-eligibility',targetMajor,transparent:true,instruction:`这是单点短问题，用户问的是“${targetMajor}”。先直接回答“能不能把它列入备选”，再用日常语言区分“可以填报”和“能被录取”。只谈${targetMajor}，不要罗列其他专业，不要四段标题，不要逐字引用前文；说明当前证据缺口后最多追问一个学校范围，控制在100—250字。`}
+  const schoolFollowUpMajor=context?.schoolDetail?normalized.match(/(?:那)?(?:它|这个学校|这所学校)的\s*([^，。！？?]{2,12}?)(?:专业)?(?:怎么样|咋样|好不好|值不值得)/)?.[1]?.trim():undefined
+  if(schoolFollowUpMajor)return {style:'concise',kind:'major-interest',targetMajor:schoolFollowUpMajor,transparent:true,instruction:`用户在追问当前学校的“${schoolFollowUpMajor}”。只核对这所学校是否有${schoolFollowUpMajor}的具体招生或已核验证据；有证据就明确建议继续看，没有就直接说不建议把它当核心目标。不要重复学校整体介绍，控制在4—6个短句。`}
   const interestedMajor=extractTargetMajor(normalized)
   if(interestedMajor)return {style:'concise',kind:'major-interest',targetMajor:interestedMajor,transparent:true,instruction:`用户表达想学“${interestedMajor}”。自然接住这个选择，只围绕当前学校是否有${interestedMajor}的具体招生证据回答；不要泛泛介绍学校，不要四段标题，控制在100—250字。`}
   if(/学费|住宿费|宿舍|寝室|在哪|地址|哪个城市|离家|远不远/.test(normalized))return {style:'concise',kind:'school-fact',transparent:true,instruction:'用户在问当前学校的一个具体事实。只回答这一项：本地事实有就直说，没有就明确说当前没有；不要重复学校整体介绍，不要四段标题，不要猜测学费、宿舍、距离或交通。控制在80—220字。'}
-  if((context?.schoolDetail&&/(?:怎么样|咋样|值不值得|好不好)/.test(normalized))||/(?:学校|学院|大学).*(?:怎么样|咋样|值不值得|好不好)|(?:怎么样|咋样|值不值得|好不好).*(?:学校|学院|大学)/.test(normalized)){
+  if((context?.schoolDetail&&/(?:怎么样|咋样|值不值得|好不好|该不该报|要不要报)/.test(normalized))||/(?:学校|学院|大学).*(?:怎么样|咋样|值不值得|好不好|该不该报|要不要报)|(?:怎么样|咋样|值不值得|好不好).*(?:学校|学院|大学)/.test(normalized)){
     const localPlace=normalized.match(/我是(?:河南)?([\u4e00-\u9fa5]{2,6})(?:人|的)/)?.[1]
-    return {style:'concise',kind:'school-overview',localPlace,transparent:true,instruction:`用户是在问当前院校整体值不值得看${localPlace?`，并主动说自己是${localPlace}人` :''}。第一句必须给鲜明判断，不能说“需要继续核对”。用自然口语讲清学校层次、地域便利、已核验优势专业和当前招生证据；地域近只能算生活成本和适应成本的优点，不能当成报考理由。不要扯无关专业。资料不足就直说，控制在180—350字。`}
+    return {style:'concise',kind:'school-overview',localPlace,transparent:true,instruction:`用户是在问当前院校整体值不值得看${localPlace?`，并主动说自己是${localPlace}人` :''}。第一句必须明确说“建议优先看”“不建议优先报”或“现在不能报”，不能说“需要继续核对”。先问或核对目标专业，再说规划位次、调剂缺口、城市成本，最后才谈学校名气；没有目标专业时直接说现在按校名下结论就是瞎报。地域近只能算生活成本和适应成本的优点，不能当成报考理由。默认4—6个短句，不要扯无关专业。`}
   }
   if(/纠结|慌|焦虑|害怕|担心|不知道怎么办|拿不定主意|迷茫/.test(normalized))return {style:'concise',kind:'emotion',instruction:'用户是在表达焦虑或犹豫。先用一句话接住情绪，但不要空泛安慰；随后把问题缩小成眼下最值得决定的一件事，最多问两个关键问题。不要标题，不要立刻倾倒全部档案和清单，控制在120—260字。'}
   if(/考研|读研|研究生|深造/.test(normalized))return {style:'concise',kind:'postgraduate',transparent:true,instruction:'用户在问深造。明确回答是否需要把读研当成必要条件，再用本科出口、培养年限和家庭成本解释。不要把考研说成唯一出路，控制在180—350字。'}
@@ -191,7 +193,7 @@ function buildEmploymentReply(context:AdvisorReplyContext,message:string,remembe
 
 function buildSchoolVsMajorReply(context:AdvisorReplyContext,remembered=''){
   const rank=advisorPlanningCoordinate(context).rank?.toLocaleString()??'还没填可靠位次'
-  return transparentAnswer(`你现在是${context.profile.province}${context.profile.subjectGroup}，综合规划位次大约排第${rank}名；有明确职业门槛的方向，优先保专业。`,'还不知道你家更不能接受学校层次低一点，还是专业以后难转行。','告诉我这两种风险里，你家更不能接受哪一种。',`专业出口差不多时，再选学校和城市。别一听校名就上头——毕业招聘时，人家问你会什么，不会因为学校名字好听就替你补技能。${remembered?` ${remembered}`:''}`)
+  return transparentAnswer(`你现在是${context.profile.province}${context.profile.subjectGroup}，综合规划位次大约排第${rank}名；我的态度很明确，先保想学的专业，再选学校。`,'还不知道目标学校是否有这个专业的具体招生证据，也不知道调剂会把孩子带到哪里。','先说出孩子最想学的一个专业。',`专业证据差不多时，再比学校和城市。只看校名、专业随便，这个选择不划算；毕业找工作时，人家先问会什么，不会因为学校名字好听就替你补技能。${remembered?` ${remembered}`:''}`)
 }
 
 function buildConversationalSchoolReply(detail:NonNullable<AdvisorReplyContext['schoolDetail']>,localPlace?:string,remembered=''){
@@ -211,9 +213,9 @@ function buildConversationalSchoolReply(detail:NonNullable<AdvisorReplyContext['
   const admission=records.length
     ?`你这个档案能对上${latestYear}年等 ${new Set(records.map(item=>item.year)).size} 个年份的招生记录${risks.length?`，现有记录里出现${risks.join('、')}档参考`:''}。但学校线能过，不等于你想学的专业也能进。`
     :'你当前省份和科类还没有可直接比较的招生记录，所以现在谁要拍胸脯说“稳”，谁就是在拿你的志愿赌。'
-  const confirmed=`${school.name}能看，但别急着报。它在${school.city}，是${school.level}${school.schoolType}院校；离家近不能代替专业选择。`
+  const confirmed=`我不建议现在把${school.name}放在前面。还没核对目标专业，只凭${school.level}校名和${school.city}位置就报，不划算。`
   const unknown=records.length?'现有学校或专业组记录不能证明你想学的专业一定在里面。':'当前没有你所在省份和科类的可比招生记录，也没有经核验的优势专业材料。'
-  return transparentAnswer(confirmed,unknown,`告诉我你最想学什么专业。`,`${locationLine}${remembered?` ${remembered}`:''}\n\n${featured}${admission}\n\n专业对口、位次够，它可以认真比较；专业都没核对，只因为离家近或校名顺耳就往里冲，这叫瞎报，不叫规划。`)
+  return transparentAnswer(confirmed,unknown,`告诉我你最想学什么专业。`,`${locationLine}${remembered?` ${remembered}`:''}\n\n${featured}${admission}\n\n专业对口、位次够，我会明确建议继续看；专业都没核对，只因为离家近或校名顺耳就往里冲，这叫瞎报，不叫规划。`)
 }
 
 function buildSchoolMajorReply(detail:NonNullable<AdvisorReplyContext['schoolDetail']>,targetMajor:string,isRepair:boolean){
@@ -222,8 +224,8 @@ function buildSchoolMajorReply(detail:NonNullable<AdvisorReplyContext['schoolDet
   const profileProvince=String(detail.admissionContext?.profileProvince??'当前省份')
   const subjectGroup=String(detail.admissionContext?.subjectGroup??'当前科类')
   const opening=isRepair?`你说得对，我刚才确实在重复学校介绍，没有接住你想学${targetMajor}这件事。咱们重新说。`:`想学${targetMajor}没问题，咱们就只看${detail.school.name}的${targetMajor}，不绕去讲别的。`
-  if(exactRecords.length){const latest=exactRecords[0],coordinate=latest.minRank?`，往年最低位次是 ${latest.minRank.toLocaleString()}`:'';return transparentAnswer(`${latest.year}年${detail.school.name}在${profileProvince}${subjectGroup}的${latest.batch}有“${latest.unitName}”${coordinate}。`,'往年记录不能保证今年继续招生或录取，特殊批次还要核对资格。',`查看该校今年${targetMajor}的招生计划。`,opening)}
-  return transparentAnswer(`当前只查到${detail.school.name}的学校或专业组记录。`,`现有资料没有证明这个组里明确包含${targetMajor}，所以不能说你能报到这个专业。`,`查看该校当年招生专业目录里有没有${targetMajor}。`,`${opening}\n\n学校线能过，不等于想学的专业也能进，我不能拿学校线糊弄你。`)
+  if(exactRecords.length){const latest=exactRecords[0],coordinate=latest.minRank?`，往年最低位次是 ${latest.minRank.toLocaleString()}`:'';return transparentAnswer(`我建议继续看${detail.school.name}。${latest.year}年它在${profileProvince}${subjectGroup}的${latest.batch}有“${latest.unitName}”${coordinate}。`,'往年记录不能保证今年继续招生或录取，特殊批次还要核对资格。',`查看该校今年${targetMajor}的招生计划。`,opening)}
+  return transparentAnswer(`我不建议现在把${detail.school.name}当成${targetMajor}的核心目标。`,`现有资料没有证明招生组里明确包含${targetMajor}，现在冲着校名报，就是拿专业去赌。`,`查看该校当年招生专业目录里有没有${targetMajor}。`,`${opening}\n\n学校线能过，不等于想学的专业也能进，我不能拿学校线糊弄你。`)
 }
 
 function buildNaturalMemoryBridge(memory?:ReturnType<typeof buildConversationMemory>,targetMajor?:string){
@@ -257,7 +259,7 @@ function buildLocalSchoolReply(detail:NonNullable<AdvisorReplyContext['schoolDet
   const recordSummary=records.slice(0,3).map(item=>`${item.year}年${item.unitName}往年最低位次 ${item.minRank.toLocaleString()}${item.risk?`，按往年位置暂放在${item.risk}档`:''}`).join('；')
   const evidence=recordSummary||'当前档案所在省份和科类，暂时没有这所学校可直接比较的招生记录。'
   const featured=detail.featuredMajors.length?`查到 ${detail.featuredMajors.length} 条经核验的优势专业记录。`:'还没有经核验的优势专业数据。'
-  const confirmed=records.length?`${detail.school.name}能看，但别急着报；当前有${new Set(records.map(item=>item.year)).size}个年份的招生记录可以比较。`:`${detail.school.name}可以先看，暂时不能下报考结论；目前只核对了院校名称、层次和所在地。`
+  const confirmed=records.length?`我不建议现在把${detail.school.name}排在前面；虽然有${new Set(records.map(item=>item.year)).size}个年份的招生记录，但还没证明里面有孩子想学的专业。`:`我不建议现在报${detail.school.name}；目前只核对了院校名称、层次和所在地。`
   const unknown=records.length?'这些记录不能自动证明专业组里一定有孩子想学的专业。':'当前档案所在省份和科类没有可比招生记录，不能判断报考位置。'
   return transparentAnswer(confirmed,unknown,'告诉我孩子最想学的一个专业。',`${featured}${evidence}\n\n学校线、专业组线和具体专业线不是一回事。专业组就是学校把几个专业绑在一起招生；组里没有目标专业，分数看着够也没用。${remembered?` ${remembered}`:''}`)
 }

@@ -1,8 +1,7 @@
 import { mkdir,readFile,writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { database } from '../server/database.js'
+import { database, type DatabaseRow as RowDataPacket } from '../server/database.js'
 import { prepareLinkRecord,type LinkRecord } from './school-link-import-policy.js'
-import type { RowDataPacket } from 'mysql2'
 
 const inputPath = resolve(process.argv.slice(2).find(argument => !argument.startsWith('--')) ?? 'data/school-links.json')
 const trustedSnapshot = process.argv.includes('--trusted-snapshot')
@@ -28,7 +27,7 @@ async function run() {
         await database.execute(
           `INSERT INTO school_fact_audits(school_id,fact_type,status,reason,source_url,checked_at)
            VALUES (?,?,'verified',NULL,?,?)
-           ON DUPLICATE KEY UPDATE status='verified',reason=NULL,source_url=VALUES(source_url),checked_at=VALUES(checked_at)`,
+           ON CONFLICT (school_id,fact_type) DO UPDATE SET status='verified',reason=NULL,source_url=EXCLUDED.source_url,checked_at=EXCLUDED.checked_at`,
           [schoolId,factType,prepared.sourceUrl,new Date(prepared.verifiedAt)],
         )
       }
