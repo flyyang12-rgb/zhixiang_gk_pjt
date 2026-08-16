@@ -254,7 +254,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
               <div class="content-head">
                 <span class="kicker">STEP 01 · 基础信息</span>
                 <h2>先建立一份学生档案</h2>
-                <p>这些信息只保存在你的本地数据库，用于筛选专业方向；有可靠位次后再计算学校候选。</p>
+                <p>这些信息保存在网站的共享数据库中，所有访问者都能查看和修改；有可靠位次后再计算学校候选。</p>
               </div>
 
               <div class="form-grid">
@@ -307,7 +307,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
               </Transition>
 
               <footer class="form-footer">
-                <p><span>隐私说明</span> 数据不会离开这台电脑</p>
+                <p><span>公开说明</span> 档案对所有访问者公开，任何人都可以修改或删除</p>
                 <button class="primary-action" :disabled="isSaving">
                   <span v-if="isSaving" class="button-spinner"></span>
                   {{ isSaving ? '正在建立档案…' : '保存并开始分析' }}
