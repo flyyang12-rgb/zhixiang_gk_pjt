@@ -21,7 +21,7 @@ const profileInput = z.object({
 })
 
 router.post('/', async (request, response, next) => {
-  const connection=await database.getConnection()
+  let connection: Awaited<ReturnType<typeof database.getConnection>> | null = null
   try {
     const input = profileInput.parse(request.body)
     const id = randomUUID()
@@ -35,6 +35,7 @@ router.post('/', async (request, response, next) => {
       return
     }
 
+    connection = await database.getConnection()
     await connection.beginTransaction()
     await connection.execute(
       `INSERT INTO student_profiles
@@ -49,9 +50,9 @@ router.post('/', async (request, response, next) => {
 
     response.status(201).json({ success: true, data: { id }, error: null, requestId: response.locals.requestId })
   } catch (error) {
-    await connection.rollback()
+    if (connection) await connection.rollback()
     next(error)
-  } finally { connection.release() }
+  } finally { connection?.release() }
 })
 
 const snapshotInput=z.object({examName:z.string().trim().min(1,'请填写考试名称').max(64),examDate:z.string().date(),score:z.number().int().min(100).max(750),provinceRank:z.number().int().positive().max(2_000_000).nullable(),note:z.string().trim().max(200).nullable().optional()})
