@@ -1,6 +1,11 @@
 ---
-status: accepted
+status: superseded-in-part
 ---
+
+> 运行形态与访问模型已由 [ADR 0010](0010-supabase-postgres-public-hosting.md) 取代。以下保留历史背景，不作为 MySQL、Docker 或私密档案的当前实现依据。
+
+> 下文的定时采集和启动同步也已退役。当前只允许维护者手动同步，见 [SPEC](../SPEC.md)。
+
 
 # 集中采集公共就业数据，学生档案保持本地
 

@@ -2,6 +2,8 @@ node_modules/
 dist/
 server-dist/
 .env
+.env.*
+!.env.example
 .env.docker
 .deploy/
 backups/

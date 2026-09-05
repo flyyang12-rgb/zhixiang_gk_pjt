@@ -1,15 +1,4 @@
-import { expect, test } from '@playwright/test'
-
-const testProfilePrefixes = ['端到端验证-', '综合验收-', '河南候选验证-', '河北候选验证-', '分层验收-']
-
-test.afterEach(async ({ request }) => {
-  const response = await request.get('/api/profiles')
-  if (!response.ok()) return
-  const profiles = (await response.json()).data as Array<{ id: string; studentName: string }>
-  for (const profile of profiles.filter(item => testProfilePrefixes.some(prefix => item.studentName.startsWith(prefix)))) {
-    await request.delete(`/api/profiles/${profile.id}`)
-  }
-})
+import { expect, test } from './fixtures/created-profiles'
 
 test('当前产品不再暴露测评与答题接口', async ({ request }) => {
   expect((await request.get('/api/assessments/questions/student')).status()).toBe(404)
@@ -186,7 +175,7 @@ test('可从历史档案永久删除当前学生档案', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '先建立一份学生档案' })).toBeVisible()
 })
 
-test('全国地图、山东候选、顾问与 PDF 报告可用', async ({ page, request }) => {
+test('全国地图、山东候选、顾问与 PDF 报告可用', async ({ page, request, createProfile }) => {
   await page.goto('/')
   await page.getByRole('button', { name: '院校地图' }).click()
   await expect(page.getByRole('heading', { name: '从地图开始看学校' })).toBeVisible()
@@ -202,7 +191,7 @@ test('全国地图、山东候选、顾问与 PDF 报告可用', async ({ page, 
   await page.getByRole('button', { name: '关闭学校详情' }).click()
   await expect(page.getByPlaceholder('搜索院校或城市')).toHaveValue('山东大学')
 
-  const profileResponse = await request.post('/api/profiles', { data: { studentName: `综合验收-${Date.now()}`, province: '山东', subjectGroup: '综合改革', selectedSubjects: ['物理','化学','生物'], score: 620, provinceRank: 12000 } })
+  const profileResponse = await createProfile({ data: { studentName: `综合验收-${Date.now()}`, province: '山东', subjectGroup: '综合改革', selectedSubjects: ['物理','化学','生物'], score: 620, provinceRank: 12000 } })
   expect(profileResponse.ok()).toBeTruthy()
   const profileId = (await profileResponse.json()).data.id as string
 
@@ -246,7 +235,7 @@ test('全国地图、山东候选、顾问与 PDF 报告可用', async ({ page, 
   expect((await reportResponse.body()).byteLength).toBeGreaterThan(10_000)
 })
 
-test('学校详情可独立浏览并结合当前档案解释招生证据', async ({ request }) => {
+test('学校详情可独立浏览并结合当前档案解释招生证据', async ({ request, createProfile }) => {
   const schoolsResponse = await request.get('/api/schools?q=山东大学')
   expect(schoolsResponse.ok()).toBeTruthy()
   const school = (await schoolsResponse.json()).data.items[0] as { id: number; name: string }
@@ -260,7 +249,7 @@ test('学校详情可独立浏览并结合当前档案解释招生证据', async
   expect(publicDetail.interpretation).toHaveLength(3)
   expect(publicDetail.interpretation[1].text).toContain('建立学生档案')
 
-  const profileResponse = await request.post('/api/profiles', { data: { studentName: `综合验收-${Date.now()}`, province: '河南', subjectGroup: '物理类', selectedSubjects: ['物理','化学','生物'], score: 620, provinceRank: 12000 } })
+  const profileResponse = await createProfile({ data: { studentName: `综合验收-${Date.now()}`, province: '河南', subjectGroup: '物理类', selectedSubjects: ['物理','化学','生物'], score: 620, provinceRank: 12000 } })
   expect(profileResponse.ok()).toBeTruthy()
   const profileId = (await profileResponse.json()).data.id as string
   const detailResponse = await request.get(`/api/schools/${school.id}?profileId=${profileId}`)
@@ -275,8 +264,8 @@ test('学校详情可独立浏览并结合当前档案解释招生证据', async
   expect(missingResponse.status()).toBe(404)
 })
 
-test('河南物理类档案可按专业组位次生成候选', async ({ request }) => {
-  const profileResponse = await request.post('/api/profiles', { data: { studentName: `河南候选验证-${Date.now()}`, province: '河南', subjectGroup: '物理类', selectedSubjects: ['物理','化学','生物'], score: 666, provinceRank: 2600 } })
+test('河南物理类档案可按专业组位次生成候选', async ({ request, createProfile }) => {
+  const profileResponse = await createProfile({ data: { studentName: `河南候选验证-${Date.now()}`, province: '河南', subjectGroup: '物理类', selectedSubjects: ['物理','化学','生物'], score: 666, provinceRank: 2600 } })
   expect(profileResponse.ok()).toBeTruthy()
   const profileId = (await profileResponse.json()).data.id as string
 
@@ -302,8 +291,8 @@ test('河南物理类档案可按专业组位次生成候选', async ({ request 
   await verifyAdvisorAndReport(request, profileId)
 })
 
-test('河南单年专业组在页面分层展示且不清空专业', async ({page,request})=>{
-  const profileResponse=await request.post('/api/profiles',{data:{studentName:`分层验收-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:666,provinceRank:18500}})
+test('河南单年专业组在页面分层展示且不清空专业', async ({ page, request, createProfile })=>{
+  const profileResponse=await createProfile({data:{studentName:`分层验收-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:666,provinceRank:18500}})
   expect(profileResponse.ok()).toBeTruthy()
   const profileId=(await profileResponse.json()).data.id as string
   await page.goto('/')
@@ -329,8 +318,8 @@ test('河南单年专业组在页面分层展示且不清空专业', async ({pag
   await expect(page.getByText('现在只查到这个学校专业组的投档线，还不能确定组里一定有这个专业。请先参考上方的学校和专业组信息。')).toBeVisible()
 })
 
-test('数据状态首次失败后自动恢复而不误报未覆盖',async({page,request})=>{
-  const profileResponse=await request.post('/api/profiles',{data:{studentName:`分层验收-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:545,provinceRank:10163}})
+test('数据状态首次失败后自动恢复而不误报未覆盖',async({ page, request, createProfile })=>{
+  const profileResponse=await createProfile({data:{studentName:`分层验收-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:545,provinceRank:10163}})
   const profileId=(await profileResponse.json()).data.id as string
   await page.addInitScript(id=>localStorage.setItem('zhixiang.currentProfileId',id),profileId)
   let calls=0
@@ -341,8 +330,8 @@ test('数据状态首次失败后自动恢复而不误报未覆盖',async({page,
   expect(calls).toBeGreaterThanOrEqual(2)
 })
 
-test('同一档案可连续重新计算且服务保持可用', async ({ request }) => {
-  const profileResponse = await request.post('/api/profiles', { data: { studentName: `河南候选验证-${Date.now()}`, province: '河南', subjectGroup: '物理类', selectedSubjects: ['物理','化学','生物'], score: 666, provinceRank: 2600 } })
+test('同一档案可连续重新计算且服务保持可用', async ({ request, createProfile }) => {
+  const profileResponse = await createProfile({ data: { studentName: `河南候选验证-${Date.now()}`, province: '河南', subjectGroup: '物理类', selectedSubjects: ['物理','化学','生物'], score: 666, provinceRank: 2600 } })
   expect(profileResponse.ok()).toBeTruthy()
   const profileId = (await profileResponse.json()).data.id as string
 
@@ -357,8 +346,8 @@ test('同一档案可连续重新计算且服务保持可用', async ({ request 
   expect((await healthResponse.json()).data.database).toBe('connected')
 })
 
-test('河北物理类档案可按专业最低分对应位次生成候选', async ({ request }) => {
-  const profileResponse = await request.post('/api/profiles', { data: { studentName: `河北候选验证-${Date.now()}`, province: '河北', subjectGroup: '物理类', selectedSubjects: ['物理','化学','生物'], score: 600, provinceRank: 27073 } })
+test('河北物理类档案可按专业最低分对应位次生成候选', async ({ request, createProfile }) => {
+  const profileResponse = await createProfile({ data: { studentName: `河北候选验证-${Date.now()}`, province: '河北', subjectGroup: '物理类', selectedSubjects: ['物理','化学','生物'], score: 600, provinceRank: 27073 } })
   expect(profileResponse.ok()).toBeTruthy()
   const profileId = (await profileResponse.json()).data.id as string
 
@@ -396,8 +385,8 @@ test('旧按需同步接口不再触发采集', async ({ request }) => {
   expect((await response.json()).data).toEqual({triggered:false,reason:'manual-only'})
 })
 
-test('模考轨迹同步当前坐标，删除当前记录后恢复上一条',async({request})=>{
-  const created=await request.post('/api/profiles',{data:{studentName:`模考轨迹-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:500,provinceRank:120000,planningMode:'exploration'}})
+test('模考轨迹同步当前坐标，删除当前记录后恢复上一条',async({ request, createProfile })=>{
+  const created=await createProfile({data:{studentName:`模考轨迹-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:500,provinceRank:120000,planningMode:'exploration'}})
   const profileId=(await created.json()).data.id as string
   try{
     const initial=await request.get(`/api/profiles/${profileId}/score-snapshots`)
@@ -416,8 +405,8 @@ test('模考轨迹同步当前坐标，删除当前记录后恢复上一条',asy
   }finally{await request.delete(`/api/profiles/${profileId}`)}
 })
 
-test('多次有效位次形成稳健规划位次，单次异常不会直接带偏学校候选',async({request})=>{
-  const created=await request.post('/api/profiles',{data:{studentName:`规划位次-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:680,provinceRank:10000,planningMode:'application'}})
+test('多次有效位次形成稳健规划位次，单次异常不会直接带偏学校候选',async({ request, createProfile })=>{
+  const created=await createProfile({data:{studentName:`规划位次-${Date.now()}`,province:'河南',subjectGroup:'物理类',selectedSubjects:['物理','化学','生物'],score:680,provinceRank:10000,planningMode:'application'}})
   const profileId=(await created.json()).data.id as string
   try{
     const baseline=(await (await request.get(`/api/profiles/${profileId}/profession-dashboard`)).json()).data
@@ -434,8 +423,8 @@ test('多次有效位次形成稳健规划位次，单次异常不会直接带�
   }finally{await request.delete(`/api/profiles/${profileId}`)}
 })
 
-test('目标探索档案积累有效位次后自动联合推荐学校和专业',async({page,request})=>{
-  const created=await request.post('/api/profiles',{data:{studentName:`联合推荐-${Date.now()}`,province:'山东',subjectGroup:'综合改革',selectedSubjects:['物理','化学','生物'],score:620,provinceRank:12000,planningMode:'exploration'}})
+test('目标探索档案积累有效位次后自动联合推荐学校和专业',async({ page, request, createProfile })=>{
+  const created=await createProfile({data:{studentName:`联合推荐-${Date.now()}`,province:'山东',subjectGroup:'综合改革',selectedSubjects:['物理','化学','生物'],score:620,provinceRank:12000,planningMode:'exploration'}})
   const profileId=(await created.json()).data.id as string
   try{
     await request.post(`/api/profiles/${profileId}/score-snapshots`,{data:{examName:'校内周测',examDate:'2026-07-28',score:632,provinceRank:null,note:'只有分数，不参与规划位次'}})
@@ -457,8 +446,8 @@ test('目标探索档案积累有效位次后自动联合推荐学校和专业',
   }finally{await request.delete(`/api/profiles/${profileId}`)}
 })
 
-test('没有有效位次时不猜学校并保留档案原始模式',async({page,request})=>{
-  const created=await request.post('/api/profiles',{data:{studentName:`学校待开启-${Date.now()}`,province:'山东',subjectGroup:'综合改革',selectedSubjects:['物理','化学','生物'],score:620,provinceRank:null,planningMode:'application'}})
+test('没有有效位次时不猜学校并保留档案原始模式',async({ page, request, createProfile })=>{
+  const created=await createProfile({data:{studentName:`学校待开启-${Date.now()}`,province:'山东',subjectGroup:'综合改革',selectedSubjects:['物理','化学','生物'],score:620,provinceRank:null,planningMode:'application'}})
   const profileId=(await created.json()).data.id as string
   try{
     const profile=(await (await request.get(`/api/profiles/${profileId}`)).json()).data

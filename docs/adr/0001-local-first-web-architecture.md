@@ -1,6 +1,9 @@
 ---
-status: accepted
+status: superseded-in-part
 ---
+
+> 运行形态与访问模型已由 [ADR 0010](0010-supabase-postgres-public-hosting.md) 取代。以下保留历史背景，不作为 MySQL、Docker 或私密档案的当前实现依据。
+
 
 # 采用本地优先、可迁移公网的 Web 架构
 

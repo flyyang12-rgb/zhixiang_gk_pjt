@@ -4,11 +4,19 @@
 
 ### Issue tracker
 
-任务以本地 Markdown 文件记录在 `.scratch/<feature-slug>/issues/`。详见 `docs/agents/issue-tracker.md`。
+任务以本地 Markdown 文件记录在 `.scratch/<feature-slug>/issues/`。详见 [任务记录](docs/agents/issue-tracker.md)。
 
 ### Domain docs
 
-本仓库使用单一上下文：根目录 `CONTEXT.md` 与 `docs/adr/`。详见 `docs/agents/domain.md`。
+本仓库使用单一上下文：根目录 `CONTEXT.md` 与 `docs/adr/`。详见 [领域文档约定](docs/agents/domain.md)。
+
+### 开始任务与文档导航
+
+1. 先检查 Git 状态、当前分支及已有修改，再阅读 SPEC 和直接相关的实现、测试。
+2. 安装与入口看 [README](README.md)，用户操作看 [使用指南](docs/USER_GUIDE.md)，环境与数据维护看 [维护指南](docs/MAINTENANCE.md)，测试准备看 [测试指南](docs/TESTING.md)，实际路由看 [接口说明](docs/API.md)。
+3. SPEC 的待实现／待验收表不等于已有能力；发现文档与代码不符时明确记录差距，不通过恢复旧流程来消除差异。
+4. 多文件实现或交付任务先建立本地票据，记录范围、验收和验证结果；简单问答与只读审阅无需创建票据。
+5. 仅在用户授权时提交或推送；逐文件检查差异与暂存内容，不提交无关修改和 .scratch 产物，不使用强制推送覆盖远端。
 
 ## 1. 适用范围与事实优先级
 
@@ -27,7 +35,7 @@
 
 ## 2. 当前产品基线
 
-“知向”是面向高考学生与家长共同使用的本地志愿规划工具。核心价值是让家庭用可核验的招生和就业证据比较专业与学校，而不是用问卷或 AI 直接给结论。
+“知向”是面向高考学生与家长共同使用的公开共享志愿规划工具。核心价值是让家庭用可核验的招生和就业证据比较专业与学校，而不是用问卷或 AI 直接给结论。
 
 当前不可回退的产品约束：
 
@@ -65,6 +73,7 @@
 - `src/`：Vue 页面、组件、样式、前端 API 类型与客户端、纯前端工具。
 - `src/components/`：地图、专业工作台、学校详情抽屉、顾问和推荐展示。
 - `server/`：Express 路由、专业工作台、招生候选、推荐、顾问、报告、就业数据和数据库访问。
+- `api/index.ts`、`vercel.json`：Vercel API 入口、构建与路由配置；有配置不代表部署和 PDF 已验收。
 - `database/schema.sql`：数据库结构、外键、唯一键和基础数据。
 - `scripts/`：数据库初始化、官方数据导入、学校链接采集/核验、就业来源导入。
 - `data/`：只读原始或标准化导入输入及经过审核的快照；不得存放用户隐私导出。
@@ -76,9 +85,9 @@
 
 首次安装：
 
-1. 将 `.env.example` 复制为 `.env`，填写服务端 Supabase `DATABASE_URL`。
-2. 双击 `setup-local.cmd` 安装依赖并检查环境文件。正式 Supabase 已初始化公共基础数据，不在日常本地启动时重复导入。
-3. 以后双击 `start-local.cmd`，或运行 `npm run dev`。
+1. 准备 Node.js 22.12+ 的 22.x 版本及 npm；当前 Vite 支持范围为 `^20.19.0 || >=22.12.0`。首次复制 `.env.example` 为 `.env` 并填写服务端数据库配置，不覆盖已有 .env。
+2. 双击 `setup-local.cmd` 安装依赖并检查环境文件；该脚本不检查数据库连通性，也不安装浏览器。PDF 另需 `npx playwright install chromium`，端到端测试使用已安装的 Google Chrome。
+3. 双击 `start-local.cmd` 或运行 `npm run dev`，再检查 /api/health。正式 Supabase 已有公共基础数据，不在日常启动时重复初始化或导入。完整步骤见 README 与维护指南。
 
 默认地址：
 
@@ -97,12 +106,14 @@ npm run data:schools
 npm run data:school-links
 npm run data:school-links:auto -- --concurrency 12
 npm run data:featured-majors
+npm run data:major-outlook
 npm run data:employment-sources -- data/employment-sources.json
 npm run data:shandong
 npm run data:henan
 npm run data:henan-group-majors -- data/henan-group-majors.json
 npm run data:hebei
-npm run data:admissions -- data/admission-import.example.json
+npm run data:admissions -- data/admission-import.example.json # 仅预检，需真实原始文件
+npm run data:admissions -- data/verified-batch.json --commit # 审核后提交
 npm run data:admissions:rollback -- <batch-id>
 npm run data:audit
 npm test
@@ -130,12 +141,14 @@ AI_API_KEY=
 AI_MODEL=deepseek-v4-flash
 ```
 
+服务端优先使用 DATABASE_URL，其次 POSTGRES_URL；二者均未配置时当前代码会回退本机开发地址，因此必须主动检查配置，不能把回退当成已连接正式库。不要添加 VITE_ 前缀。环境变量默认值与测试设置见 [维护指南](docs/MAINTENANCE.md)。
+
 - `DATABASE_URL` 只允许存在服务端环境变量中；浏览器不得持有数据库密码、Supabase service role key 或直连数据库。
 - 真实密码、API Key、Cookie、学生档案、位次和聊天内容不得进入代码、SQL 种子、测试快照、日志、文档或提交记录。
 - 用户在对话中粘贴过的密钥视为已暴露，应提示轮换；输出中不得复述完整密钥。
 - 错误响应和普通日志不得包含 SQL、连接串、密钥、服务端堆栈或其他档案数据。
 - 档案和聊天保存在共享 Supabase 数据库中，不承诺私密或家庭隔离。所有访客都具备查看、修改和永久删除能力。
-- 删除档案必须由访客明确触发并二次确认；测试只能清理本次创建且带明确测试标记的数据。
+- 删除档案必须由访客明确触发并二次确认；测试只能清理本次创建且带明确测试标记的数据。记录成功创建返回的准确 ID，禁止扫描全部档案按名称前缀批量删除；不得清理前一次运行或其他人的测试数据。
 
 ## 7. 数据事实、链接和导入
 
@@ -268,31 +281,7 @@ AI_MODEL=deepseek-v4-flash
 
 ## 12. 当前 API 约定
 
-实际主要接口：
-
-- `GET /api/health`
-- `GET|POST /api/profiles`
-- `GET|DELETE /api/profiles/:id`
-- `GET /api/schools`（分页与筛选）
-- `GET /api/schools/:id?profileId=`（统一学校详情）
-- `GET /api/map/provinces`
-- `GET /api/admin/data-status`
-- `GET /api/profiles/:id/profession-dashboard`
-- `PUT /api/profiles/:id/saved-items`
-- `DELETE /api/profiles/:id/saved-items/:itemType/:itemId`
-- `POST /api/profiles/:id/recommendations/generate`
-- `GET /api/profiles/:id/recommendations`
-- `GET|POST /api/profiles/:id/advisor/messages`
-- `GET|POST /api/profiles/:id/advisor/conversations`
-- `GET|POST /api/profiles/:id/advisor/conversations/:conversationId/messages`
-- `DELETE /api/profiles/:id/advisor/conversations/:conversationId`
-- `GET /api/profiles/:id/report.pdf`
-- `GET /api/employment/status`
-- `POST /api/employment/sync-if-stale`
-- `GET|PUT /api/admin/employment/sources`
-- `POST /api/admin/employment/sync`
-
-兼容接口 `GET|PUT /api/profiles/:id/preferences` 不属于当前用户流程。测评题目接口已删除，对其请求应返回 404。
+当前实际路由、参数与兼容范围统一维护在 [接口说明](docs/API.md)，并与 server/ 路由和 src/api.ts 同步。不得凭历史需求增加不存在的端点。新代码必须遵守下列约定；已知旧接口差距在 API 文档中明确列出。
 
 统一响应结构：
 
@@ -338,6 +327,10 @@ AI_MODEL=deepseek-v4-flash
 ## 15. 测试与验证
 
 先运行最贴近改动的验证，再扩大范围。没有新鲜测试结果，不得声称“已修复”“全部通过”或“数据已补全”。
+
+浏览器测试会读写当前配置的数据库并可能调用外部 AI；优先使用独立测试库。运行前核对服务进程与数据库目标，默认 Playwright 会复用 3000/5173 端口的已有服务，修改环境变量不会改变已启动进程。不得为了跑测试重置共享库。详细步骤和现有测试局限见 [测试指南](docs/TESTING.md)。
+
+文档改动检查相对链接、命令名称、实际路由和已实现状态；仅改文档无需创建业务测试。测试清理逻辑变更须验证只处理本次创建 ID、重复记录、失败请求和删除失败。
 
 最低验证矩阵：
 
@@ -392,9 +385,10 @@ AI_MODEL=deepseek-v4-flash
 
 1. 继续提高院校官网、招生官网和优势专业的官方核验覆盖，但绝不为覆盖率猜测数据。
 2. 扩充三省可比制度下的近三年招生记录和河南专业组官方成员映射。
-3. 在现有 2—4 校比较基础上增加可选的家庭讨论备注和手动排序，不新增独立大页面。
+3. 家庭讨论备注与 1—4 校家庭简报已经实现；候选手动排序尚未实现，不新增独立大页面。
 4. 对齐尚存的历史兼容类型和接口；清理必须走显式迁移，不直接删表。
 5. 继续细分地图大包，并持续补齐移动端、键盘和无障碍测试；不得用提高警告阈值代替优化。
+6. 每日 AI/PDF 额度、完整规则/数据版本留存、PDF 收藏备注一致性及部署验证按 SPEC 状态表处理，不写成已经上线的能力。
 
 ## 19. 相关文件
 
@@ -403,7 +397,11 @@ AI_MODEL=deepseek-v4-flash
 - `CONTEXT.md`：领域通用语言。
 - `docs/adr/`：关键架构决策。
 - `database/schema.sql`：数据库初始化结构。
-- `README.md`：面向使用者的安装、运行和数据维护说明。
+- `README.md`：安装与快速开始。
+- `docs/USER_GUIDE.md`：建档、模考、学校与专业比较、收藏、顾问和报告操作。
+- `docs/MAINTENANCE.md`：配置、导入、故障处理、备份恢复和部署边界。
+- `docs/TESTING.md`：测试环境、命令与数据清理纪律。
+- `docs/API.md`：当前实际路由、参数、错误约定和兼容限制。
 - `.env.example`：不含真实秘密的配置模板。
 - `docs/adr/0010-supabase-postgres-public-hosting.md`：Supabase PostgreSQL 与公开共享访问模型的架构决策。
 - `PLAN.md`：早期历史计划，不作为当前实现依据。
