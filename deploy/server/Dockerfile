@@ -16,6 +16,12 @@ USER pwuser
 EXPOSE 3000
 CMD ["node", "server-dist/index.js"]
 
+FROM api AS migration
+USER root
+RUN npm install --no-save --package-lock=false --omit=dev --ignore-scripts mysql2@3.23.3 && npm cache clean --force
+USER pwuser
+CMD ["node", "deploy/server/migrate-legacy.mjs"]
+
 FROM ${WEB_BASE_IMAGE} AS web
 COPY dist /usr/share/nginx/html
 COPY deploy/server/nginx.conf /etc/nginx/conf.d/default.conf
