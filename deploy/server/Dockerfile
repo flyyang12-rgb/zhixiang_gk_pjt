@@ -18,7 +18,7 @@ CMD ["node", "server-dist/index.js"]
 
 FROM api AS migration
 USER root
-RUN npm install --no-save --package-lock=false --omit=dev --ignore-scripts mysql2@3.23.3 && npm cache clean --force
+RUN npm install --prefix /app/deploy/server --no-save --package-lock=false --ignore-scripts --no-audit --no-fund --fetch-timeout=30000 --fetch-retries=1 mysql2@3.23.3 && npm cache clean --force
 USER pwuser
 CMD ["node", "deploy/server/migrate-legacy.mjs"]
 

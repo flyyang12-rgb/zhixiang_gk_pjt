@@ -23,7 +23,7 @@
    docker compose --env-file /path/to/private-release.env -f deploy/server/compose.yaml build api web
    ```
 
-6. MySQL 驱动只装入专用迁移镜像：`docker build --build-arg API_BASE_IMAGE=zhixiang-api:latest --target migration -f deploy/server/Dockerfile -t zhixiang-exploration-migration:exploration-20260926 .`。日常 API 镜像只安装生产依赖。全新目标才可执行`deploy/server/migrate-legacy.mjs`。它限定旧容器`zhixiang-db-1`与新容器`zhixiang-exploration-db-1`，拒绝非空PostgreSQL目标，使用旧MySQL只读一致性快照和新PostgreSQL事务。连接仅从服务器私密环境注入，不通过CLI传密码。`--same-host-profiles`仅用于本次已授权的同服务器记录保留，不用于向远程服务上传旧档案。输出只有逐表数量和成功/失败阶段，不输出内容或SQL错误。
+6. MySQL 驱动只保留在专用迁移镜像中：`docker build --build-arg API_BASE_IMAGE=zhixiang-api:latest --target migration -f deploy/server/Dockerfile -t zhixiang-exploration-migration:exploration-20260926 .`。迁移驱动单独安装在`/app/deploy/server`，避免重新解析整个开发依赖树；下载设置超时及重试上限。日常 API 镜像只安装生产依赖。全新目标才可执行`deploy/server/migrate-legacy.mjs`。它限定旧容器`zhixiang-db-1`与新容器`zhixiang-exploration-db-1`，拒绝非空PostgreSQL目标，使用旧MySQL只读一致性快照和新PostgreSQL事务。连接仅从服务器私密环境注入，不通过CLI传密码。`--same-host-profiles`仅用于本次已授权的同服务器记录保留，不用于向远程服务上传旧档案。输出只有逐表数量和成功/失败阶段，不输出内容或SQL错误。
 7. 核对逐表数量、外键、身份序列及空学习证据表。未审核候选不会被导入；不要为展示效果补造课程或把pending改verified。
 8. 启动API/Web，先检查loopback18088：网页、`/api/health`、来源查询、新建准确测试档案、探索缺口、收藏备注、顾问本地降级和精确删除。PDF另核对真实运行环境，不以容器启动宣称通过。
 9. 备份知向域名的原代理文件后，只将该域名 upstream 从旧端口切换到18088；`nginx -t`通过再reload。外网复验资源、接口、移动端和运行版本；失败恢复原代理，不删旧数据卷。
