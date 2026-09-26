@@ -17,6 +17,7 @@ Windows 使用 Node.js 22.x（至少 22.12）及 npm。首次安装可用 setup-
 | AI_API_KEY | 为空时使用本地顾问解释 |
 | AI_MODEL | 按服务可用模型填写；.env.example 提供示例默认值 |
 | DOTENV_CONFIG_PATH | dotenv 支持的配置文件路径；测试可指向 .env.test.local，程序不自动选择测试库 |
+| LEARNING_IMPORT_DATABASE_URL | 仅学习证据预检/导入/撤回工具使用，须由私密环境明确注入；工具不读 .env、DATABASE_URL、POSTGRES_URL 或默认连接 |
 
 数据库变量都为空时，当前代码会回退本机开发地址，而不是自动连接正式 Supabase。不要依赖该回退。环境中已设置的变量优先于 dotenv 文件，修改文件后须重启 API。
 
@@ -60,6 +61,8 @@ npm run db:init
 
 ## 数据维护入口与只读检查
 
+专业学习证据结构、已有库的增量迁移与导入/撤回工具见 [学习证据契约](LEARNING_EVIDENCE.md)。仅在独立本机 PostgreSQL 验证，正式库未迁移、真实资料仍待人工审核。工具显式读取 LEARNING_IMPORT_DATABASE_URL，默认预检不写库。不要为添加这两张表重跑正式库初始化或种子。撤回按准确批次 ID 改状态，不能删除专业或收藏。
+
 - 浏览 http://localhost:5173/admin/data-quality 查看学校事实覆盖与缺口。维护页没有普通导航入口，也没有 CSV 上传功能。
 - `GET /api/admin/data-status` 查看招生来源与年份，`GET /api/employment/status` 查看岗位样本状态。
 - 运行下方命令生成覆盖审计快照：
@@ -81,15 +84,38 @@ npm run data:audit
 | `npm run data:school-links:auto -- --concurrency 12` | 发现候选，仅写 .scratch，不更新学校正式链接 |
 | `npm run data:featured-majors` | 导入有官方认定依据的优势专业 |
 | `npm run data:major-outlook` | 导入有来源、有效期的专业发展证据 |
+| `npm run data:learning-evidence -- <清单.json> --sha256 <输入SHA256>` | 学习证据纯只读预检；加 --commit 才事务写入，需明确目标库/原件/人工审核 |
+| `npm run data:learning-evidence:withdraw -- <准确批次UUID> --reason <理由>` | 只撤回指定学习内容批次，保留专业/收藏/备注 |
 | `npm run data:employment-sources -- data/employment-sources.json` | 导入已审核招聘来源配置 |
 | `npm run data:shandong` | 山东专用招生导入 |
 | `npm run data:henan` | 河南专用招生导入 |
 | `npm run data:henan-group-majors -- data/henan-group-majors.json` | 官方专业组成员映射 |
 | `npm run data:hebei` | 河北投档及一分一档数据 |
 
-除学校链接自动发现外，上述导入可能直接写数据库。先检查脚本输入及目标库，不把下面通用导入的预检保护套用于所有命令。
+学校链接自动发现只生成本地候选；学习证据命令未加 `--commit` 时只读预检，来源、材料、批次及事实均不写库。其他表内导入可能直接写数据库，须逐个核对脚本输入及目标库；下面通用招生预检会写审计登记，不能套用学习证据的零写入行为。
 
 输入格式参见 [学校链接示例](../data/school-links.example.json)、[优势专业示例](../data/featured-majors.example.json)、[就业来源示例](../data/employment-sources.example.json)。
+
+### 学习证据：只读预检、审核更新与撤回
+
+输入契约、字段和审核规则见 [学习证据契约](LEARNING_EVIDENCE.md)。显式用私密环境注入 `LEARNING_IMPORT_DATABASE_URL`，不要把连接串写入命令或报告。工具不受应用 `.env` 或 `DOTENV_CONFIG_PATH` 隐式切换影响，不会调用 AI 或写学生数据。
+
+1. 按 `version=1` 制作清单，登记准确批次 UUID、来源标题/年份/发布方、原件 SHA-256、逐事实定位、专业代码、学校正式全名及人工审核。原件 `localPath` 相对清单目录，真实路径不能通过链接跳出目录；清单不超过 2MB，原件非空且不超过 20MB。来源锚点须保留，学习条件不能写成招生资格。
+2. 核对清单真实 SHA-256 后运行只读预检；检查 total/inserted/updated/skipped/missing/anomalous、逐条原因及学习/职业/选科/学校实例覆盖。缺失或异常须解决，不能靠 `--commit` 强写。
+
+   ```powershell
+   npm run data:learning-evidence -- <清单.json> --sha256 <输入SHA256>
+   ```
+
+3. 只有明确要持久化该批次且预检通过时才加 `--commit`。pending 事实可以在 staged 批次中保存，不能作为有效内容；批次 active 不等于所有事实审核通过。职业方向只关联已有映射，不新建或提升审核状态。verified 职业事实依赖的 approved 映射还须有不在未来的核验时间。
+4. 同批次同清单重跑只计 skipped。审核补全需替换 staged 输入时同时提供 `--previous-sha256 <原输入SHA256>`；必须完整保留原事实键及专业/类型/范围/职业身份，事实 ID 不变。active 内容修订须用新批次并准确撤回旧批次，withdrawn 不自动重激活；已有同 URL/年份的不同来源标题或发布方不会被覆盖。
+5. 撤回仅按准确批次 UUID 改状态，保留专业、来源、收藏和原始备注；不可用按名称或日期扫描整批数据的方式代替。
+
+   ```powershell
+   npm run data:learning-evidence:withdraw -- <准确批次UUID> --reason <撤回理由>
+   ```
+
+本轮只在独立测试环境验证工具，真实候选全部 pending、未写入正式内容。人工审核至少两个完整条目和正式数据库迁移仍未完成；不能把下载成功、散列一致或合成测试通过当作内容审核通过。脚本运行环境限制与编译替代方式见 [测试指南](TESTING.md)。
 
 ### 通用招生 JSON：预检、提交、回滚
 
@@ -158,6 +184,8 @@ curl.exe --noproxy "*" -X POST http://127.0.0.1:3000/api/admin/employment/sync
 
 ## 部署交接边界
 
+2026-09-26用户指定现有Linux服务器发布，不走Vercel；新增独立Docker Compose/PostgreSQL方案，旧MySQL目录/容器/卷保留，不直接覆盖。首次同服务器迁移、私密配置、健康验证和回退见[服务器部署](SERVER_DEPLOYMENT.md)与[ADR0012](adr/0012-existing-server-postgres-release.md)。本地开发仍不依赖Docker。
+
 当前 vercel.json 配置 Vite 构建、dist 输出、sin1 区域和 /api 重写，api/index.ts 导出 Express。提交到 GitHub 不等于线上已经通过验收。
 
 部署时核对：
@@ -169,4 +197,4 @@ curl.exe --noproxy "*" -X POST http://127.0.0.1:3000/api/admin/employment/sync
 5. AI/PDF 各每日 200 次额度尚未实现；完整备份恢复、版本快照等差距见 SPEC，不对外宣称已有保护。
 6. 保留对应 Git 提交及部署版本，回退前区分代码回退与数据库恢复。
 
-本次维护文档不新增 Docker，不配置账号隔离，也不把部署或数据库变更隐含在普通文档提交中。
+服务器部署已有用户明确授权；普通文档修改仍不隐含部署或数据库变更权限。不配置家庭账号隔离，不把内容审核状态因上线改成通过。

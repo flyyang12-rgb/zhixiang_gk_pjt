@@ -1,6 +1,14 @@
 # 当前接口说明
 
-核对日期：2026-09-05。本文描述仓库实际路由；产品要求以 [SPEC](SPEC.md) 为准。变更接口时同时更新本页、服务端、[前端客户端](../src/api.ts)及相关测试。
+核对日期：2026-09-26。本文描述仓库实际路由；产品要求以 [SPEC](SPEC.md) 为准。变更接口时同时更新本页、服务端、[前端客户端](../src/api.ts)及相关测试。
+
+2026-09-26 已实现 [目标探索需求](EXPLORATION_PRD.md) 的学习证据读取、目录、专业 ID 详情和全审核池顾问焦点。页面、比较/简报及顾问接入已通过独立环境测试；正式资料待真人审核，家庭走查与正式环境尚未验收，不据此宣称已上线。
+
+01 的结构/类型和 02 导入工具见 [学习证据契约](LEARNING_EVIDENCE.md)。导入与指定批次撤回只提供本地脚本，没有导入 HTTP 端点。
+
+新增契约包含逐事实材料定位、审核状态、条件类型及当前有效材料标识，实际响应见下文专业探索接口；不以外部项目的数据模型替代知向契约。
+
+PRD 0.4 的完整度分类、资料待补/不存在/已关注资料撤回路径、来源锚点和范围、重新生成/发送前的当前证据读取均已接入；具体状态见下文探索与顾问接口。
 
 开发 API 默认在 `http://127.0.0.1:3000`，前端通过 Vite 的 `/api` 代理访问。以下路径均包含 `/api`。业务访问无登录与档案归属隔离。
 
@@ -62,9 +70,25 @@
 | GET | `/api/profiles/:id/recommendations` | 已保存快照或 null |
 | GET | `/api/profiles/:id/report.pdf` | 基础档案与已保存快照的 PDF |
 
-itemType 为 major/school，state 为 saved/excluded/target，itemId 为正整数。note 最多 500 字；PUT 不传 note 时保留已有备注，传 null 时清除。备注不参与推荐规则。
+itemType 为 major/school，state 为 saved/excluded/target，itemId 为正整数。note 保留原始空格与换行，按原长度限制最多 500 字；PUT 不传 note 时保留已有备注，传 null 时清除。备注不参与推荐规则。PATCH 只接受 note 字段。
 
 `POST /api/profiles/:id/recommendations` 不是生成接口；必须带 `/generate`。家庭简报由前端根据学校详情与收藏生成，没有单独的公开分享接口。
+
+## 专业探索
+
+| 方法 | 路径 | 参数与行为 |
+| --- | --- | --- |
+| GET | `/api/profiles/:id/major-exploration` | `admissionYear` 可选，默认服务器当前年并在响应中披露；无评分的学习资料清单，完整资料优先，组内类别/代码/ID稳定排序，最多9条 |
+| GET | `/api/profiles/:id/major-exploration/catalog` | `search` 名称（最多100字）、`category`（最多100字）、`page` 默认1、`pageSize` 默认20最大50、`admissionYear`；默认为当前有效审核池，名称搜索还返回存在但待补或已失效的身份 |
+| GET | `/api/profiles/:id/major-exploration/:majorId` | `schoolId`、`sourceYear`、`admissionYear` 可选；指定学校/材料年没有资料时明确 missing，其他实例保留实际范围，不静默替用 |
+
+这三个接口先校验档案存在；档案/专业 ID 不存在返回统一 404，非法 UUID/ID/页码/未知参数返回 422。身份存在而材料待补返回 200，`status` 为 pending 或 unavailable，事实数组为空，并附具体缺口。目录与详情保留 excluded 状态和原始备注，首屏过滤排除项；某校不满足选科只限定该校，只有专业级当前省份/科类/招生年的已核验条件参与清单过滤，未知不当不限。
+
+清单返回 `cards`、`coverage`、实际来源年/审核时间、`admissionYear`、`generatedAt` 和 `dataGaps`。卡片/详情含课程、学习活动、职业方向、选科依据和最多两个学习用学校实例；逐事实含来源/定位/实际范围及批次、材料ID和校验值，不含综合分或三档。待审核、无效、冲突、撤回、过期材料不作为事实输出，失效说明保留，收藏和备注不被删除。每次请求重新读取当前材料。
+
+`GET /api/profiles/:id/profession-dashboard` 无规划位次时 `cards` 为空，`exploration` 承载上述清单，学校候选为空；有规划位次时 `exploration:null`，`cards` 沿用既有评分及招生规则。原始 `planning_mode` 不被改写。探索接口也可在获得位次后继续查学习资料，不据此给招生结论。
+
+专业比较（2—3项）和专业探索简报（1—3个当前已关注专业）复用上述专业ID详情，每次打开或重新生成读取当前有效材料。简报同时刷新工作台有效模式，不采用档案原始 planningMode；复制与纯文本由前端确定性生成，没有新增比较/简报AI端点。
 
 ## 顾问
 
@@ -82,6 +106,10 @@ itemType 为 major/school，state 为 saved/excluded/target，itemId 为正整�
 focus 可省略；传入时为 `{ type: "school", schoolId }` 或 `{ type: "major", majorId }`。不要发送学校招生事实或自己构造来源。消息去掉首尾空白后为 2—2,000 字。重试同一次发送必须复用原 clientMessageId。
 
 详情入口只建立前端草稿，用户首次发送时才调用创建会话接口。证据链接由服务端生成，AI 不得自编。回复的 mode 用来区分外部 AI 与本地解释，不代表事实核验等级。
+
+专业焦点按标准ID读取统一的当前学习详情，不限首屏九项。不存在专业返回404；有效ID既无当前已核验学习/职业事实也未关注时返回422“资料待补充”，在写入会话或消息前拒绝。已关注的待补/撤回专业，以及已经存在的专业焦点会话可继续解释当前缺口和原始备注，不引用旧材料。该门禁也用于有位次专业入口，既有专业评分与招生规则不受影响。
+
+每个新的clientMessageId发送前重新读取当前材料；同clientMessageId重试返回已保存消息（mode=stored、evidenceRefs=[]），避免重复写入，不把历史答复当作当前事实。模型只解释当前核验材料，来源由服务端生成；学习事实/缺口与本地解释保持一致，非事实短答不允许夹带新事实，异常或越界回退本地解释。学校焦点继续使用统一学校事实与评价路由。
 
 ## 就业与维护
 

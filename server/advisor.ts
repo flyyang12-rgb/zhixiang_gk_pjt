@@ -7,12 +7,15 @@ import { database } from './database.js'
 import { buildProfessionDashboard } from './profession-dashboard.js'
 import { loadSchoolDetail, SchoolDetailLookupError } from './school-detail.js'
 import {generateAdvisorReply,type AdvisorReplyContext} from './advisor-reply.js'
+import { loadExplorationProfile } from './major-exploration-routes.js'
+import { loadExplorationDetail } from './major-exploration.js'
+import { currentLearningFacts, AdvisorMaterialLookupError } from './advisor-exploration.js'
 export {isSafeAdvisorAnswer} from './advisor-prompt.js'
 
 export const advisorRouter = Router()
 const advisorFocusSchema=z.discriminatedUnion('type',[
-  z.object({type:z.literal('school'),schoolId:z.number().int().positive()}),
-  z.object({type:z.literal('major'),majorId:z.number().int().positive()}),
+  z.object({type:z.literal('school'),schoolId:z.number().int().positive().safe()}),
+  z.object({type:z.literal('major'),majorId:z.number().int().positive().safe()}),
 ])
 const messageSchema = z.object({ message: z.string().trim().min(2).max(2000),focus:advisorFocusSchema.optional() })
 const conversationSchema=z.object({focus:advisorFocusSchema.optional(),initialMessage:z.string().trim().min(2).max(2000),clientMessageId:z.string().uuid()})
@@ -35,14 +38,14 @@ advisorRouter.post('/profiles/:id/advisor/messages', async (request, response, n
     const { message,focus } = messageSchema.parse(request.body)
     const context = await loadContext(id,focus,message)
     const [insertedUser] = await database.execute<DatabaseResult>(`INSERT INTO advisor_messages(profile_id,role,content) VALUES (?,'user',?) RETURNING id`, [id, message])
-    const publicFocus=context.schoolDetail?{type:'school' as const,schoolId:context.schoolDetail.school.id,schoolName:context.schoolDetail.school.name}:undefined
+    const publicFocus=context.schoolDetail?{type:'school' as const,schoolId:context.schoolDetail.school.id,schoolName:context.schoolDetail.school.name}:context.majorDetail?{type:'major' as const,majorId:context.majorDetail.identity.id,majorName:context.majorDetail.identity.name}:undefined
     const [oldRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content FROM advisor_messages WHERE profile_id=? AND id<? ORDER BY id DESC LIMIT 16`,[id,insertedUser.insertId])
     const generated=await generateAdvisorReply({context,message,history:oldRows.reverse().map(row=>({id:Number(row.id),role:row.role,content:String(row.content)}))})
     await database.execute(`INSERT INTO advisor_messages(profile_id,role,content) VALUES (?,'assistant',?)`, [id, generated.answer])
     response.setHeader('Deprecation','true')
     response.json({ success: true, data: { role: 'assistant', content: generated.answer, createdAt: new Date().toISOString(), mode:generated.mode, focus:publicFocus,evidenceRefs:generated.evidenceRefs }, error: null, requestId: response.locals.requestId })
   } catch (error) {
-    if(error instanceof SchoolDetailLookupError){response.status(error.status).json({success:false,data:null,error:error.message,requestId:response.locals.requestId});return}
+    if(error instanceof SchoolDetailLookupError||error instanceof AdvisorMaterialLookupError){response.status(error.status).json({success:false,data:null,error:error.message,requestId:response.locals.requestId});return}
     next(error)
   }
 })
@@ -56,8 +59,8 @@ advisorRouter.post('/profiles/:id/advisor/conversations',async(request,response,
     const context=await loadContext(profileId,focus,initialMessage)
     const resolvedFocus=context.schoolDetail
       ? {type:'school' as const,id:context.schoolDetail.school.id,name:context.schoolDetail.school.name}
-      : context.focusedMajor
-        ? {type:'major' as const,id:context.focusedMajor.id,name:context.focusedMajor.name}
+      : context.majorDetail
+        ? {type:'major' as const,id:context.majorDetail.identity.id,name:context.majorDetail.identity.name}
         : null
     const id=randomUUID()
     const title=resolvedFocus?`讨论${resolvedFocus.name}`:'新的志愿讨论'
@@ -65,7 +68,7 @@ advisorRouter.post('/profiles/:id/advisor/conversations',async(request,response,
     try{await connection.beginTransaction();await connection.execute(`INSERT INTO advisor_conversations(id,profile_id,focus_type,focus_id,focus_name,title) VALUES (?,?,?,?,?,?)`,[id,profileId,resolvedFocus?.type??'general',resolvedFocus?.id??null,resolvedFocus?.name??null,title]);await connection.execute(`INSERT INTO advisor_conversation_messages(conversation_id,role,content,client_message_id,generation_status) VALUES (?,'user',?,?,'pending')`,[id,initialMessage,clientMessageId]);await connection.commit()}catch(error){await connection.rollback();throw error}finally{connection.release()}
     const result=await completeConversationMessage(profileId,id,initialMessage,clientMessageId,context)
     response.status(201).json({success:true,data:{conversation:await getPublicConversation(profileId,id),...result},error:null,requestId:response.locals.requestId})
-  }catch(error){if(error instanceof SchoolDetailLookupError){response.status(error.status).json({success:false,data:null,error:error.message,requestId:response.locals.requestId});return}next(error)}
+  }catch(error){if(error instanceof SchoolDetailLookupError||error instanceof AdvisorMaterialLookupError){response.status(error.status).json({success:false,data:null,error:error.message,requestId:response.locals.requestId});return}next(error)}
 })
 
 advisorRouter.get('/profiles/:id/advisor/conversations',async(request,response,next)=>{
@@ -100,7 +103,7 @@ advisorRouter.post('/profiles/:id/advisor/conversations/:conversationId/messages
     const {message,clientMessageId}=conversationMessageSchema.parse(request.body)
     const result=await completeConversationMessage(profileId,conversationId,message,clientMessageId)
     response.json({success:true,data:result,error:null,requestId:response.locals.requestId})
-  }catch(error){if(error instanceof SchoolDetailLookupError){response.status(error.status).json({success:false,data:null,error:error.message,requestId:response.locals.requestId});return}next(error)}
+  }catch(error){if(error instanceof SchoolDetailLookupError||error instanceof AdvisorMaterialLookupError){response.status(error.status).json({success:false,data:null,error:error.message,requestId:response.locals.requestId});return}next(error)}
 })
 
 advisorRouter.delete('/profiles/:id/advisor/conversations/:conversationId',async(request,response,next)=>{
@@ -126,21 +129,25 @@ async function completeConversationMessage(profileId:string,conversationId:strin
   const conversation=await getConversation(profileId,conversationId)
   if(!conversation)throw new SchoolDetailLookupError(404,'会话不存在')
   let [userRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content,client_message_id clientMessageId,generation_status status,created_at createdAt FROM advisor_conversation_messages WHERE conversation_id=? AND client_message_id=? AND role='user' LIMIT 1`,[conversationId,clientMessageId])
+  const focus=conversation.focus_type==='school'?{type:'school' as const,schoolId:Number(conversation.focus_id)}:conversation.focus_type==='major'?{type:'major' as const,majorId:Number(conversation.focus_id)}:undefined
+  // Validate the current object before persisting a new turn. Existing major
+  // conversations remain usable when their material or saved state changes.
+  let context=loadedContext
+  if(!userRows[0])context=await loadContext(profileId,focus,message,Boolean(focus))
   if(!userRows[0]){await database.execute(`INSERT INTO advisor_conversation_messages(conversation_id,role,content,client_message_id,generation_status) VALUES (?,'user',?,?,'pending')`,[conversationId,message,clientMessageId]);[userRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content,client_message_id clientMessageId,generation_status status,created_at createdAt FROM advisor_conversation_messages WHERE conversation_id=? AND client_message_id=? LIMIT 1`,[conversationId,clientMessageId])}
   const user=userRows[0]
   const [replyRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content,reply_to_message_id replyToMessageId,generation_status status,created_at createdAt FROM advisor_conversation_messages WHERE conversation_id=? AND reply_to_message_id=? AND role='assistant' LIMIT 1`,[conversationId,user.id])
-  const focus=conversation.focus_type==='school'?{type:'school' as const,schoolId:Number(conversation.focus_id)}:conversation.focus_type==='major'?{type:'major' as const,majorId:Number(conversation.focus_id)}:undefined
   if(replyRows[0])return {userMessage:toPublicMessage(user),assistantMessage:toPublicMessage(replyRows[0]),mode:'stored',focus:focus?toPublicFocus({type:focus.type,id:Number(conversation.focus_id),name:String(conversation.focus_name)}):null,evidenceRefs:[]}
-  const context=loadedContext??await loadContext(profileId,focus,message)
-  const resolvedTurnFocus=focus??(context.schoolDetail?{type:'school' as const,schoolId:context.schoolDetail.school.id}:context.focusedMajor?{type:'major' as const,majorId:context.focusedMajor.id}:undefined)
-  if(!focus&&resolvedTurnFocus){const resolvedName=context.schoolDetail?.school.name??context.focusedMajor?.name??'当前讨论';await database.execute(`UPDATE advisor_conversations SET focus_type=?,focus_id=?,focus_name=?,title=? WHERE id=? AND profile_id=? AND focus_type='general'`,[resolvedTurnFocus.type,resolvedTurnFocus.type==='school'?resolvedTurnFocus.schoolId:resolvedTurnFocus.majorId,resolvedName,`讨论${resolvedName}`,conversationId,profileId])}
+  context??=await loadContext(profileId,focus,String(user.content),Boolean(focus))
+  const resolvedTurnFocus=focus??(context.schoolDetail?{type:'school' as const,schoolId:context.schoolDetail.school.id}:context.majorDetail?{type:'major' as const,majorId:context.majorDetail.identity.id}:undefined)
+  if(!focus&&resolvedTurnFocus){const resolvedName=context.schoolDetail?.school.name??context.majorDetail?.identity.name??'当前讨论';await database.execute(`UPDATE advisor_conversations SET focus_type=?,focus_id=?,focus_name=?,title=? WHERE id=? AND profile_id=? AND focus_type='general'`,[resolvedTurnFocus.type,resolvedTurnFocus.type==='school'?resolvedTurnFocus.schoolId:resolvedTurnFocus.majorId,resolvedName,`讨论${resolvedName}`,conversationId,profileId])}
   const [historyRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content FROM advisor_conversation_messages WHERE conversation_id=? AND id<? AND id>? ORDER BY id`,[conversationId,user.id,Number(conversation.summarized_through_message_id??0)])
   const generated=await generateAdvisorReply({context,message:String(user.content),history:historyRows.map(row=>({id:Number(row.id),role:row.role,content:String(row.content)})),existingSummary:conversation.memory_summary})
   const [inserted]=await database.execute<DatabaseResult>(`INSERT INTO advisor_conversation_messages(conversation_id,role,content,reply_to_message_id,generation_status) VALUES (?,'assistant',?,?,'complete') RETURNING id`,[conversationId,generated.answer,user.id])
   await database.execute(`UPDATE advisor_conversation_messages SET generation_status='complete' WHERE id=?`,[user.id])
   await database.execute(`UPDATE advisor_conversations SET memory_summary=?,summarized_through_message_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`,[generated.memory.summary||null,generated.memory.summarizedThroughMessageId,conversationId])
   const [assistantRows]=await database.execute<RowDataPacket[]>(`SELECT id,role,content,reply_to_message_id replyToMessageId,generation_status status,created_at createdAt FROM advisor_conversation_messages WHERE id=?`,[inserted.insertId])
-  const responseFocus=resolvedTurnFocus?(context.schoolDetail?{type:'school' as const,id:context.schoolDetail.school.id,name:context.schoolDetail.school.name}:{type:'major' as const,id:context.focusedMajor!.id,name:context.focusedMajor!.name}):null
+  const responseFocus=resolvedTurnFocus?(context.schoolDetail?{type:'school' as const,id:context.schoolDetail.school.id,name:context.schoolDetail.school.name}:{type:'major' as const,id:context.majorDetail!.identity.id,name:context.majorDetail!.identity.name}):null
   return {userMessage:toPublicMessage({...user,status:'complete'} as RowDataPacket),assistantMessage:toPublicMessage(assistantRows[0]),mode:generated.mode,focus:responseFocus?toPublicFocus(responseFocus):null,evidenceRefs:generated.evidenceRefs}
 }
 
@@ -161,7 +168,7 @@ advisorRouter.post('/profiles/:id/advisor/comparison',async(request,response,nex
     }
     response.json({success:true,data:{content,mode},error:null,requestId:response.locals.requestId})
   }catch(error){
-    if(error instanceof SchoolDetailLookupError){response.status(error.status).json({success:false,data:null,error:error.message,requestId:response.locals.requestId});return}
+    if(error instanceof SchoolDetailLookupError||error instanceof AdvisorMaterialLookupError){response.status(error.status).json({success:false,data:null,error:error.message,requestId:response.locals.requestId});return}
     next(error)
   }
 })
@@ -223,17 +230,26 @@ export function isSafeComparisonAnswer(answer:string,schoolNames:string[]){
   return answer.length<=420&&lines.length===4&&required.every((title,index)=>lines[index]?.startsWith(title))&&schoolNames.every(name=>answer.includes(name))&&forbidden.every(pattern=>!pattern.test(answer))
 }
 
-async function loadContext(profileId: string,focus?:z.infer<typeof advisorFocusSchema>,message='') {
+async function loadContext(profileId: string,focus?:z.infer<typeof advisorFocusSchema>,message='',existingFocus=false) {
   const [profiles] = await database.execute<RowDataPacket[]>(`SELECT sp.student_name studentName,p.name province,sp.subject_group subjectGroup,sp.score,sp.province_rank provinceRank FROM student_profiles sp JOIN provinces p ON p.id=sp.province_id WHERE sp.id=?`, [profileId])
-  if (!profiles[0]) throw new Error('学生档案不存在')
+  if (!profiles[0]) throw new SchoolDetailLookupError(404,'学生档案不存在')
   const row=profiles[0]
   const profile={studentName:String(row.studentName),province:String(row.province),subjectGroup:String(row.subjectGroup),score:row.score==null?null:Number(row.score),provinceRank:row.provinceRank==null?null:Number(row.provinceRank)}
   const dashboard = await buildProfessionDashboard(profileId)
   const resolvedFocus=focus??await resolveSchoolFocusFromMessage(message)
   const schoolDetail=resolvedFocus?.type==='school'?await loadSchoolDetail(resolvedFocus.schoolId,profileId):null
   const focusedMajor=resolvedFocus?.type==='major'?dashboard.cards.find(card=>card.id===resolvedFocus.majorId)??null:null
-  if(resolvedFocus?.type==='major'&&!focusedMajor)throw new SchoolDetailLookupError(404,'专业不存在或不在当前工作台')
-  return { profile, dashboard, schoolDetail,focusedMajor }
+  let majorDetail:AdvisorReplyContext['majorDetail']=null
+  if(resolvedFocus?.type==='major'){
+    const explorationProfile=await loadExplorationProfile(profileId,new Date().getFullYear())
+    if(!explorationProfile)throw new SchoolDetailLookupError(404,'学生档案不存在')
+    majorDetail=await loadExplorationDetail(database,explorationProfile,resolvedFocus.majorId)
+    if(!majorDetail)throw new SchoolDetailLookupError(404,'专业不存在')
+    if(!existingFocus&&!currentLearningFacts(majorDetail).length&&majorDetail.savedState!=='saved'){
+      throw new AdvisorMaterialLookupError(422,'这个专业的学习与职业资料待补充，当前不能创建事实焦点会话。可以先收藏并记录想核验的问题。')
+    }
+  }
+  return { profile, dashboard, schoolDetail,focusedMajor,majorDetail }
 }
 
 async function resolveSchoolFocusFromMessage(message:string):Promise<z.infer<typeof advisorFocusSchema>|undefined>{

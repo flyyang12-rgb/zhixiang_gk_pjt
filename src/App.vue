@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent, h, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 import ProfessionDashboard from './components/ProfessionDashboard.vue'
 import { createProfile, deleteProfile, downloadReport, getDataStatus, getProfile, getProfiles, type AdvisorFocus, type DataCoverage, type DataYearStatus, type ProfileInput, type StudentProfile } from './api'
+import { interactionError } from './interaction-errors'
 
 function deferred(loader:()=>Promise<unknown>,label:string){
   return defineAsyncComponent({loader:loader as never,delay:120,loadingComponent:{render:()=>h('div',{class:'async-module-loading',role:'status'},`正在加载${label}…`)},errorComponent:{render:()=>h('div',{class:'async-module-loading error'},`${label}加载失败，请刷新重试。`)}})
@@ -24,6 +25,7 @@ const advisorInitialPrompt = ref('')
 const advisorInitialFocus = ref<AdvisorFocus|null>(null)
 const advisorReturnFocus=ref<AdvisorFocus|null>(null)
 const dashboardInitialMajorId=ref<number|null>(null)
+const dashboardComponent=ref<InstanceType<typeof ProfessionDashboard>|null>(null)
 const profileHistory = ref<StudentProfile[]>([])
 const showHistory = ref(false)
 const dataCoverage = ref<DataCoverage[]>([])
@@ -37,7 +39,7 @@ const form = reactive<ProfileInput>({
   selectedSubjects: [],
   score: null,
   provinceRank: null,
-  planningMode: 'application',
+  planningMode: 'exploration',
 })
 
 const currentStep = computed(() => currentView.value === 'profile' ? 1 : currentView.value === 'map' ? 0 : 2)
@@ -100,7 +102,7 @@ async function submitProfile() {
     await new Promise(resolve => setTimeout(resolve, 320))
     currentView.value = 'dashboard'
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : '保存失败，请稍后重试。'
+    errorMessage.value = interactionError(error, '档案保存失败，请检查网络后重试。')
   } finally {
     isSaving.value = false
   }
@@ -116,7 +118,8 @@ function toggleSubject(subject: typeof selectableSubjects.value[number]) {
 function createAnotherProfile() {
   localStorage.removeItem('zhixiang.currentProfileId')
   profile.value = null
-  Object.assign(form, { studentName: '', province: '河南', subjectGroup: '', selectedSubjects: [], score: null, provinceRank: null, planningMode: 'application' })
+  clearAdvisorFocus()
+  Object.assign(form, { studentName: '', province: '河南', subjectGroup: '', selectedSubjects: [], score: null, provinceRank: null, planningMode: 'exploration' })
   currentView.value = 'profile'
 }
 
@@ -132,6 +135,7 @@ async function switchProfile(selected: StudentProfile) {
   localStorage.setItem('zhixiang.currentProfileId', selected.id)
   localStorage.removeItem('zhixiang.currentView')
   profile.value = await getProfile(selected.id)
+  clearAdvisorFocus()
   currentView.value = 'dashboard'
   showHistory.value = false
   void refreshDataStatus()
@@ -148,12 +152,16 @@ async function deleteHistoryProfile(selected: StudentProfile) {
     localStorage.removeItem('zhixiang.currentView')
     localStorage.removeItem('zhixiang.currentPerspective')
     profile.value = null
-    Object.assign(form, { studentName: '', province: '河南', subjectGroup: '', selectedSubjects: [], score: null, provinceRank: null, planningMode: 'application' })
+    clearAdvisorFocus()
+    Object.assign(form, { studentName: '', province: '河南', subjectGroup: '', selectedSubjects: [], score: null, provinceRank: null, planningMode: 'exploration' })
     currentView.value = 'profile'
   }
   if (!profileHistory.value.length) showHistory.value = false
 }
 
+function clearAdvisorFocus(){dashboardInitialMajorId.value=null;advisorInitialFocus.value=null;advisorInitialPrompt.value='';advisorReturnFocus.value=null;selectedSchoolId.value=null}
+function handleSchoolSaved(value:{profileId:string;schoolId:number;isSaved:boolean}){if(profile.value?.id===value.profileId)void dashboardComponent.value?.refreshSavedItems()}
+function handleProfileCoordinate(value:{profileId:string;score:number|null;provinceRank:number|null}){if(profile.value?.id===value.profileId){profile.value.score=value.score;profile.value.provinceRank=value.provinceRank}}
 function openSchool(schoolId:number){selectedSchoolId.value=schoolId}
 function askAdvisor(payload:{prompt:string;focus:AdvisorFocus}){advisorInitialPrompt.value=payload.prompt;advisorInitialFocus.value=payload.focus;advisorReturnFocus.value=payload.focus;selectedSchoolId.value=null;currentView.value='advisor'}
 function askSchoolAdvisor(payload:{prompt:string;focus:AdvisorFocus}){advisorInitialPrompt.value=payload.prompt;advisorInitialFocus.value=payload.focus;advisorReturnFocus.value=payload.focus;selectedSchoolId.value=null;currentView.value='advisor'}
@@ -289,7 +297,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
                 </label>
                 <section v-if="form.planningMode === 'exploration'" class="exploration-note" role="note" aria-label="目标探索说明">
                   <span>无需分数和位次</span>
-                  <p>先根据省份、科类和选科了解专业与可核验学校。以后记录联考或统考位次，学校冲稳保会自动出现。</p>
+                  <p>先查阅已审核的课程、学习活动和职业方向，自主保存关注专业。以后记录有效全省位次，同一档案会自动开启招生比较。</p>
                 </section>
                 <label v-if="form.planningMode === 'application'" class="field">
                   <span>高考 / 模考分数</span>
@@ -310,7 +318,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
                 <p><span>公开说明</span> 档案对所有访问者公开，任何人都可以修改或删除</p>
                 <button class="primary-action" :disabled="isSaving">
                   <span v-if="isSaving" class="button-spinner"></span>
-                  {{ isSaving ? '正在建立档案…' : '保存并开始分析' }}
+                  {{ isSaving ? '正在建立档案…' : form.planningMode === 'exploration' ? '保存并开始探索' : '保存并开始分析' }}
                   <b v-if="!isSaving">→</b>
                 </button>
               </footer>
@@ -328,12 +336,14 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
 
             <ProfessionDashboard
               v-else-if="currentView === 'dashboard' && profile"
-              key="profession-dashboard"
+              :key="`profession-dashboard-${profile.id}`"
+              ref="dashboardComponent"
               :profile-id="profile.id"
               :student-name="profile.studentName"
               :initial-major-id="dashboardInitialMajorId"
               @school="openSchool"
               @advisor="askAdvisor"
+              @profile-coordinate="handleProfileCoordinate"
             />
 
             <AdvisorChat
@@ -358,7 +368,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
           <div class="score-orbit"><span>{{ scoreDisplay }}</span><small>{{ scoreDisplayLabel }}</small></div>
           <div class="insight-card">
             <span>{{ visibleScore == null ? '暂时没有成绩也能开始' : '为什么先填位次？' }}</span>
-            <p>{{ visibleScore == null ? '目标探索先看专业与就业证据，不猜分数，也不生成冲稳保。' : '不同年份的试卷难度不同。位次比裸分更适合比较历年录取情况。' }}</p>
+            <p>{{ visibleScore == null ? '目标探索先看课程、学习活动与职业方向，资料不足时明确保留未知。' : '不同年份的试卷难度不同。位次比裸分更适合比较历年录取情况。' }}</p>
           </div>
           <div class="data-source"><i></i><span>数据模式<strong>Supabase 公开共享</strong></span></div>
           <div class="data-coverage">
@@ -372,6 +382,6 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
         </aside>
       </div>
     </main>
-    <SchoolDetailDrawer v-if="selectedSchoolId" :school-id="selectedSchoolId" :profile-id="profile?.id" @close="selectedSchoolId=null" @advisor="askSchoolAdvisor" />
+    <SchoolDetailDrawer v-if="selectedSchoolId" :school-id="selectedSchoolId" :profile-id="profile?.id" :student-name="profile?.studentName" @close="selectedSchoolId=null" @advisor="askSchoolAdvisor" @saved-change="handleSchoolSaved" />
   </div>
 </template>

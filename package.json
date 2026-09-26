@@ -13,6 +13,8 @@
     "data:school-links:auto": "tsx scripts/collect-school-links.ts",
     "data:featured-majors": "tsx scripts/import-featured-majors.ts data/featured-majors.json",
     "data:major-outlook": "tsx scripts/import-major-outlook-evidence.ts data/major-outlook-evidence.json",
+    "data:learning-evidence": "tsx scripts/import-learning-evidence.ts",
+    "data:learning-evidence:withdraw": "tsx scripts/withdraw-learning-evidence.ts",
     "data:employment-sources": "tsx scripts/import-employment-sources.ts",
     "data:shandong": "tsx scripts/import-shandong-admissions.ts",
     "data:henan": "tsx scripts/import-henan-admissions.ts",
@@ -26,7 +28,8 @@
     "build:server": "tsc -p server/tsconfig.build.json",
     "start": "node server-dist/index.js",
     "test": "vitest run --passWithNoTests",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:exploration": "playwright test --config playwright.exploration.config.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

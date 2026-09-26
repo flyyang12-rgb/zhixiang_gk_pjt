@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" role="img" aria-labelledby="title desc">
+  <title id="title">知向：用可核验的证据探索专业与学校</title>
+  <desc id="desc">两步流程：基础信息，然后专业与学校。没有可靠全省位次先了解学习资料，形成位次后开启招生比较。资料未知时展示缺口，AI只负责解释。</desc>
+  <rect width="1200" height="440" rx="18" fill="#f3f5ee"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif">
+    <g id="project-title" fill="#254536">
+      <text x="60" y="104" font-size="76" font-weight="700">知向</text>
+      <text x="250" y="99" font-size="42" font-weight="500">先了解专业，再讨论选择</text>
+      <text x="64" y="158" font-size="28" fill="#5d7061">官方资料 · 逐条来源 · 家庭共同讨论</text>
+    </g>
+    <g id="two-step-flow">
+      <path d="M64 199H1136" stroke="#c8d4c6" stroke-width="2"/>
+      <text x="64" y="268" font-size="24" fill="#607964">01</text>
+      <text x="120" y="273" font-size="50" font-weight="600" fill="#254536">基础信息</text>
+      <text x="64" y="330" font-size="30" fill="#536b59">选科与阶段，成绩可以留空</text>
+      <path d="M486 269H567M550 252L568 269L550 286" fill="none" stroke="#68876c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="623" y="268" font-size="24" fill="#607964">02</text>
+      <text x="679" y="273" font-size="50" font-weight="600" fill="#254536">专业与学校</text>
+      <text x="623" y="330" font-size="30" fill="#536b59">查证据、比较、收藏与简报</text>
+    </g>
+    <g id="evidence-boundary">
+      <path d="M64 361H1136" stroke="#c8d4c6" stroke-width="2"/>
+      <text x="64" y="406" font-size="26" fill="#526b58">无位次先探索</text>
+      <text x="422" y="406" font-size="26" fill="#526b58">有位次再看招生位置</text>
+      <text x="870" y="406" font-size="26" fill="#526b58">AI 只解释已有依据</text>
+    </g>
+  </g>
+</svg>

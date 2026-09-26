@@ -3,17 +3,20 @@ import {config} from './config.js'
 import type {buildProfessionDashboard} from './profession-dashboard.js'
 import type {loadSchoolDetail} from './school-detail.js'
 import {buildConversationMemory,buildModelMessages,isSafeAdvisorAnswer,isTransparentAdvisorAnswer,type AdvisorHistoryMessage} from './advisor-prompt.js'
+import type { ExplorationMajorDetail } from './major-exploration.js'
+import {buildLearningAdvisorReply,planLearningReply,learningEvidenceRefs,learningModelFacts,isSafeLearningAdvisorAnswer,type LearningReplyInput,type LearningReplyPlan} from './advisor-exploration.js'
 
 export type AdvisorReplyContext={
   profile:{studentName:string;province:string;subjectGroup:string;score:number|null;provinceRank:number|null}
   dashboard:Awaited<ReturnType<typeof buildProfessionDashboard>>
   schoolDetail:Awaited<ReturnType<typeof loadSchoolDetail>>|null
   focusedMajor:Awaited<ReturnType<typeof buildProfessionDashboard>>['cards'][number]|null
+  majorDetail?:ExplorationMajorDetail|null
 }
 
 export type AdvisorEvidenceRef={title:string;year:number|null;publisher:string;url:string}
-type ReplyKind='general'|'greeting'|'thanks'|'remember'|'emotion'|'school-overview'|'school-fact'|'major-eligibility'|'major-interest'|'postgraduate'|'employment'|'school-vs-major'|'repair-repeat'|'identity'
-type ReplyPlan={style:'full'|'concise';kind:ReplyKind;targetMajor?:string;localPlace?:string;transparent?:boolean;instruction:string}
+type ReplyKind='learning'|'general'|'greeting'|'thanks'|'remember'|'emotion'|'school-overview'|'school-fact'|'major-eligibility'|'major-interest'|'postgraduate'|'employment'|'school-vs-major'|'repair-repeat'|'identity'
+type ReplyPlan={style:'full'|'concise';kind:ReplyKind;targetMajor?:string;localPlace?:string;transparent?:boolean;instruction:string;learning?:LearningReplyPlan}
 
 function transparentAnswer(confirmed:string,unknown:string,nextStep:string,detail=''){
   return `现在能确定：${confirmed}\n现在还不能确定：${unknown}\n下一步只做：${nextStep}${detail?`\n\n${detail}`:''}`
@@ -24,6 +27,12 @@ function advisorPlanningCoordinate(context:AdvisorReplyContext){
   if(coordinate)return coordinate
   const rank=context.profile.provinceRank
   return {rank,sampleCount:rank?1:0,bestRank:rank,worstRank:rank,spreadRatio:0,stability:'single' as const}
+}
+
+function isExplorationContext(context:AdvisorReplyContext){return context.dashboard.mode==='exploration'||!advisorPlanningCoordinate(context).rank}
+function learningInput(context:AdvisorReplyContext,message:string,memory?:ReturnType<typeof buildConversationMemory>):LearningReplyInput{
+  return {detail:context.majorDetail??null,hasPlanningRank:!isExplorationContext(context),message,
+    previousUserMessages:memory?.recent.filter(item=>item.role==='user').map(item=>item.content),school:context.schoolDetail?.school??null}
 }
 
 export async function generateAdvisorReply(input:{
@@ -40,14 +49,16 @@ export async function generateAdvisorReply(input:{
   let mode='local-adapted-skill'
   if(config.AI_BASE_URL&&config.AI_API_KEY&&config.AI_MODEL){
     try{
-      answer=await askModel(input.context,input.message,memory,replyPlan)
-      const requiredNames=[...requiredCurrentNames(replyPlan,input.context),...requiredContextTerms(input.message,memory)]
+      answer=await askModel(input.context,input.message,memory,replyPlan,localAnswer)
+      const requiredNames=[...requiredCurrentNames(replyPlan,input.context),...(replyPlan.learning?[]:requiredContextTerms(input.message,memory))]
       const unrelatedMajor=replyPlan.targetMajor&&input.context.dashboard.cards.some(card=>!card.name.includes(replyPlan.targetMajor!)&&!replyPlan.targetMajor!.includes(card.name)&&answer.includes(card.name))
       const missedRepair=replyPlan.kind==='repair-repeat'&&!/(?:你说得对|是我没接住|刚才.*没回答|刚才.*答偏)/.test(answer)
       if(answer.length>2400||/https?:\/\//i.test(answer)||/www\./i.test(answer)||!isSafeAdvisorAnswer(answer,undefined,replyPlan.style)||(replyPlan.transparent&&!isTransparentAdvisorAnswer(answer))||requiredNames.some(name=>!answer.includes(name))||unrelatedMajor||missedRepair)throw new Error('AI 输出越过顾问边界或答非所问')
+      if(replyPlan.learning&&!isSafeLearningAdvisorAnswer(answer,localAnswer,replyPlan.learning,input.context.majorDetail??null,!isExplorationContext(input.context)))throw new Error('AI 输出与当前学习证据不一致')
+      if((input.context.majorDetail||isExplorationContext(input.context))&&!replyPlan.learning&&!isSafeLearningAdvisorAnswer(answer,localAnswer,{kind:'general',transparent:Boolean(replyPlan.transparent),instruction:''},null,!isExplorationContext(input.context)))throw new Error('AI 探索回复与当前依据不一致')
       mode='ai-adapted-skill'
-    }catch(error){
-      console.warn('AI 顾问调用失败，已切换本地解释：',error instanceof Error?error.message:'未知错误')
+    }catch{
+      console.warn('AI 顾问未返回可用解释，已切换本地解释。')
       answer=localAnswer
       mode='local-ai-fallback'
     }
@@ -61,10 +72,14 @@ function extractTargetMajor(message:string){
 
 function planReply(message:string,memory?:ReturnType<typeof buildConversationMemory>,context?:AdvisorReplyContext):ReplyPlan{
   const normalized=message.trim()
-  if(/^(?:你好|您好|嗨|哈喽|在吗|有人吗)[！!。,.，\s]*$/.test(normalized))return {style:'concise',kind:'greeting',instruction:'这是普通问候。像一位熟悉的班主任一样用2—3句回应，告诉用户可以直接说学校、专业或家里的顾虑。不要标题、不要介绍方法论、不要输出档案数据。'}
-  if(/^(?:(?:谢谢|感谢)(?:你)?[！!。,.，\s]*(?:我)?(?:明白|知道|懂)了?|(?:我)?(?:明白|知道|懂)了|好的|行|好嘞)[！!。,.，\s]*$/.test(normalized))return {style:'concise',kind:'thanks',instruction:'用户在感谢或确认听懂。自然收口，最多2句；不要重新分析，不要复述档案和历史条件，不要标题。'}
+  if(/^(?:你好|您好|嗨|哈喽|在吗|有人吗)(?:[！!。,.，\s]*(?:谢谢|感谢)(?:你)?)?[！!。,.，\s]*$/.test(normalized))return {style:'concise',kind:'greeting',instruction:'这是普通问候。像一位熟悉的班主任一样用2—3句回应，告诉用户可以直接说学校、专业或家里的顾虑。不要标题、不要介绍方法论、不要输出档案数据。'}
+  if(/^(?:(?:谢谢|感谢)(?:你)?(?:[！!。,.，\s]*(?:我)?(?:明白|知道|懂)了?)?|(?:我)?(?:明白|知道|懂)了|好的|行|好嘞)[！!。,.，\s]*$/.test(normalized))return {style:'concise',kind:'thanks',instruction:'用户在感谢或确认听懂。自然收口，最多2句；不要重新分析，不要复述档案和历史条件，不要标题。'}
   if(/你是谁|你能(?:帮我)?(?:做|干)什么|你是(?:真人|人|机器人|AI|人工智能)|你是不是(?:真人|人|机器人|AI|人工智能)/i.test(normalized))return {style:'concise',kind:'identity',instruction:'这是身份或能力确认。用2—4句自然说明你是知向里的 AI 规划顾问，不是真人；说明能做什么和不能做什么。不要标题，不要转去分析专业或学校，控制在180字内。'}
   if(/(?:先|帮我)?记住|别忘了|记一下/.test(normalized))return {style:'concise',kind:'remember',instruction:'用户在明确一个希望本会话记住的条件。用一句话确认已经记住，再用一句话说明后续会怎样使用；不要展开分析，不要标题，不要复述无关档案。'}
+  if(context&&(context.majorDetail||(isExplorationContext(context)&&!context.schoolDetail))){
+    const learning=planLearningReply(normalized)
+    return {style:'full',kind:'learning',transparent:learning.transparent,learning,instruction:learning.instruction}
+  }
   if(/重复|答非所问|没回答|没听懂|老是一样|一直一样/.test(normalized)){
     const targetMajor=[...(memory?.recent??[])].reverse().filter(item=>item.role==='user').map(item=>extractTargetMajor(item.content)).find(Boolean)
     return {style:'concise',kind:'repair-repeat',targetMajor,instruction:`用户指出你在重复或答非所问。必须先说“你说得对”，承认刚才没有接住问题；${targetMajor?`然后回到用户想学的“${targetMajor}”，只说明当前学校是否有该专业的具体招生证据。`:'然后请用户用一句话重说最想确认的事。'}不要标题，不要重复上一份学校介绍，控制在100—250字。`}
@@ -102,7 +117,7 @@ function requiredContextTerms(message:string,memory:ReturnType<typeof buildConve
   return ['四年本科','不读研','必须读研','专升本','预算','学费','离家近','省内','省外'].filter(term=>userContext.includes(term)).slice(-2)
 }
 
-async function askModel(context:AdvisorReplyContext,message:string,memory:ReturnType<typeof buildConversationMemory>,replyPlan:ReplyPlan){
+async function askModel(context:AdvisorReplyContext,message:string,memory:ReturnType<typeof buildConversationMemory>,replyPlan:ReplyPlan,localAnswer:string){
   const methodology=await readFile(new URL('../vendor/zhangxuefeng-skill/ADAPTED_METHODOLOGY.md',import.meta.url),'utf8')
   const controller=new AbortController()
   const timeout=setTimeout(()=>controller.abort(),15_000)
@@ -110,7 +125,10 @@ async function askModel(context:AdvisorReplyContext,message:string,memory:Return
     const response=await fetch(`${config.AI_BASE_URL.replace(/\/$/,'')}/chat/completions`,{
       method:'POST',signal:controller.signal,
       headers:{Authorization:`Bearer ${config.AI_API_KEY}`,'Content-Type':'application/json'},
-      body:JSON.stringify({model:config.AI_MODEL,temperature:.45,thinking:{type:'disabled'},messages:buildModelMessages({methodology,facts:context,memory,currentMessage:message,responseInstruction:replyPlan.transparent?`回答开头必须连续使用三行纯文本，顺序和标签一字不改：\n现在能确定：先给鲜明倾向，再写支撑这个倾向的当前本地事实。\n现在还不能确定：写清具体缺口以及为什么不能把话说死。\n下一步只做：只写一个家庭现在能完成的动作，不得出现编号清单或多个动作。\n三行后可补必要解释。可以有火气、反问和比喻，可以骂选择瞎、策略蠢、宣传扯淡，但不能骂学生或家长。禁止 Markdown 符号、内部评分术语和万能检查清单。\n${replyPlan.instruction}`:replyPlan.instruction})}),
+      body:JSON.stringify({model:config.AI_MODEL,temperature:.45,thinking:{type:'disabled'},messages:buildModelMessages({methodology,
+        facts:context.majorDetail||replyPlan.learning||(isExplorationContext(context)&&!context.schoolDetail)?learningModelFacts(learningInput(context,message,memory),localAnswer):context,
+        exploration:Boolean(context.majorDetail||replyPlan.learning)||isExplorationContext(context),memory,currentMessage:message,
+        responseInstruction:replyPlan.learning?`${replyPlan.instruction}\nverifiedReply 的前两行是本轮服务端已核验的事实和缺口，必须原样保留。第三行只给一个动作，可用自然口语追问一门想了解的课程；不再追加其他事实段落。家庭原始备注只能原样引用并保留用户自述标签。普通情绪和纠错自然接话，不强套三句。`:replyPlan.transparent?`回答开头必须连续使用三行纯文本，顺序和标签一字不改：\n现在能确定：先给鲜明倾向，再写支撑这个倾向的当前本地事实。\n现在还不能确定：写清具体缺口以及为什么不能把话说死。\n下一步只做：只写一个家庭现在能完成的动作，不得出现编号清单或多个动作。\n三行后可补必要解释。可以有火气、反问和比喻，可以骂选择瞎、策略蠢、宣传扯淡，但不能骂学生或家长。禁止 Markdown 符号、内部评分术语和万能检查清单。\n${replyPlan.instruction}`:replyPlan.instruction})}),
     })
     if(!response.ok)throw new Error(`AI 服务返回 ${response.status}`)
     const body=await response.json() as {choices?:Array<{message?:{content?:string}}>}
@@ -121,6 +139,7 @@ async function askModel(context:AdvisorReplyContext,message:string,memory:Return
 }
 
 function buildEvidenceRefs(context:AdvisorReplyContext):AdvisorEvidenceRef[]{
+  if(context.majorDetail)return learningEvidenceRefs(context.majorDetail)
   if(!context.schoolDetail)return []
   const records=(context.schoolDetail.admissionContext?.records as Array<{year:number;unitName:string;sourceUrl:string|null;publisher:string|null}>|undefined)??[]
   const seen=new Set<string>(),refs:AdvisorEvidenceRef[]=[]
@@ -138,6 +157,7 @@ export function buildLocalAdvisorReply(context:AdvisorReplyContext,message:strin
   if(replyPlan.kind==='thanks')return '好，能听明白就行。后面哪一所学校、哪一个专业拿不准，接着问，我还按咱们刚才的条件往下说。'
   if(replyPlan.kind==='remember')return '记住了，这个条件后面会跟着当前会话走。等比较学校、专业或培养年限时，我会把它当成限制来用，不让你一遍遍重说。'
   if(replyPlan.kind==='identity')return '我是知向里的 AI 规划顾问，不是真人。你可以把我当成一个帮家里查资料、翻译志愿术语、把风险说明白的助手；我不会替你改专业档位，也不会保证录取。哪项数据没有，我会直接说没有。'
+  if(replyPlan.learning)return buildLearningAdvisorReply(learningInput(context,message,memory),replyPlan.learning)
   if((replyPlan.kind==='major-interest'||replyPlan.kind==='repair-repeat')&&replyPlan.targetMajor&&context.schoolDetail)return buildSchoolMajorReply(context.schoolDetail,replyPlan.targetMajor,replyPlan.kind==='repair-repeat')
   if(replyPlan.kind==='repair-repeat')return `你说得对，我刚才确实没有接住你的问题，还在重复原来的说明。咱们重新来：你只用一句话告诉我现在最想确认什么，我这次只回答这一件事，不再套前面的模板。`
   if(replyPlan.kind==='major-eligibility'&&replyPlan.targetMajor)return buildDirectMajorReply(context,replyPlan.targetMajor,memory)

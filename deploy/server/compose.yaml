@@ -1,0 +1,85 @@
+name: zhixiang-exploration
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    mem_limit: 256m
+    pids_limit: 96
+    command: [postgres, -c, shared_buffers=32MB, -c, max_connections=30, -c, work_mem=2MB]
+    environment:
+      POSTGRES_DB: zhixiang
+      POSTGRES_USER: zhixiang_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set the private release environment file}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [backend]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: &logging
+      driver: json-file
+      options: {max-size: 5m, max-file: "2"}
+
+  api:
+    image: zhixiang-exploration-api:${RELEASE_ID:?Set the release id}
+    build:
+      context: ../..
+      dockerfile: deploy/server/Dockerfile
+      target: api
+      args:
+        API_BASE_IMAGE: ${API_BASE_IMAGE:-mcr.microsoft.com/playwright:v1.61.1-noble}
+    restart: unless-stopped
+    init: true
+    mem_limit: 384m
+    pids_limit: 192
+    shm_size: 128m
+    environment:
+      PORT: "3000"
+      NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=256
+      DATABASE_URL: postgresql://zhixiang_app:${POSTGRES_PASSWORD}@db:5432/zhixiang
+      DATABASE_SSL: "false"
+      DB_POOL_MAX: "2"
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-deepseek-v4-flash}
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [backend, frontend]
+    healthcheck:
+      test: [CMD, node, -e, 'fetch("http://127.0.0.1:3000/api/health").then(async r=>{const b=await r.json();process.exit(r.ok&&b.data?.database==="connected"?0:1)}).catch(()=>process.exit(1))']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  web:
+    image: zhixiang-exploration-web:${RELEASE_ID:?Set the release id}
+    build:
+      context: ../..
+      dockerfile: deploy/server/Dockerfile
+      target: web
+      args:
+        WEB_BASE_IMAGE: ${WEB_BASE_IMAGE:-nginx:1.30-alpine}
+    restart: unless-stopped
+    mem_limit: 64m
+    pids_limit: 64
+    ports: ["127.0.0.1:${HTTP_PORT:-18088}:80"]
+    depends_on:
+      api: {condition: service_healthy}
+    networks: [frontend]
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1/healthz]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+networks:
+  backend: {internal: true}
+  frontend:
+volumes:
+  postgres_data:

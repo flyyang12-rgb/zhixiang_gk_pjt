@@ -9,7 +9,7 @@ describe('专业就业规则引擎', () => {
     expect(scoreProfession({ ...base, selectedSubjects: ['历史','政治','地理'] }).eligible).toBe(false)
     expect(scoreProfession({ ...base, eligibleSchoolCount: 0 }).eligible).toBe(true)
     expect(scoreProfession({ ...base, eligibleSchoolCount: 0 }).factors.schoolAccess.value).toBeNull()
-    expect(scoreProfession({ ...base, mode: 'exploration', eligibleSchoolCount: 0 }).eligible).toBe(true)
+    expect(() => scoreProfession({ ...base, mode: 'exploration', eligibleSchoolCount: 0 })).toThrow('不使用评分规则')
   })
 
   it('使用当前与未来五因子权重并披露缺失证据', () => {

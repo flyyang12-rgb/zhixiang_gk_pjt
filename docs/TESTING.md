@@ -27,13 +27,40 @@ Vitest 排除 tests/e2e，现有单元测试主要使用纯函数或数据库替
 
 ## 准备浏览器与数据库
 
+学习证据和探索服务的 PostgreSQL 测试只接受下表的显式专用变量，先由私密环境注入连接，不把真实连接串写进命令历史。它们绝不读取应用 `.env`、DATABASE_URL/POSTGRES_URL 或默认数据库，且在连接前校验 loopback 与专用库名。独立实例须有 `anon`、`authenticated` 空角色；结构测试需要建表权限，导入测试另需本机专用测试实例中的建库权限。
+
+| 测试 | 显式变量与允许目标 | 隔离与清理 |
+| --- | --- | --- |
+| `tests/learning-evidence-postgres.test.ts` | EXPLORATION_TEST_DATABASE_URL；本机 zhixiang_exploration_test 或单个字母数字测试后缀 | 迁移、合成收藏、约束、撤回均在事务中，finally 回滚 |
+| `tests/learning-evidence-import-postgres.test.ts` | EXPLORATION_TEST_DATABASE_URL；同上 | 自行新建随机且记录准确名称的后缀库，验证真正事务提交/幂等/故障回滚；结束只删除本次创建的准确数据库 |
+| `tests/major-exploration-postgres.test.ts` | EXPLORATION_SERVICE_TEST_DATABASE_URL；本机 zhixiang_exploration_test_service 或单个字母数字测试后缀 | 材料关联、目录/详情、重新生成和合成收藏均在事务中，finally 回滚 |
+
+```powershell
+npm test -- tests/learning-evidence-postgres.test.ts tests/learning-evidence-import-postgres.test.ts tests/major-exploration-postgres.test.ts
+```
+
+未提供对应变量时测试显示 skipped，不能计为数据库验证通过；全量测试也必须核对是否跳过。这些测试只使用合成事实和本次准确 ID，不停用其他任务的本机数据库实例，也不清理以前运行的记录。学习证据 CLI 另用 `LEARNING_IMPORT_DATABASE_URL` 明确目标库，不能把 API 测试变量当作它的默认连接。字段与工具说明见 [学习证据契约](LEARNING_EVIDENCE.md)。
+
+### 探索工作台的独立浏览器验证
+
+`playwright.exploration.config.ts` 使用网页 5174 / API 3104，不复用日常 5173 / 3000 服务。先在专用测试窗口显式注入 `EXPLORATION_UI_TEST_DATABASE_URL`，仅允许本机 loopback 上的 `zhixiang_exploration_test`；执行角色须可创建测试数据库，实例已有 `anon`、`authenticated` 空角色。此连接仅用来创建本次随机后缀库，不初始化或清理基准库。
+
+```powershell
+npm run build
+npm run test:e2e:exploration
+```
+
+该配置从刚编译的 API 启动独立服务，主动使用空 dotenv 配置及关闭外部 AI，不读取应用 `.env`。只在本次随机数据库里初始化结构、合成专业/学校/学习材料；测试档案使用准确创建 ID 清理，结束仅删除本次准确数据库。Windows 通过测试专用的退出信号先完成数据库清理，再由 Playwright 结束服务；清理失败明确报错，不扫描旧测试库补清理。两个端口已被占用时拒绝启动，不结束其他进程。
+
+覆盖无成绩默认建档、九项首屏、分页/搜索返回、来源位置、待补资料、首屏外收藏与备注、排除恢复、改名撤回、网络重试、键盘和手机学校抽屉。合成内容的测试通过不等于官方资料审核或真实家庭验收完成。测试专用变量不加 `VITE_` 前缀；示例变量见 `.env.example`，实际连接从测试窗口注入。
+
 Playwright 默认使用本机 Google Chrome，单 worker，网页端口 5173、API 端口 3000。PDF 另外使用 Playwright Chromium：
 
 ```powershell
 npx playwright install chromium
 ```
 
-端到端测试会创建、更新和删除测试档案；部分测试会请求顾问和 PDF。现有配置不会自动提供隔离数据库、固定事实快照或 AI 替身。
+端到端测试会创建、更新和删除测试档案；部分测试会请求顾问和 PDF。默认旧配置不会自动提供隔离数据库、固定事实快照或 AI 替身；本轮探索专用配置的隔离服务与合成材料见上文。
 
 优先准备独立测试数据库，在仓库根目录创建不提交的 .env.test.local：
 
@@ -80,8 +107,34 @@ onboarding 测试使用 fixtures/created-profiles.ts 记录本次创建响应；
 - 单元测试和构建成功不等于 PDF 在 Vercel 可用，也不等于实际外部 AI、所有省份和年份已验收。
 - 测评 API 删除、无位次不推荐、历史偏好隔离、不同招生粒度、学校抽屉、收藏持久化和顾问预填仍是核心验收范围。
 - 对已有失败记录命令、现象、关联性和未完成项。禁止把未执行、环境阻断或跳过计为通过。
+- 本轮 Windows 运行环境的 tsx 在 `os.userInfo → uv_os_get_passwd ENOMEM` 初始化阶段失败，未进入应用；不修改依赖、全局配置或沙箱来隐藏该限制。TypeScript 编译和编译后 Node 入口可正常执行，npm 的 tsx 命令仍保留，不能把编译替代验证写成 tsx 已恢复。
+
+本轮在明确独立库环境下使用的 CLI 替代验证：
+
+```powershell
+npx tsc -p server/tsconfig.json --noEmit false --rootDir . --outDir .scratch/exploration-first/import-run --sourceMap false
+node .scratch/exploration-first/import-run/scripts/import-learning-evidence.js <清单.json> --sha256 <输入SHA256>
+```
+
+临时编译输出不提交；执行前须明确注入独立 `LEARNING_IMPORT_DATABASE_URL`。默认仍为只读预检，此方式不免除人工审核、原件散列或提交校验。
+
+## 2026-09-26 探索服务验证记录
+
+本轮在显式独立数据库变量下运行 `npm test`，34 文件、240 项通过，0 失败、0 跳过，包含真实 PostgreSQL 契约/导入/共享读取、比较/简报纯函数和顾问焦点/越界降级回归；`npm run build` 的前端类型、Vite 与服务端编译通过，顾问最后调整后再次运行 `npm run build:server` 通过。现有地图 chunk 警告保留。
+
+`.scratch/exploration-first/check-api.mjs` 使用编译后的 API 和本次临时 loopback 数据库验证十项：空成绩无空坐标、无评分工作台、目录筛选/分页/422、指定范围无回退、档案/专业404、收藏排除恢复保留备注、改名保留ID、撤回刷新移除事实、位次自动切换保留原模式及备注，以及本次准确档案ID清理。记录 `.scratch/exploration-first/api-verification.json` 为 passed；最后只移除本次准确数据库，不读共享档案、不调用外部 AI。这是当前工作区的验收脚本和记录，不作为克隆后自动分发的 npm 测试入口。
+
+`npm run test:e2e:exploration` 最终整轮13项通过，包含8项探索工作台和5项专业比较/简报/顾问流程：默认无成绩/无评分分档、目录分页来源与焦点、首屏外收藏/备注/排除恢复/改名撤回、网络重试/手机抽屉/收藏焦点、删除自身档案后的默认探索、位次自动切换、迟到备注不串专业及保存期间新草稿保留；比较数量限制/失败重试/当前材料/键盘与手机、简报复制成功与失败/原始备注/重新生成的模式与撤回、学校比较与学校简报回归、顾问只预填/首屏外焦点/无效ID不写历史/撤回后不引用旧事实/普通问候，以及无位次学校评价和住宿追问。合成招聘来源已过期，外部AI关闭，学习路径仍可用。专用API/Vite服务按运行身份关闭，只清理本次准确档案ID和随机准确测试库，未复用日常端口或读取.env。
+
+复验记录：首轮整轮为12通过、1失败，住宿问题正确回答了“住宿条件”，测试仅接受“宿舍”；扩大断言至两种同义表达后13项整轮通过，未为断言改业务回答。定向验证中还修复了收起来源详情的Tab焦点过滤、简报模式刷新和旧聊天事实越界；最终整轮包含相应断言。结果不是正式数据或真人使用反馈。
+
+真实候选只读预检的六条missing、零写入和完整度0已记录在02票，直观审核卡片仍默认pending，只生成审核意见文本，不写事实。未取得真人审核记录；真实家庭走查、外部AI和正式Supabase/Vercel验收尚未执行，默认旧端到端全量套件未运行，不以本轮自动测试代替07/08完整交付。
+
+收尾检查：22份相关文档的109条本地链接通过，`git diff --check` 通过。确认没有本次随机测试库、3104/5174服务或运行身份文件残留后，只关闭本次准确路径的独立PostgreSQL实例；日常服务与正式共享库未操作。工作区保留原有修改及本轮实现，未暂存、提交、推送或部署。
 
 ## 交付记录
+
+2026-09-26服务器发布准备：新增同服务器迁移值/JSON数组/原文/日期/外键顺序4项测试通过；全量35文件244项、13项探索Chrome整轮及构建通过，README素材审计与900/360宽度预览无溢出。第一次全量3项数据库测试连接被拒，原因是重新启动的本次测试实例用了默认端口；按准确数据目录关闭并以前台进程指定55434复验后244项全部通过，没有修改断言或复用共享库。服务器已完成原库一致性备份，部署与在线结果另在SERVER_DEPLOYMENT记录。
 
 记录本次 Git 提交、实际执行命令、通过/失败/未运行数量和环境限制；有数据维护时附本次审计时间及来源。提交前检查暂存内容，排除 .env、测试配置、日志、浏览器报告、备份与真实数据。
 

@@ -4,6 +4,8 @@ process.env.NO_PROXY = 'localhost,127.0.0.1'
 
 export default defineConfig({
   testDir: './tests/e2e',
+  // This suite has its own isolated database and server fixture.
+  testIgnore: ['exploration-workspace.spec.ts', 'exploration-decisions.spec.ts'],
   timeout: 90_000,
   fullyParallel: false,
   workers: 1,

@@ -10,6 +10,7 @@ import { advisorRouter } from './advisor.js'
 import { reportsRouter } from './reports.js'
 import { employmentRouter } from './employment.js'
 import { professionDashboardRouter } from './profession-dashboard.js'
+import { majorExplorationRouter } from './major-exploration-routes.js'
 
 export const app = express()
 
@@ -39,6 +40,7 @@ app.use('/api', advisorRouter)
 app.use('/api', reportsRouter)
 app.use('/api', employmentRouter)
 app.use('/api', professionDashboardRouter)
+app.use('/api', majorExplorationRouter)
 
 app.use((error: unknown, _request: express.Request, response: express.Response, _next: express.NextFunction) => {
   const requestId = response.locals.requestId

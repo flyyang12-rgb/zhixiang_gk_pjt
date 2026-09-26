@@ -39,6 +39,7 @@ export function rankProfessions(inputs: ProfessionInput[]) {
 }
 
 export function scoreProfession(input: ProfessionInput): ScoredProfession {
+  if (input.mode !== 'application') throw new Error('无位次专业探索不使用评分规则')
   const subjectEligible = input.requiredSubjects.every(subject => input.selectedSubjects.includes(subject))
   const eligible = subjectEligible
   const coverage = input.employmentUsable ? Math.min(100, Math.round(input.provinceCount / 31 * 100)) : null
@@ -48,7 +49,7 @@ export function scoreProfession(input: ProfessionInput): ScoredProfession {
   const factors = {
     coverage: { value: coverage, weight: 30, evidence: coverage == null ? '招聘数据已过期、不可用或来源不足' : `最近30天覆盖 ${input.provinceCount} 个省级地区、${input.jobCount} 个去重岗位` },
     directEntry: { value: directEntry, weight: 20, evidence: directEntry == null ? '尚无经过审核的岗位方向' : `审核岗位方向中，本科可直接尝试的比例为 ${directEntry}%` },
-    schoolAccess: { value: schoolAccess, weight: 25, evidence: input.mode === 'exploration' ? '目标探索模式不计算位次可达院校' : schoolAccess == null ? '当前只有院校专业组投档线，尚不能证明该组包含此专业' : `当前位次范围内有 ${input.eligibleSchoolCount} 所具备专业交叉证据的院校` },
+    schoolAccess: { value: schoolAccess, weight: 25, evidence: schoolAccess == null ? '当前只有院校专业组投档线，尚不能证明该组包含此专业' : `当前位次范围内有 ${input.eligibleSchoolCount} 所具备专业交叉证据的院校` },
     stability: { value: stability, weight: 10, evidence: stability == null ? '最近30天趋势或来源数量不足' : `按每日岗位波动与 ${input.sourceCount} 个来源计算` },
     outlook: { value: input.outlookScore, weight: 15, evidence: input.outlookEvidence ?? '尚无有效期内的官方未来发展证据', reference: input.outlookReference },
   }

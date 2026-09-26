@@ -1,3 +1,10 @@
+export type { LearningEvidence, LearningEvidenceKind, LearningScope, LearningEvidenceAvailability,
+  AdmissionSubjectCondition, AdmissionEvidenceResult, LearningMaterialRequest } from '../server/learning-evidence-contract'
+import type { ExplorationList, ExplorationCatalog, ExplorationMajorDetail } from '../server/major-exploration'
+export type { ExplorationList, ExplorationCatalog, ExplorationMajorDetail, ExplorationMajorCard, ExplorationCoverage,
+  ExplorationSchoolExample, ExplorationCareerDirection } from '../server/major-exploration'
+export type { CurrentLearningFact } from '../server/learning-evidence-repository'
+
 export type StudentProfile = {
   id: string
   studentName: string
@@ -160,8 +167,22 @@ export type SavedItem = { itemType:'major'|'school';itemId:number;state:'saved'|
 export type AdmissionUnitCandidate={schoolId:number;schoolName:string;province:string;city:string;level:string;officialUrl:string;admissionsUrl:string;linksSourceUrl:string;unitId:number;unitName:string;unitType:'exact_major'|'major_group'|'school_line';subjectRequirement:string|null;referenceRank:number;risk:'冲'|'稳'|'保';confidence:'低'|'中'|'高';dataYears:number[];sourceUrl:string}
 export type AdmissionEvidence={years:number[];unitType:'exact_major'|'major_group'|'school_line'|null;confidence:'低'|'中'|'高'|'无';recordCount:number;note:string}
 export type ProfileSummary={studentName:string;planningMode:'exploration'|'application';province:string;subjectGroup:string;score:number|null;provinceRank:number|null}
-export type ProfessionDashboard = { mode:'exploration'|'application';profileSummary:ProfileSummary;planningCoordinate:PlanningCoordinate;scoreSnapshots:ScoreSnapshot[];employment:{healthySources:number;lastSuccessAt:string|null;staleDays:number|null;usable:boolean;windowDays:number};majorPool:{reviewedMajorCount:number;displayedCount:number;outlookEvidenceCount:number};dataGaps:string[];schoolCandidates:AdmissionUnitCandidate[];admissionEvidence:AdmissionEvidence;cards:ProfessionCard[];savedItems:SavedItem[] }
+export type ProfessionDashboard = { mode:'exploration'|'application';exploration?:ExplorationList|null;profileSummary:ProfileSummary;planningCoordinate:PlanningCoordinate;scoreSnapshots:ScoreSnapshot[];employment:{healthySources:number;lastSuccessAt:string|null;staleDays:number|null;usable:boolean;windowDays:number};majorPool:{reviewedMajorCount:number;displayedCount:number;outlookEvidenceCount:number};dataGaps:string[];schoolCandidates:AdmissionUnitCandidate[];admissionEvidence:AdmissionEvidence;cards:ProfessionCard[];savedItems:SavedItem[] }
 export function getProfessionDashboard(profileId:string){return request<ProfessionDashboard>(`/api/profiles/${profileId}/profession-dashboard`)}
+function explorationQuery(values: Record<string, string | number | undefined>) {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(values)) if (value !== undefined && value !== '') params.set(key, String(value))
+  return params.size ? `?${params.toString()}` : ''
+}
+export function getMajorExploration(profileId:string,admissionYear?:number) {
+  return request<ExplorationList>(`/api/profiles/${profileId}/major-exploration${explorationQuery({admissionYear})}`)
+}
+export function getMajorExplorationCatalog(profileId:string,query:{search?:string;category?:string;page?:number;pageSize?:number;admissionYear?:number}={}) {
+  return request<ExplorationCatalog>(`/api/profiles/${profileId}/major-exploration/catalog${explorationQuery(query)}`)
+}
+export function getMajorExplorationDetail(profileId:string,majorId:number,query:{schoolId?:number;sourceYear?:number;admissionYear?:number}={}) {
+  return request<ExplorationMajorDetail>(`/api/profiles/${profileId}/major-exploration/${majorId}${explorationQuery(query)}`)
+}
 export function saveDashboardItem(profileId:string,item:SavedItem){return request<SavedItem>(`/api/profiles/${profileId}/saved-items`,{method:'PUT',body:JSON.stringify(item)})}
 export function removeDashboardItem(profileId:string,itemType:'major'|'school',itemId:number){return request<{itemType:string;itemId:number}>(`/api/profiles/${profileId}/saved-items/${itemType}/${itemId}`,{method:'DELETE'})}
 export function updateDashboardItemNote(profileId:string,itemType:'major'|'school',itemId:number,note:string|null){return request<{itemType:string;itemId:number;note:string|null}>(`/api/profiles/${profileId}/saved-items/${itemType}/${itemId}/note`,{method:'PATCH',body:JSON.stringify({note})})}

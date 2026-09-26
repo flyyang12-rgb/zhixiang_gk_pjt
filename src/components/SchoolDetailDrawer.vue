@@ -1,29 +1,35 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { getSchoolDetail, removeDashboardItem, saveDashboardItem, type AdvisorFocus, type SchoolDetail } from '../api'
+import { interactionError } from '../interaction-errors'
 
-const props=defineProps<{schoolId:number|null;profileId?:string}>()
-const emit=defineEmits<{close:[];advisor:[{prompt:string;focus:AdvisorFocus}]}>()
+const props=defineProps<{schoolId:number|null;profileId?:string;studentName?:string}>()
+const emit=defineEmits<{close:[];advisor:[{prompt:string;focus:AdvisorFocus}];savedChange:[{profileId:string;schoolId:number;isSaved:boolean}]}>()
 const detail=ref<SchoolDetail|null>(null),loading=ref(false),error=ref(''),saving=ref(false)
+const saveError=ref(''),saveMessage=ref('')
 const showAllMajors=ref(false)
 const visibleMajors=computed(()=>showAllMajors.value?detail.value?.featuredMajors??[]:detail.value?.featuredMajors.slice(0,12)??[])
 const closeButton=ref<HTMLButtonElement|null>(null)
 const drawer=ref<HTMLElement|null>(null)
 let previousFocus:HTMLElement|null=null
+let readRequest=0,alive=true
 
-watch(()=>props.schoolId,async id=>{
+watch(()=>[props.schoolId,props.profileId] as const,async([id,profileId])=>{
+  const request=++readRequest
   if(!id){detail.value=null;return}
   previousFocus=document.activeElement instanceof HTMLElement?document.activeElement:null
   showAllMajors.value=false
   loading.value=true;error.value='';detail.value=null
-  try{detail.value=await getSchoolDetail(id,props.profileId)}catch(value){error.value=value instanceof Error?value.message:'学校详情加载失败'}
-  finally{loading.value=false;await nextTick();closeButton.value?.focus()}
+  saveError.value='';saveMessage.value='';saving.value=false
+  try{const result=await getSchoolDetail(id,profileId);if(alive&&request===readRequest)detail.value=result}
+  catch(value){if(alive&&request===readRequest)error.value=interactionError(value,'学校详情加载失败，请检查网络后重试')}
+  finally{if(alive&&request===readRequest){loading.value=false;await nextTick();if(alive&&request===readRequest)closeButton.value?.focus()}}
 },{immediate:true})
 
-function close(){emit('close');nextTick(()=>previousFocus?.focus())}
+function close(){emit('close');nextTick(()=>{if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true})})}
 function onKeydown(event:KeyboardEvent){
-  if(!props.schoolId)return
-  if(event.key==='Escape'){close();return}
+  if(event.defaultPrevented||!props.schoolId)return
+  if(event.key==='Escape'){event.preventDefault();close();return}
   if(event.key!=='Tab'||!drawer.value)return
   const focusable=[...drawer.value.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')]
   if(!focusable.length)return
@@ -32,16 +38,21 @@ function onKeydown(event:KeyboardEvent){
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 }
 window.addEventListener('keydown',onKeydown)
-onBeforeUnmount(()=>window.removeEventListener('keydown',onKeydown))
+onBeforeUnmount(()=>{alive=false;readRequest++;window.removeEventListener('keydown',onKeydown)})
 
 async function toggleSaved(){
   if(!props.profileId||!detail.value||saving.value)return
+  const profileId=props.profileId,schoolId=detail.value.school.id,schoolName=detail.value.school.name,wasSaved=detail.value.isSaved
   saving.value=true
+  saveError.value='';saveMessage.value=''
   try{
-    if(detail.value.isSaved)await removeDashboardItem(props.profileId,'school',detail.value.school.id)
-    else await saveDashboardItem(props.profileId,{itemType:'school',itemId:detail.value.school.id,state:'target'})
-    detail.value.isSaved=!detail.value.isSaved
-  }finally{saving.value=false}
+    if(wasSaved)await removeDashboardItem(profileId,'school',schoolId)
+    else await saveDashboardItem(profileId,{itemType:'school',itemId:schoolId,state:'target'})
+    if(!alive||props.profileId!==profileId)return
+    emit('savedChange',{profileId,schoolId,isSaved:!wasSaved})
+    if(detail.value?.school.id===schoolId){detail.value.isSaved=!wasSaved;saveMessage.value=wasSaved?`已从“${props.studentName||'当前学生'}”的公开档案移除“${schoolName}”`:`已将“${schoolName}”收藏到“${props.studentName||'当前学生'}”的公开档案，所有访客可查看和修改`}
+  }catch(value){if(alive&&props.profileId===profileId&&detail.value?.school.id===schoolId)saveError.value=interactionError(value,'学校收藏保存失败，请检查网络后重试')}
+  finally{if(alive&&props.profileId===profileId&&detail.value?.school.id===schoolId)saving.value=false}
 }
 function askAdvisor(){if(detail.value)emit('advisor',{prompt:`请结合当前档案，用简洁、可追溯的方式解释${detail.value.school.name}：为什么值得关注、当前位次对应什么风险、填报前还要核验什么？`,focus:{type:'school',schoolId:detail.value.school.id,schoolName:detail.value.school.name}})}
 const unitTypeLabel={exact_major:'具体专业',major_group:'院校专业组',school_line:'学校线'}
@@ -88,6 +99,7 @@ const unitTypeLabel={exact_major:'具体专业',major_group:'院校专业组',sc
             <footer class="school-detail-actions">
               <nav><a v-if="detail.school.officialUrl" :href="detail.school.officialUrl" target="_blank" rel="noreferrer">学校官网 ↗</a><span v-else>学校官网待核验</span><a v-if="detail.school.admissionsUrl" :href="detail.school.admissionsUrl" target="_blank" rel="noreferrer">招生官网 ↗</a><span v-else>招生官网待核验</span></nav>
               <div><button v-if="profileId" class="school-save-action" :disabled="saving" @click="toggleSaved">{{saving?'保存中…':detail.isSaved?'★ 已收藏':'☆ 收藏学校'}}</button><button v-if="profileId" class="school-advisor-action" @click="askAdvisor">问顾问 →</button><small v-else>建立档案后可收藏并向顾问追问</small></div>
+              <p v-if="saveMessage" role="status" class="school-save-feedback">{{saveMessage}}</p><p v-if="saveError" role="alert" class="school-save-error">{{saveError}}</p>
             </footer>
           </template>
         </aside>
