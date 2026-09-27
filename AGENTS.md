@@ -60,7 +60,7 @@
 - AI：OpenAI 兼容聊天接口，当前可配置 DeepSeek；异常时回退本地规则解释。
 - PDF：服务端根据已保存档案和候选生成。
 
-本地开发不使用Docker。现有Linux服务器使用独立Docker Compose/PostgreSQL发布路径，见`docs/SERVER_DEPLOYMENT.md`及ADR0012。2026-09-27用户明确授权先删除知向旧部署与数据再发布；旧MySQL目录、容器和卷已删除，仅保留服务器受控备份，不恢复MySQL业务兼容。此授权只适用于此次清空；后续更新复用新版数据卷，不自行重置。Vercel不作为本次发布目标。未经明确需求，不引入NestJS、ORM、大型UI框架或前端状态管理框架。
+本地开发不使用Docker。现有Linux服务器使用独立Docker Compose/PostgreSQL发布路径，见`docs/SERVER_DEPLOYMENT.md`及ADR0012。2026-09-27用户明确授权先删除知向旧部署与数据再发布，并随后授权清理旧备份及过期发布；旧MySQL目录、容器、卷和旧备份已删除，不恢复MySQL业务兼容。此授权只适用于此次清空与清理；后续更新复用新版数据卷，不自行重置。Vercel不作为本次发布目标。未经明确需求，不引入NestJS、ORM、大型UI框架或前端状态管理框架。
 
 职责边界：
 

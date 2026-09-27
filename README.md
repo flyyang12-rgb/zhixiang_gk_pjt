@@ -77,7 +77,7 @@ npm run dev
 
 **Vue 3 + TypeScript + Vite + ECharts → Express 5 + Zod → PostgreSQL。** 确定性规则在服务端生成结果，前端负责展示与交互；浏览器只访问API。
 
-当前部署在用户现有Linux服务器，使用独立Docker Compose项目承载新版网页、API与PostgreSQL。2026-09-27按明确授权删除旧MySQL目录、容器和数据卷，备份仅留在服务器受控目录。后续更新复用新版数据卷，不重复清空。部署、健康验证和恢复边界见[服务器部署指南](docs/SERVER_DEPLOYMENT.md)。本地开发不需要Docker。
+当前部署在用户现有Linux服务器，使用独立Docker Compose项目承载新版网页、API与PostgreSQL。2026-09-27按明确授权删除旧MySQL目录、容器和数据卷，随后按用户要求清理旧备份与过期发布，保留当前数据库和新档案。后续更新复用新版数据卷，不重复清空。部署、健康验证和恢复边界见[服务器部署指南](docs/SERVER_DEPLOYMENT.md)。本地开发不需要Docker。
 
 `api/index.ts`和`vercel.json`保留为已有可选入口；**本次不使用Vercel发布**。Supabase可作为PostgreSQL服务使用，不是此次发布所依赖的唯一数据库。
 

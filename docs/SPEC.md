@@ -63,7 +63,7 @@
 ## Implementation Decisions
 
 - 前端采用 Vue 3、TypeScript、Vite 和 ECharts；后端采用 Express、TypeScript、Zod 和 `pg`；当前正式数据保存在现有服务器PostgreSQL，Supabase为可选数据库。
-- 浏览器不直接连接数据库，只通过Express API读写。服务端使用`DATABASE_URL`和小连接池访问PostgreSQL，远程连接使用TLS。现有Linux服务器采用独立Docker Compose与PostgreSQL卷；2026-09-27按用户明确要求先删除知向旧部署与数据再发布，旧MySQL目录/容器/卷已删除，服务器内备份保留。后续更新复用新卷，不自行清空。Vercel配置保留但关闭Git自动部署；本地开发不依赖Docker。见ADR0012与SERVER_DEPLOYMENT。
+- 浏览器不直接连接数据库，只通过Express API读写。服务端使用`DATABASE_URL`和小连接池访问PostgreSQL，远程连接使用TLS。现有Linux服务器采用独立Docker Compose与PostgreSQL卷；2026-09-27按用户明确要求先删除知向旧部署与数据再发布，随后授权清理旧备份与过期发布，保留当前数据库与新档案。后续更新复用新卷，不自行清空。Vercel配置保留但关闭Git自动部署；本地开发不依赖Docker。见ADR0012与SERVER_DEPLOYMENT。
 - 产品不提供注册、登录或档案归属隔离。所有访客都能查看、修改和永久删除全部学生档案、收藏、推荐结果及顾问聊天；这是明确选择的公开共享模式，不得在页面或文档中暗示为私密空间。
 - 学生档案是志愿规划的数据边界，拥有基础信息、候选清单、收藏排除项和顾问会话；历史问卷与家庭偏好数据继续保留但不参与当前流程。
 - 主流程固定为“基础信息 → 专业与学校”，不提供测评或答题入口。AI 只能解释规则结果，不参与生成、排序、分档或风险判断。
