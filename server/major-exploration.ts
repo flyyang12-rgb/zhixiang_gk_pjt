@@ -86,17 +86,20 @@ export async function loadExplorationDetail(db: LearningEvidenceDatabase, contex
 
 export function createExplorationList(snapshot: LearningEvidenceSnapshot, context: ExplorationContext, now = new Date()): ExplorationList {
   const cards = allCards(snapshot, context, now)
-  const eligible = cards.filter(card => card.status === 'available' && card.savedState !== 'excluded' && card.admission.status !== 'not_met')
+  const eligible = cards.filter(card => card.status !== 'unavailable' && card.savedState !== 'excluded' && card.admission.status !== 'not_met')
   // Completeness is a content threshold, not a personal-fit or employment rank.
-  const displayed = [...eligible.filter(card => card.completeness.complete), ...eligible.filter(card => !card.completeness.complete)].slice(0, 9)
+  const displayed = [...eligible.filter(card => card.completeness.complete),
+    ...eligible.filter(card => card.status === 'available' && !card.completeness.complete),
+    ...eligible.filter(card => card.status === 'pending')].slice(0, 9)
   return {
     mode: 'exploration', cards: displayed, coverage: coverage(snapshot, cards, displayed.length),
     admissionYear: context.admissionYear, generatedAt: now.toISOString(),
-    orderNote: '完整资料优先；各组按专业类别、代码和 ID 浏览，顺序不表示适合度',
+    orderNote: '先看有审核资料的专业，再看资料待补充的入门方向；各组按类别、代码和 ID 浏览，顺序不表示适合度',
     dataGaps: [
-      ...(displayed.length < 9 ? [`当前可浏览 ${displayed.length} 个专业，按实际审核资料展示`] : []),
+      ...(displayed.length < 9 ? [`当前可浏览 ${displayed.length} 个专业，按当前专业目录与资料状态展示`] : []),
+      ...(displayed.some(card => card.status === 'pending') ? ['入门方向只展示标准专业名称、类别和代码；课程、职业方向与学校实例仍待审核补充'] : []),
       ...(cards.some(card => card.status === 'available' && !card.completeness.complete) ? ['部分专业的课程、学习活动或职业方向材料待补充'] : []),
-      ...(cards.some(card => card.status === 'available' && card.admission.status === 'unknown') ? [`${context.admissionYear} 年当前范围的选科要求尚有缺口，未知不表示不限`] : []),
+      ...(displayed.some(card => card.admission.status === 'unknown') ? [`${context.admissionYear} 年当前范围的选科要求尚有缺口，未知不表示不限`] : []),
     ],
   }
 }
@@ -104,15 +107,14 @@ export function createExplorationCatalog(snapshot: LearningEvidenceSnapshot, con
   query: ExplorationCatalogQuery = {}, now = new Date()): ExplorationCatalog {
   const parsed = explorationCatalogQuerySchema.parse(query)
   const cards = allCards(snapshot, context, now)
-  const reviewed = cards.filter(card => card.status === 'available')
-  // With a name search, standard identities without usable materials remain
-  // visible as pending/unavailable. An empty default directory is not fiction.
-  const candidates = parsed.search ? cards : reviewed
+  // Pending identities are browsable without publishing their unreviewed facts.
+  // Withdrawn/invalid materials remain accessible only through explicit search.
+  const candidates = parsed.search ? cards : cards.filter(card => card.status !== 'unavailable')
   const filtered = candidates.filter(card => (!parsed.search || card.name.includes(parsed.search)) &&
     (!parsed.category || card.category === parsed.category))
   const items = filtered.slice((parsed.page - 1) * parsed.pageSize, parsed.page * parsed.pageSize)
   return { items, total: filtered.length, page: parsed.page, pageSize: parsed.pageSize,
-    categories: [...new Set(reviewed.map(card => card.category))], coverage: coverage(snapshot, cards, items.length),
+    categories: [...new Set(candidates.map(card => card.category))], coverage: coverage(snapshot, cards, items.length),
     admissionYear: context.admissionYear, generatedAt: now.toISOString() }
 }
 

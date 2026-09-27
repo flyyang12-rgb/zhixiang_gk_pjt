@@ -63,7 +63,7 @@ async function changePage(offset: number) {
       <div>
         <span>SHARED DATA MAINTENANCE</span>
         <h1>院校数据核验</h1>
-        <p>覆盖率来自 Supabase。当前入口不设账号权限，未核验事实不会进入普通用户详情。</p>
+        <p>覆盖率来自当前数据库。当前入口不设账号权限，未核验事实不会进入普通用户详情。</p>
       </div>
       <a href="/">返回知向工作台 →</a>
     </header>

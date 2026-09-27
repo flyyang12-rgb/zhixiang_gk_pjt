@@ -3,6 +3,7 @@ import { mkdir,readFile,writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { database, type DatabaseRow as RowDataPacket } from '../server/database.js'
 import { prepareFeaturedMajorRecord,type FeaturedMajorInput } from './featured-major-import-policy.js'
+import { findFeaturedMajorMatches } from './featured-major-mapping.js'
 
 const inputPath=resolve(process.argv[2]??'data/featured-majors.json')
 
@@ -20,7 +21,7 @@ async function run(){
       const record=prepareFeaturedMajorRecord(value as FeaturedMajorInput)
       const [schools]=await database.query<RowDataPacket[]>('SELECT id FROM schools WHERE name=? LIMIT 2',[record.schoolName])
       if(schools.length!==1)throw new Error(schools.length?'学校名称不唯一，请先修正院校映射':'未找到完全匹配的学校')
-      const [majors]=await database.query<RowDataPacket[]>('SELECT id,name,code FROM majors WHERE (? IS NOT NULL AND code=?) OR name=? LIMIT 2',[record.majorCode??null,record.majorCode??null,record.majorName])
+      const majors=await findFeaturedMajorMatches(database,record.majorCode??null,record.majorName)
       if(majors.length>1)throw new Error('专业映射不唯一，请检查专业代码与名称')
       const majorId=majors[0]?.id??null
       if(!majorId)unmapped.push(`${record.schoolName}：${record.majorName}${record.majorCode?`（${record.majorCode}）`:''}`)

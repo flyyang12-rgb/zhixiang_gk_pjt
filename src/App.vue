@@ -370,7 +370,7 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
             <span>{{ visibleScore == null ? '暂时没有成绩也能开始' : '为什么先填位次？' }}</span>
             <p>{{ visibleScore == null ? '目标探索先看课程、学习活动与职业方向，资料不足时明确保留未知。' : '不同年份的试卷难度不同。位次比裸分更适合比较历年录取情况。' }}</p>
           </div>
-          <div class="data-source"><i></i><span>数据模式<strong>Supabase 公开共享</strong></span></div>
+          <div class="data-source"><i></i><span>数据模式<strong>公开共享</strong></span></div>
           <div class="data-coverage">
             <span>当前科类可比数据</span><strong v-if="dataStatusState==='loading'">正在读取…</strong><strong v-else-if="dataStatusState==='error'">数据状态暂不可用 <button class="coverage-retry" @click="refreshDataStatus">重试</button></strong><strong v-else-if="!currentSubjectGroup">选择科类后查看可比数据</strong><strong v-else-if="currentCoverage">{{ currentCoverage.years.join(' / ') }} · {{ currentCoverage.recordCount.toLocaleString() }} 条</strong><strong v-else>尚未覆盖当前科类</strong>
             <div class="year-status-list">

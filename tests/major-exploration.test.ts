@@ -65,7 +65,7 @@ describe('无位次探索清单与完整审核池', () => {
   it('存在但未审核与不存在分开，未审核原文不出现在任何详情事实中', () => {
     const pending = fact(2, { content: '禁止发布的待审核原文', review: { status: 'pending', reviewer: null, reviewedAt: null, conclusion: null, reason: '禁止发布的待审核理由' } })
     const state = snapshot([identity(1), identity(2)], [...complete(1), pending])
-    expect(createExplorationCatalog(state, context, {}, evidenceNow).total).toBe(1)
+    expect(createExplorationCatalog(state, context, {}, evidenceNow).total).toBe(2)
     const result = createExplorationCatalog(state, context, { search: '专业2' }, evidenceNow)
     expect(result.items[0]!.status).toBe('pending')
     expect(result.items[0]!.dataGaps.join('')).toContain('资料待补充')
@@ -73,6 +73,34 @@ describe('无位次探索清单与完整审核池', () => {
     expect(detail?.status).toBe('pending')
     expect(JSON.stringify(detail)).not.toContain('禁止发布')
     expect(createExplorationDetail(state, context, 999, {}, evidenceNow)).toBeNull()
+  })
+  it('没有审核材料时仍展示标准专业入门方向，最多九项，不发布事实或假装选科不限', () => {
+    const majors = Array.from({ length: 12 }, (_, index) => identity(index + 1))
+    const state = snapshot(majors.reverse(), [])
+    const saved = { ...context, savedItems: [{ itemType: 'major' as const, itemId: 1, state: 'excluded' as const }] }
+    const list = createExplorationList(state, saved, evidenceNow)
+    expect(list.cards.map(card => card.id)).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10])
+    expect(list.coverage).toMatchObject({ reviewedMajorCount: 0, completeMajorCount: 0, incompleteMajorCount: 0, displayedCount: 9 })
+    expect(list.coverage.sourceYears).toEqual([])
+    for (const card of list.cards) {
+      expect(card.status).toBe('pending')
+      expect(card.curriculum).toEqual([])
+      expect(card.learningActivities).toEqual([])
+      expect(card.careerDirections).toEqual([])
+      expect(card.schoolExamples).toEqual([])
+      expect(card.admission.status).toBe('unknown')
+      expect(card).not.toHaveProperty('score')
+      expect(card).not.toHaveProperty('tier')
+      expect(card).not.toHaveProperty('risk')
+    }
+    expect(createExplorationCatalog(state, saved, {}, evidenceNow).total).toBe(12)
+  })
+  it('有部分审核材料时优先展示，不使用失效专业填充首屏或默认目录', () => {
+    const withdrawn = fact(3, { batch: { ...learningEvidenceFixture().batch, status: 'withdrawn' } })
+    const state = snapshot([identity(1), identity(2), identity(3)], [fact(2), withdrawn])
+    expect(createExplorationList(state, context, evidenceNow).cards.map(card => card.id)).toEqual([2, 1])
+    expect(createExplorationCatalog(state, context, {}, evidenceNow).items.map(card => card.id)).toEqual([1, 2])
+    expect(createExplorationCatalog(state, context, { search: '专业3' }, evidenceNow).items[0]?.status).toBe('unavailable')
   })
   it('排除只影响首屏，目录、详情和家庭原始备注仍保留，恢复后重新出现', () => {
     const state = snapshot([identity(1), identity(2)], [...complete(1), ...complete(2)])

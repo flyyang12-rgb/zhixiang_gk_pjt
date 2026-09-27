@@ -194,19 +194,20 @@ defineExpose({ openDetail, refresh })
     <template v-if="detailId === null">
       <form class="exploration-search" @submit.prevent="loadCatalog(1)">
         <label>按专业名称查阅<input v-model="filters.search" type="search" maxlength="100" placeholder="输入专业名称"></label>
-        <label>专业类别<select v-model="filters.category"><option value="">全部已审核类别</option><option v-for="category in categories" :key="category">{{ category }}</option></select></label>
+        <label>专业类别<select v-model="filters.category"><option value="">全部专业类别</option><option v-for="category in categories" :key="category">{{ category }}</option></select></label>
         <button type="submit" :disabled="catalogLoading">查阅目录</button><button type="button" class="exploration-directory-button" @click="clearFilters">返回探索清单 / 清除筛选</button>
       </form>
       <p class="exploration-coverage" v-if="list">已审核资料 {{ list.coverage.reviewedMajorCount }} 个专业 · 完整条目 {{ list.coverage.completeMajorCount }} 个 · 有缺口 {{ list.coverage.incompleteMajorCount }} 个<template v-if="list.coverage.sourceYears.length"> · 材料年份 {{ list.coverage.sourceYears.join(' / ') }}</template></p>
+      <p v-if="view === 'initial' && visibleCards.some(card => card.status === 'pending')" class="exploration-order">先从这 {{ visibleCards.length }} 个专业方向开始了解，可以查看、收藏和比较。标注“资料待补充”的方向暂不判断适合度或能否报考。</p>
       <p class="exploration-order">{{ view === 'initial' ? list?.orderNote : '目录按专业类别、代码与 ID 浏览，顺序不表示适合度；暂时排除的专业仍可查阅。' }}</p>
       <p v-if="catalogError" class="exploration-error" role="alert">{{ catalogError }} <button type="button" @click="loadCatalog(catalog?.page ?? 1, view === 'catalog')">重试目录</button></p>
-      <p v-if="catalogLoading && view === 'catalog'" class="exploration-state" role="status">正在读取审核目录…</p>
+      <p v-if="catalogLoading && view === 'catalog'" class="exploration-state" role="status">正在读取专业目录…</p>
       <p v-else-if="!visibleCards.length" class="exploration-state">{{ view === 'catalog' ? '当前查询没有匹配条目。可以清除筛选，或换一个完整专业名称。' : '当前可展示的审核资料不足。可以查阅目录、查看已有收藏；缺少资料不代表专业不存在或就业差。' }}</p>
       <div v-else class="exploration-list" :aria-busy="listRefreshing || catalogLoading">
         <article v-for="card in visibleCards" :key="card.id" class="exploration-row" :data-major-id="card.id">
           <button type="button" class="exploration-row-main" :aria-label="`查看 ${card.name} 专业详情`" @click="openDetail(card.id, $event)">
             <small>{{ card.category }} · {{ card.code }}</small><h3>{{ card.name }}</h3>
-            <p v-if="card.status === 'available'">{{ card.curriculum[0]?.content || '课程材料待补充' }}</p><p v-else>{{ card.status === 'pending' ? '资料待补充' : '资料当前不可用，需要重新核验' }}</p>
+            <p v-if="card.status === 'available'">{{ card.curriculum[0]?.content || '课程材料待补充' }}</p><p v-else>{{ card.status === 'pending' ? '入门方向 · 资料待补充' : '资料当前不可用，需要重新核验' }}</p>
             <small v-if="card.curriculum[0]">{{ card.curriculum[0].school ? `${card.curriculum[0].school.name}的专业实例` : '专业范围' }} · {{ card.curriculum[0].source.year }} 年材料</small>
             <span>{{ card.completeness.complete ? '课程、学习活动与职业方向均有审核资料' : card.completeness.missing.join('；') }}</span>
             <span class="exploration-admission">{{ admissionLabels[card.admission.status] }}<template v-if="savedItem(card.id)?.state === 'excluded'"> · 已暂时排除</template></span>

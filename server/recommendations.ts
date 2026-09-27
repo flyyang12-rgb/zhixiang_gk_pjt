@@ -5,6 +5,7 @@ import { database } from './database.js'
 import { defaultDecisionWeights, scoreCandidate } from './recommendation-scoring.js'
 import { loadAdmissionCandidates, type AdmissionUnitType } from './admission-candidates.js'
 import {loadPlanningCoordinate} from './planning-coordinate.js'
+import { loadRecommendationAvailability } from './recommendation-data.js'
 
 export const recommendationsRouter = Router()
 
@@ -23,7 +24,7 @@ recommendationsRouter.post('/profiles/:id/recommendations/generate', async (requ
     const planningCoordinate=await loadPlanningCoordinate(profileId,profile.provinceRank==null?null:Number(profile.provinceRank))
     if (!planningCoordinate.rank) { response.status(422).json({ success: false, data: null, error: '生成冲稳保清单需要填写全省位次', requestId: response.locals.requestId }); return }
 
-    const [available] = await database.execute<RowDataPacket[]>(`SELECT COUNT(*) count,MAX(year) year,COUNT(DISTINCT year) yearCount,STRING_AGG(DISTINCT year::text, ',' ORDER BY year::text) years FROM admission_programs ap JOIN provinces p ON p.id=ap.province_id WHERE p.name=? AND ap.subject_group=? AND ap.recommendation_eligible=1 AND ap.min_rank IS NOT NULL`, [profile.province, profile.subjectGroup])
+    const available = await loadRecommendationAvailability(database, String(profile.province), String(profile.subjectGroup))
     if (!Number(available[0]?.count)) {
       const result = { generatedAt: new Date().toISOString(), sourceYear: null, candidates: [], planningCoordinate, warning: `当前尚未导入${profile.province}官方投档数据，不能负责任地生成冲稳保；可先使用全国院校地图。` }
       await saveSnapshot(profileId, result)

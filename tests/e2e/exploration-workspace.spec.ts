@@ -125,6 +125,7 @@ test('网络失败保留可重试入口，手机学校抽屉和收藏关闭恢�
   await page.setViewportSize({ width: 390, height: 844 })
   await openProfile(page, id)
   let fail = true
+  await page.getByRole('combobox', { name: '专业类别', exact: true }).selectOption({ label: '合成测试类别' })
   await page.route('**/major-exploration/catalog?**', async route => {
     if (fail) { fail = false; await route.abort('failed') }
     else await route.continue()
