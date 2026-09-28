@@ -2,9 +2,17 @@
 
 用户指定现有Linux服务器发布，不使用Vercel。运行架构为Nginx网页 → Express API → PostgreSQL。2026-09-27用户要求先删除知向旧部署及数据再上线，随后明确授权清理旧备份与过期发布；旧MySQL容器、卷、代码目录和本次旧数据库备份均已删除，当前PostgreSQL与新档案保留，其他项目不动。决定见[ADR0012](adr/0012-existing-server-postgres-release.md)。
 
-## 2026-09-28 地图抱球动效 Web 更新（当前发布）
+## 2026-09-28 页面简化与手机单列修正（当前发布）
 
-当前线上发布标识为 `github-6c7b380-20260928`，`/release.json` 指向源码提交 `6c7b3807513226d643a14e307fa9431c13b740c9`。该提交包含地图标题区抱球人物动效、动态切换“减少动态效果”时的静态首帧修复，以及已进入 `main` 的规划页布局和探索卡片更新。正式发布目录为 `/home/doujiao/zhixiang-releases/github-6c7b380-20260928`；从干净提交构建的 Web 白名单包 SHA-256 为 `254c56b75e9a1574f2330f3a58311be5cfafcdebef66aff3a1f66df745065032`，上传后服务器散列一致。私密环境仍为服务器受控的权限 600 文件，未进发布包。
+当前线上发布 `github-174cd4a-20260928`，`/release.json` 指向源码提交 `174cd4aeeb1663f144f415899be307c64970529f`。该提交保留已上线的地图动效，并把规划页收成单列、将档案切换和数据覆盖放到顶部、缩短探索卡片重复说明；手机探索卡片明确为单列。简化改动提交为 `52c5262`，手机修正为 `174cd4a`。此前只含页面简化的 Web 发布 `ui-simplified-20260928-52c5262` 曾短暂上线，随后被并行的地图动效版本覆盖，最终由本版合并交付。
+
+发布目录 `/home/doujiao/zhixiang-releases/github-174cd4a-20260928`，Web 白名单包 SHA-256 为 `d39c054aba54dbd0c297a560df04b107a3f9960ec8ec9367f36d5a426c906530`，上传后服务器散列一致。只替换 Web 容器；API、PostgreSQL 和其他容器 ID 保持不变，数据库卷未初始化、迁移或重置。旧 Web 镜像和目录保留供回退；私密环境仍在服务器权限 600 文件中。
+
+本地 `npm run build` 通过；只读模拟接口的 Chrome 检查确认 390px 单列和 1440px 布局、目录入口与无水平溢出。外网 `/release.json`、`/api/health` 和地图动效资源可读；线上新建一次带明确测试标记的合成档案，检查 9 个专业、390px 单列、详情往返与页面无异常，随后按本次返回的准确 ID 删除并确认 404。Web/API/DB 均健康；HTTPS 仍未据此验收。
+
+## 2026-09-28 地图抱球动效 Web 更新（历史发布）
+
+该次发布标识为 `github-6c7b380-20260928`，`/release.json` 指向源码提交 `6c7b3807513226d643a14e307fa9431c13b740c9`。该提交包含地图标题区抱球人物动效、动态切换“减少动态效果”时的静态首帧修复，以及已进入 `main` 的规划页布局和探索卡片更新。正式发布目录为 `/home/doujiao/zhixiang-releases/github-6c7b380-20260928`；从干净提交构建的 Web 白名单包 SHA-256 为 `254c56b75e9a1574f2330f3a58311be5cfafcdebef66aff3a1f66df745065032`，上传后服务器散列一致。私密环境仍为服务器受控的权限 600 文件，未进发布包。
 
 只构建并替换知向 Web 镜像 `zhixiang-exploration-web:github-6c7b380-20260928`。API 容器 `7dce8955437b`、PostgreSQL 容器 `f1cd9788e317`、数据卷 `zhixiang-exploration_postgres_data` 和其他项目 `rabbitmq` 容器 `1da4c0059fe1` 均未替换；未执行数据库初始化、迁移或导入。旧 Web 镜像及发布目录保留供回退。
 
