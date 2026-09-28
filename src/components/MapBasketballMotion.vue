@@ -185,9 +185,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="host" class="map-basketball-motion" aria-hidden="true" data-testid="map-basketball-motion">
+  <div ref="host" class="map-basketball-motion" :class="{ 'is-ready': ready }" aria-hidden="true" data-testid="map-basketball-motion">
     <div ref="sprite" class="map-basketball-motion__sprite" :class="{ 'is-ready': ready }"></div>
-    <img v-if="!ready && !posterFailed" class="map-basketball-motion__still" :src="stillUrl" alt="" draggable="false" @error="posterFailed = true" />
+    <img v-if="!posterFailed" class="map-basketball-motion__still" :src="stillUrl" alt="" draggable="false" @error="posterFailed = true" />
   </div>
 </template>
 
@@ -196,5 +196,7 @@ onBeforeUnmount(() => {
 .map-basketball-motion__sprite,.map-basketball-motion__still{position:absolute;bottom:0;left:24px;width:140px;height:140px;object-fit:contain}
 .map-basketball-motion__sprite{visibility:hidden;background-repeat:no-repeat}
 .map-basketball-motion__sprite.is-ready{visibility:visible}
+.map-basketball-motion.is-ready .map-basketball-motion__still{visibility:hidden}
+@media(prefers-reduced-motion:reduce){.map-basketball-motion__sprite.is-ready{visibility:hidden}.map-basketball-motion.is-ready .map-basketball-motion__still{visibility:visible}}
 @media(max-width:1100px){.map-basketball-motion{display:none}}
 </style>

@@ -73,20 +73,22 @@ test('人物与篮球随页面滚动正放和倒放，地图操作与返回入�
 })
 
 test('窄屏隐藏装饰，减少动态效果或资源失败时显示静态首帧', async ({ page }, testInfo) => {
-  await page.setViewportSize({ width: 1100, height: 700 })
   await openMockMap(page)
+  await expect(page.locator('.map-basketball-motion__sprite')).toHaveClass(/is-ready/)
+
+  await page.setViewportSize({ width: 1100, height: 700 })
   await expect(page.getByTestId('map-basketball-motion')).toBeHidden()
   await page.screenshot({ path: testInfo.outputPath('map-narrow.png') })
 
   await page.setViewportSize({ width: 1440, height: 700 })
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await expect(page.locator('.map-basketball-motion__still')).toBeVisible()
-  await expect(page.locator('.map-basketball-motion__sprite')).not.toHaveClass(/is-ready/)
+  await expect(page.locator('.map-basketball-motion__sprite')).toBeHidden()
 
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.route('**/motion/map-basketball/character.json', route => route.abort())
   await page.reload()
   await page.getByRole('button', { name: '院校地图' }).click()
   await expect(page.locator('.map-basketball-motion__still')).toBeVisible()
-  await expect(page.locator('.map-basketball-motion__sprite')).not.toHaveClass(/is-ready/)
+  await expect(page.locator('.map-basketball-motion__sprite')).toBeHidden()
 })
