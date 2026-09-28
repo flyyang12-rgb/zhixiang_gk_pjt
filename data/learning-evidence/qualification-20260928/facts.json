@@ -1,0 +1,317 @@
+{
+  "version": 1,
+  "batchId": "66c32fac-974e-4055-9636-fc0b069ccc04",
+  "status": "active",
+  "sources": [
+    {
+      "key": "physician-law",
+      "title": "中华人民共和国医师法",
+      "url": "https://wjw.beijing.gov.cn/zwgk_20040/zcwj2022/flfg/202304/t20230407_2992842.html",
+      "year": 2021,
+      "publisher": "全国人民代表大会常务委员会（北京市卫生健康委员会转载）",
+      "publisherType": "professional_authority",
+      "collectedAt": "2026-09-28T14:02:09.194Z",
+      "localPath": "physician-law.html",
+      "sha256": "31f7d68c23e3ec8303422282c2ebb136b7d7a682ae076fc89c0581f4fcd5d479"
+    },
+    {
+      "key": "nurse-regulation",
+      "title": "护士条例（2020年修订）",
+      "url": "https://xzfg.moj.gov.cn/law/download?LawID=209&type=pdf",
+      "year": 2020,
+      "publisher": "国务院（司法部国家行政法规库）",
+      "publisherType": "professional_authority",
+      "collectedAt": "2026-09-28T14:02:09.194Z",
+      "localPath": "nurse-regulation.pdf",
+      "sha256": "886d5de8bb1417b5f6c65e797733fbdb7e53be506709929e250206587faabc91"
+    },
+    {
+      "key": "teacher-law",
+      "title": "中华人民共和国教师法（2009年修正）",
+      "url": "https://szeb.sz.gov.cn/home/xzzf/sqgk/yjxx/content/post_2963345.html",
+      "year": 2009,
+      "publisher": "全国人民代表大会常务委员会（深圳市教育局转载）",
+      "publisherType": "professional_authority",
+      "collectedAt": "2026-09-28T14:02:09.194Z",
+      "localPath": "teacher-law-2009.html",
+      "sha256": "ce8b7086bd319a3ffec738193fa83731ea6b3a210e0f227383e79bee8f7a2798"
+    },
+    {
+      "key": "legal-exam",
+      "title": "国家统一法律职业资格考试实施办法",
+      "url": "https://www.moj.gov.cn/policyManager/attach/downloadFile?realfilename=9091362e1ae14cc794aea531f5634f89-2021-12-28.pdf",
+      "year": 2018,
+      "publisher": "司法部",
+      "publisherType": "professional_authority",
+      "collectedAt": "2026-09-28T14:02:09.194Z",
+      "localPath": "legal-exam.pdf",
+      "sha256": "502fe424735a41db54795ae9f91011a669299b722688e6d899bef31cee3f3be3"
+    },
+    {
+      "key": "accounting-license",
+      "title": "关于会计从业资格证书的咨询回复",
+      "url": "https://www.mof.gov.cn/bd/mhwzzxly/hjs/202310/t20231020_3912286.htm",
+      "year": 2023,
+      "publisher": "财政部会计司",
+      "publisherType": "professional_authority",
+      "collectedAt": "2026-09-28T14:02:09.194Z",
+      "localPath": "accounting-license.html",
+      "sha256": "979e32e2da4ad7028d32877871642985724f73ae2232a4e3be1624235c686dab"
+    },
+    {
+      "key": "accounting-exam-2026",
+      "title": "关于2026年度全国会计专业技术初、高级资格考试（郑州考区）报名工作有关事项的通知",
+      "url": "https://zzcz.zhengzhou.gov.cn/kjzj/9841821.jhtml",
+      "year": 2025,
+      "publisher": "郑州市财政局",
+      "publisherType": "professional_authority",
+      "collectedAt": "2026-09-28T14:02:09.194Z",
+      "localPath": "accounting-2026.html",
+      "sha256": "45ee7de509d6ee1361f04cc5812e20e739bae0d9bc484f4908be2e123a296712"
+    },
+    {
+      "key": "dmu-plan-2026",
+      "title": "大连医科大学2026年招生计划",
+      "url": "https://recruit.dmu.edu.cn/__local/D/71/20/784A73713BD3681765860715AC9_BB77F040_759EA.pdf",
+      "year": 2026,
+      "publisher": "大连医科大学本科招生网",
+      "publisherType": "university",
+      "collectedAt": "2026-09-28T14:02:09.194Z",
+      "localPath": "dmu-2026-admissions.pdf",
+      "sha256": "f15251717b6ca20d86a533b25795c9482dcce3ad569ad6542f1acdb88fe7c9e4"
+    }
+  ],
+  "records": [
+    {
+      "factKey": "clinical-physician-registration",
+      "majorCode": "100201K",
+      "kind": "career_requirement",
+      "content": "从事临床医师执业须通过医师资格考试取得相应资格，再办理执业注册并取得医师执业证书；相关医学专业本科以上学历报考执业医师资格考试，还需在执业医师指导下于医疗卫生机构参加医学专业工作实践满一年。临床医学本科毕业不自动取得执业资格。",
+      "sourceKey": "physician-law",
+      "locator": {
+        "kind": "section",
+        "value": "第二章 考试和注册，第八条、第九条、第十二条、第十三条"
+      },
+      "scope": {
+        "level": "major",
+        "schoolName": null,
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "Codex（用户授权导入；逐条核对官方原件）",
+        "reviewedAt": "2026-09-28T14:02:09.194Z",
+        "conclusion": "verified",
+        "reason": "本次对话授权补充；逐条核对主管机关原件的条款、职业方向和摘要，不把学历或证书考试等同自动取得执业资格。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "clinical_physician",
+      "condition": null
+    },
+    {
+      "factKey": "nursing-registration",
+      "majorCode": "101101",
+      "kind": "career_requirement",
+      "content": "从事护士执业须通过护士执业资格考试并注册取得护士执业证书；申请注册还要求完成规定的全日制护理或助产专业课程学习、至少8个月护理临床实习并取得相应学历证书。护理学毕业不自动取得执业资格。",
+      "sourceKey": "nurse-regulation",
+      "locator": {
+        "kind": "section",
+        "value": "第2页，第二章 执业注册，第七条"
+      },
+      "scope": {
+        "level": "major",
+        "schoolName": null,
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "Codex（用户授权导入；逐条核对官方原件）",
+        "reviewedAt": "2026-09-28T14:02:09.194Z",
+        "conclusion": "verified",
+        "reason": "本次对话授权补充；逐条核对主管机关原件的条款、职业方向和摘要，不把学历或证书考试等同自动取得执业资格。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "clinical_nursing",
+      "condition": null
+    },
+    {
+      "factKey": "chinese-teacher-qualification",
+      "majorCode": "050101",
+      "kind": "career_requirement",
+      "content": "到学校从事语文教育教学工作须依法取得教师资格；达到学历或考试等条件后，仍须经教育行政部门认定。汉语言文学或师范专业毕业不自动取得教师资格。",
+      "sourceKey": "teacher-law",
+      "locator": {
+        "kind": "section",
+        "value": "第三章 资格和任用，第十条至第十三条"
+      },
+      "scope": {
+        "level": "major",
+        "schoolName": null,
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "Codex（用户授权导入；逐条核对官方原件）",
+        "reviewedAt": "2026-09-28T14:02:09.194Z",
+        "conclusion": "verified",
+        "reason": "本次对话授权补充；逐条核对主管机关原件的条款、职业方向和摘要，不把学历或证书考试等同自动取得执业资格。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "language_teacher",
+      "condition": null
+    },
+    {
+      "factKey": "math-teacher-qualification",
+      "majorCode": "070101",
+      "kind": "career_requirement",
+      "content": "到学校从事数学教育教学工作须依法取得教师资格；达到学历或考试等条件后，仍须经教育行政部门认定。数学与应用数学或师范专业毕业不自动取得教师资格。",
+      "sourceKey": "teacher-law",
+      "locator": {
+        "kind": "section",
+        "value": "第三章 资格和任用，第十条至第十三条"
+      },
+      "scope": {
+        "level": "major",
+        "schoolName": null,
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "Codex（用户授权导入；逐条核对官方原件）",
+        "reviewedAt": "2026-09-28T14:02:09.194Z",
+        "conclusion": "verified",
+        "reason": "本次对话授权补充；逐条核对主管机关原件的条款、职业方向和摘要，不把学历或证书考试等同自动取得执业资格。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "math_teacher",
+      "condition": null
+    },
+    {
+      "factKey": "law-regulated-careers",
+      "majorCode": "030101K",
+      "kind": "career_requirement",
+      "content": "申请律师执业、初任法官或检察官等法律职业，须按规定通过国家统一法律职业资格考试并取得法律职业资格；该规定列举特定职业，不能推成所有法律助理岗位都须持有该资格。法学专业毕业不自动取得资格。",
+      "sourceKey": "legal-exam",
+      "locator": {
+        "kind": "section",
+        "value": "第1页，第一章 总则，第二条"
+      },
+      "scope": {
+        "level": "major",
+        "schoolName": null,
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "Codex（用户授权导入；逐条核对官方原件）",
+        "reviewedAt": "2026-09-28T14:02:09.194Z",
+        "conclusion": "verified",
+        "reason": "本次对话授权补充；逐条核对主管机关原件的条款、职业方向和摘要，不把学历或证书考试等同自动取得执业资格。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "legal_assistant",
+      "condition": null
+    },
+    {
+      "factKey": "accounting-no-general-license",
+      "majorCode": "120203K",
+      "kind": "career_requirement",
+      "content": "会计从业资格证书已取消；普通会计工作不再设统一准入类职业资格，但从业者仍应具备工作所需的专业能力。会计学毕业不是取得职业资格的证明。",
+      "sourceKey": "accounting-license",
+      "locator": {
+        "kind": "section",
+        "value": "咨询答复，关于会计从业资格证书和会计法第三十八条"
+      },
+      "scope": {
+        "level": "major",
+        "schoolName": null,
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "Codex（用户授权导入；逐条核对官方原件）",
+        "reviewedAt": "2026-09-28T14:02:09.194Z",
+        "conclusion": "verified",
+        "reason": "本次对话授权补充；逐条核对主管机关原件的条款、职业方向和摘要，不把学历或证书考试等同自动取得执业资格。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "accounting",
+      "condition": null
+    },
+    {
+      "factKey": "accounting-exam-2026",
+      "majorCode": "120203K",
+      "kind": "career_requirement",
+      "content": "2026年度初级会计专业技术资格考试要求具备高中毕业及以上学历等报名条件；这是专业技术资格考试，并非普通会计工作统一的上岗许可证。",
+      "sourceKey": "accounting-exam-2026",
+      "locator": {
+        "kind": "section",
+        "value": "一、报名条件（二）及七、证书领取（一）"
+      },
+      "scope": {
+        "level": "major",
+        "schoolName": null,
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "Codex（用户授权导入；逐条核对官方原件）",
+        "reviewedAt": "2026-09-28T14:02:09.194Z",
+        "conclusion": "verified",
+        "reason": "本次对话授权补充；逐条核对主管机关原件的条款、职业方向和摘要，不把学历或证书考试等同自动取得执业资格。"
+      },
+      "validUntil": "2026-12-31T15:59:59.000Z",
+      "jobDirectionCode": "accounting",
+      "condition": null
+    },
+    {
+      "factKey": "dmu-henan-clinical-2026-provisional",
+      "majorCode": "100201K",
+      "kind": "admission_requirement",
+      "content": "大连医科大学2026年招生计划表中，河南临床医学列于物理类且选科栏写“物理+化学”；表尾注明计划仅供参考，最终以省级招生考试主管部门公布为准。当前尚缺河南正式专业目录核对，不能据此执行选科硬过滤。",
+      "sourceKey": "dmu-plan-2026",
+      "locator": {
+        "kind": "page",
+        "value": "第1页，临床医学行、河南列、选考科目列及表尾备注"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "大连医科大学",
+        "province": "河南",
+        "subjectGroup": "物理类",
+        "admissionYear": 2026
+      },
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewedAt": null,
+        "conclusion": null,
+        "reason": "学校计划已核对；待取得河南省级正式专业目录再确认招生资格。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": {
+        "type": "subjects",
+        "mode": "all",
+        "subjects": [
+          "物理",
+          "化学"
+        ]
+      }
+    }
+  ]
+}

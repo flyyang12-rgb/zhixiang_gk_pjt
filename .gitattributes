@@ -1,0 +1,3 @@
+data/learning-evidence/**/*.html -text -diff
+data/learning-evidence/**/*.pdf -text -diff
+data/learning-evidence/**/*.json -text

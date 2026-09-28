@@ -1,0 +1,77 @@
+/* 知向的工作台主题：青绿强调、米白画布、可读的内容层次。 */
+:root {
+  --blue: #2c6854;
+  --blue-soft: #e9f2eb;
+  --green: #278164;
+  --orange: #ba8441;
+  --ink: #213b32;
+  --muted: #66796f;
+  --line: #e1e8df;
+  --panel: #fffefa;
+  color: var(--ink);
+  background: #f5f6f0;
+}
+
+.app-shell { background: #f5f6f0; }
+.rail { background: #1e3b31; border-right: 1px solid #335145; }
+.logo { background: #f0f4e7; color: #244c3b; box-shadow: none; border-radius: 12px; }
+.rail-button { color: #a8beb0; }
+.rail-button.active { background: #ffffff17; color: #f4f8ed; }
+.rail-button:focus-visible { outline: 2px solid #c9dbc3; outline-offset: 3px; }
+.rail-footer { color: #a2b7a8; }
+.topbar { background: #fffefaee; border-color: #dfe7dc; }
+.wordmark strong { color: #244b3b; }
+.wordmark span { color: #778779; letter-spacing: .03em; }
+.canvas, .dashboard-workspace .canvas, .advisor-canvas { background: #f8f9f3; }
+.canvas { padding: 36px clamp(24px, 3vw, 52px); }
+.dashboard-canvas .content-panel { max-width: 1140px; }
+.content-head h2 { color: #244b3b; }
+.content-head p, .save-state { color: #687c6e; }
+.steps-panel, .dashboard-workspace .steps-panel { background: #f0f3ea; border-color: #dfe6db; }
+.steps-panel h1 { color: #244b3b; }
+.plan-label { letter-spacing: .12em; }
+.steps li.active, .dashboard-workspace .steps li.active { background: #e2eddf; border-color: #ccdcca; }
+.step-button:focus-visible { outline-color: #2c6854; }
+.progress-track { background: #dfe8dc; }
+.insight-panel, .dashboard-workspace .insight-panel { background: #f0f3ea; border-color: #dfe6db; }
+.insight-card { border-radius: 12px; border: 1px solid #e1e6d9; border-top: 3px solid #ba8441; background: #fffefa; box-shadow: none; }
+.score-orbit { border-color: #c8d8c9; }
+.data-source strong, .data-coverage strong { color: #315743; }
+.primary-action { background: #2c6854; box-shadow: 0 5px 14px #2c685415; }
+.primary-action:hover:not(:disabled) { background: #235540; box-shadow: 0 7px 18px #2c685423; }
+.primary-action:disabled { background: #829e8a; }
+.field input, .field select, .field textarea { background: #fffefa; border-color: #d6e0d2; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #699679; box-shadow: 0 0 0 3px #2c685412; }
+.mode-picker label { background: #fffefa; border-color: #d6e0d2; }
+.mode-picker label.active { background: #e9f2e3; border-color: #7ca175; }
+.mode-picker input { accent-color: #2c6854; }
+.content-panel > .profile-form { padding: 24px; border: 1px solid #e0e7da; border-radius: 18px; background: #fffefa; }
+.dashboard-section-tabs { border-color: #dce5d7; }
+.dashboard-section-tabs button { border-radius: 9px; }
+.profession-tier-card, .profession-card { background: #fffefa; border-color: #dce5d7; box-shadow: 0 4px 14px #244b3b04; }
+.advisor-page h2 { color: #244b3b; font-family: 'Noto Sans SC', sans-serif; font-size: 27px; letter-spacing: -.025em; }
+.advisor-page > header p { color: #718272; }
+.advisor-history-panel { background: #eef2e8; border-color: #dce5d7; }
+.advisor-layout > main { background: #f0f3ea; border-color: #dce5d7; box-shadow: none; }
+.advisor-focus, .quick-asks, .advisor-layout form, .composer-hint { background: #fffefa; }
+.message { border-color: #dfe7da; background: #fffefa; }
+.message > p { font-size: 14px; }
+.message.user { background: #2c6854; border-color: #2c6854; }
+.advisor-transparency span { font-size: 14px; }
+.advisor-empty-mark { background: #e6efdf; border-color: #d1dfc9; color: #2c6854; }
+.advisor-layout textarea { background: #f7f9f2; border-color: #d6e0d2; font-size: 14px; }
+.advisor-layout form .primary-action { background: #2c6854; }
+.quick-asks button { font-size: 12px; background: #f5f7ee; }
+.advisor-history-panel .new-draft-button { background: #2c6854; border-color: #2c6854; }
+.school-detail-panel { background: #fffefa; }
+
+@media (min-width: 1500px) {
+  .dashboard-workspace { grid-template-columns: 210px minmax(0, 1fr) 220px; }
+}
+@media (max-width: 760px) {
+  .canvas, .advisor-canvas { padding: 24px 16px; }
+  .steps-panel, .dashboard-workspace .steps-panel { padding: 18px 20px; }
+  .topbar { padding: 0 16px; }
+  .advisor-page h2 { font-size: 22px; }
+  .message > p, .advisor-transparency span, .advisor-layout textarea { font-size: 13px; }
+}

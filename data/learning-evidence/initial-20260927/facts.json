@@ -1,0 +1,914 @@
+{
+  "version": 1,
+  "batchId": "883ebf2e-97b9-4d23-9915-deaaf12d766a",
+  "status": "active",
+  "sources": [
+    {
+      "key": "ytu-2024-cs-5074",
+      "title": "烟台大学2024版计算机科学与技术专业人才培养方案",
+      "url": "https://computer.ytu.edu.cn/info/1015/5074.htm",
+      "year": 2024,
+      "publisher": "烟台大学计算机与控制工程学院",
+      "publisherType": "university",
+      "collectedAt": "2026-09-26T08:20:27.974Z",
+      "localPath": "ytu-2024-cs-5074.html",
+      "sha256": "ea61c47e3a6d7be6fb7b868b2e4f5c19c7a3637dfceefc79cc2250b5e304a07c"
+    },
+    {
+      "key": "xyc-2024-electrical-8471",
+      "title": "2024版电气工程及其自动化专业人才培养方案",
+      "url": "https://jdxy.xyc.edu.cn/info/1992/8471.htm",
+      "year": 2024,
+      "publisher": "新余学院机电工程学院",
+      "publisherType": "university",
+      "collectedAt": "2026-09-26T08:20:28.518Z",
+      "localPath": "xyc-2024-electrical-8471.html",
+      "sha256": "fde5b167b6f246cb8ca0b29452f2465182d15af5d87612f2e8e4d4b420f96ea6"
+    },
+    {
+      "key": "dmu-clinical-2025",
+      "title": "临床医学",
+      "url": "https://recruit.dmu.edu.cn/info/1029/1086.htm",
+      "year": 2025,
+      "publisher": "大连医科大学本科招生网",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:51.603Z",
+      "localPath": "dmu-clinical-2025.html",
+      "sha256": "e624232d29106bac6347a3b4a5ff5def1936d4472609fa945b2af11420db24bb"
+    },
+    {
+      "key": "ycu-clinical-2025",
+      "title": "临床医学专业介绍",
+      "url": "https://yxy.jxycu.edu.cn/2025/0407/c154a137784/page.htm",
+      "year": 2025,
+      "publisher": "宜春学院医学部",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:51.922Z",
+      "localPath": "ycu-clinical-2025.html",
+      "sha256": "803b0fbce004797d82529be2c2e7110e88b6645c0da1857ad99332e267735791"
+    },
+    {
+      "key": "lcu-accounting-2025",
+      "title": "会计学专业介绍",
+      "url": "https://sxy.lcu.edu.cn/zsjy/bkszs/589134.htm",
+      "year": 2025,
+      "publisher": "聊城大学商学院（质量学院）",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:51.701Z",
+      "localPath": "lcu-accounting-2025.html",
+      "sha256": "2a381e6f21a177e5bcaa98357301a978e446a74f62c857070c558d24ec4306f5"
+    },
+    {
+      "key": "whpu-nursing-2024",
+      "title": "护理学（临床护理学方向）专业人才培养方案",
+      "url": "https://yx.whpu.edu.cn/info/1209/4978.htm",
+      "year": 2024,
+      "publisher": "武汉轻工大学医学与健康学院",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:52.997Z",
+      "localPath": "whpu-nursing-2024.html",
+      "sha256": "1ff0b9906591fafccbb355deced7df3ee63a1246889891e2dd932d8e48b23d47"
+    },
+    {
+      "key": "hnu-mechanical-2025",
+      "title": "2025级机械设计制造及其自动化专业（专业代码：080202）本科人才培养方案",
+      "url": "https://smee.hainanu.edu.cn/info/1043/9153.htm",
+      "year": 2025,
+      "publisher": "海南大学机电工程学院",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:52.278Z",
+      "localPath": "hnu-mechanical-2025.html",
+      "sha256": "1da792038080e28163c6f499c8eb0be4a6fe249c8c1618e437cc7acf30b1c1ed"
+    },
+    {
+      "key": "yeu-law-2026",
+      "title": "法学专业人才培养方案",
+      "url": "https://fxy.yeu.edu.cn/2026/0622/c1418a56867/page.htm",
+      "year": 2026,
+      "publisher": "仰恩大学法学院",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:52.499Z",
+      "localPath": "yeu-law-2026.html",
+      "sha256": "8602e0d81169acedada23273d7c3ceec6b4832a8570403d51e3dbeb8b950bcee"
+    },
+    {
+      "key": "hunnu-chinese-2025",
+      "title": "汉语言文学（师范）本科专业人才培养方案（2025版）",
+      "url": "https://sdwxy.hunnu.edu.cn/info/1058/6818.htm",
+      "year": 2025,
+      "publisher": "湖南师范大学文学院",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:53.270Z",
+      "localPath": "hunnu-chinese-2025.html",
+      "sha256": "122d1b3e9b4fdf4c430db78d28916572d6eb1fc8ba4bf63fba5b8ec95794134d"
+    },
+    {
+      "key": "cqnu-math-2024",
+      "title": "数学与应用数学（师范）",
+      "url": "https://math.cqnu.edu.cn/info/1261/11981.htm",
+      "year": 2024,
+      "publisher": "重庆师范大学数学科学学院",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:53.288Z",
+      "localPath": "cqnu-math-2024.html",
+      "sha256": "8f523451c65a6952b70de034178a9154fc4be2cfe991b20d5b2964cedbfd2ef2"
+    },
+    {
+      "key": "sdust-math-2025",
+      "title": "〖专业介绍〗数学与应用数学",
+      "url": "https://sxy.sdust.edu.cn/info/1041/5181.htm",
+      "year": 2025,
+      "publisher": "山东科技大学数学与系统科学学院",
+      "publisherType": "university",
+      "collectedAt": "2026-09-27T06:17:53.713Z",
+      "localPath": "sdust-math-2025.html",
+      "sha256": "7d12ef101bef4badc0494f315243da9fce554e4dda6b05a34bc39d3cb2617b67"
+    }
+  ],
+  "records": [
+    {
+      "factKey": "ytu-2024-cs-core-courses",
+      "majorCode": "080901",
+      "kind": "curriculum",
+      "content": "烟台大学2024版培养方案的核心课程包括数据结构与算法、编译原理、计算机组成原理、操作系统、数据库原理及应用。",
+      "sourceKey": "ytu-2024-cs-5074",
+      "locator": {
+        "kind": "section",
+        "value": "三、修读要求 > 1．核心课程"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "烟台大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "ytu-2024-cs-data-structures-practicum",
+      "majorCode": "080901",
+      "kind": "learning_activity",
+      "content": "该方案将数据结构与算法课程设计列为必修专业实践课程，课程代码585120471，学分1，安排1周。",
+      "sourceKey": "ytu-2024-cs-5074",
+      "locator": {
+        "kind": "section",
+        "value": "四、计算机科学与技术专业专业教学计划 > 3．实践教育 > 专业实践课程模块 > 585120471 数据结构与算法课程设计"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "烟台大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "ytu-2024-cs-system-development-direction",
+      "majorCode": "080901",
+      "kind": "career_direction",
+      "content": "该校方案将计算机及其应用领域的软、硬件系统设计和开发列为培养目标中的工作方向；这是该校培养目标，不是就业保证。",
+      "sourceKey": "ytu-2024-cs-5074",
+      "locator": {
+        "kind": "section",
+        "value": "二、培养目标与毕业要求 > 1．专业培养目标 > 培养目标2（专业能力）"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "烟台大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "software_dev",
+      "condition": null
+    },
+    {
+      "factKey": "xyc-2024-electrical-core-courses",
+      "majorCode": "080601",
+      "kind": "curriculum",
+      "content": "新余学院2024版培养方案的核心课程包括电路理论、工程电磁场、电机学、自动控制原理、电力电子技术、电气测试技术。",
+      "sourceKey": "xyc-2024-electrical-8471",
+      "locator": {
+        "kind": "section",
+        "value": "四、主要核心课程及简介 > 核心课程列表"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "新余学院",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "xyc-2024-electrical-practice",
+      "majorCode": "080601",
+      "kind": "learning_activity",
+      "content": "该校方案列出的主要专业实践包括电工实训、电气CAD设计实训、电力系统虚拟仿真实训及毕业设计。",
+      "sourceKey": "xyc-2024-electrical-8471",
+      "locator": {
+        "kind": "section",
+        "value": "五、主要实践性教学环节 > 2.集中实践教学环节 > （1）主要专业实践"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "新余学院",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "xyc-2024-electrical-engineering-direction",
+      "majorCode": "080601",
+      "kind": "career_direction",
+      "content": "该校方案将电气工程相关领域的工程设计和技术开发列为培养目标中的工作方向；这是该校培养目标，不是就业保证。",
+      "sourceKey": "xyc-2024-electrical-8471",
+      "locator": {
+        "kind": "section",
+        "value": "二、培养目标 > 毕业生工作五年后预期目标第2项"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "新余学院",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "electrical_engineer",
+      "condition": null
+    },
+    {
+      "factKey": "dmu-clinical-2025-curriculum",
+      "majorCode": "100201K",
+      "kind": "curriculum",
+      "content": "大连医科大学2025年介绍列出的主干课程包括人体系统解剖学、生理学、病理学、药理学、诊断学、内科学、外科学、妇产科学和儿科学。",
+      "sourceKey": "dmu-clinical-2025",
+      "locator": {
+        "kind": "section",
+        "value": "主干课程"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "大连医科大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "ycu-clinical-2025-learning_activity",
+      "majorCode": "100201K",
+      "kind": "learning_activity",
+      "content": "宜春学院2025年介绍说明，临床医学安排毕业实习，学校组织教师到教学基地进行实习指导及专业技能考核，考核成绩作为毕业成绩的一部分。",
+      "sourceKey": "ycu-clinical-2025",
+      "locator": {
+        "kind": "section",
+        "value": "四、专业建设成效 > （五）专业实践实习 > 第4、5项"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "宜春学院",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "dmu-clinical-2025-career_direction",
+      "majorCode": "100201K",
+      "kind": "career_direction",
+      "content": "大连医科大学2025年介绍列出医疗卫生机构中的医疗、预防、保健工作方向；这是该校介绍的方向，不代表毕业即可取得医生执业资格或获得岗位。",
+      "sourceKey": "dmu-clinical-2025",
+      "locator": {
+        "kind": "section",
+        "value": "就业方向"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "大连医科大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "clinical_physician",
+      "condition": null
+    },
+    {
+      "factKey": "dmu-clinical-2025-career_requirement",
+      "majorCode": "100201K",
+      "kind": "career_requirement",
+      "content": "该校2025年介绍称其临床医学毕业生主要考取研究生或参加住院医师规范化培训。这是该校毕业去向说明，不能替代个人执业资格核验。",
+      "sourceKey": "dmu-clinical-2025",
+      "locator": {
+        "kind": "section",
+        "value": "就业方向"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "大连医科大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "clinical_physician",
+      "condition": null
+    },
+    {
+      "factKey": "lcu-accounting-2025-curriculum",
+      "majorCode": "120203K",
+      "kind": "curriculum",
+      "content": "聊城大学2025年介绍的核心课程包括基础会计学、税法、中级财务会计、成本会计、管理会计、财务管理、审计学、会计信息系统和Python大数据分析。",
+      "sourceKey": "lcu-accounting-2025",
+      "locator": {
+        "kind": "section",
+        "value": "核心课程"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "聊城大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "lcu-accounting-2025-learning_activity",
+      "majorCode": "120203K",
+      "kind": "learning_activity",
+      "content": "该校会计学介绍说明，通过实习实训、社会实践课程和学科竞赛培养知识应用与解决问题能力，并实施全过程导师指导。",
+      "sourceKey": "lcu-accounting-2025",
+      "locator": {
+        "kind": "section",
+        "value": "专业特色 > 第1项"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "聊城大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "lcu-accounting-2025-career_direction",
+      "majorCode": "120203K",
+      "kind": "career_direction",
+      "content": "该校培养目标包括在工商企业、金融企业、政府机关或事业单位从事会计实务；这是培养方向，不是岗位或收入保证。",
+      "sourceKey": "lcu-accounting-2025",
+      "locator": {
+        "kind": "section",
+        "value": "培养目标"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "聊城大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "accounting",
+      "condition": null
+    },
+    {
+      "factKey": "whpu-nursing-2024-curriculum",
+      "majorCode": "101101",
+      "kind": "curriculum",
+      "content": "武汉轻工大学2024年发布的临床护理学方向方案列出人体解剖学、生理学、健康评估、护理学基础、内科护理学、外科护理学、妇产科护理学和儿科护理学等课程。",
+      "sourceKey": "whpu-nursing-2024",
+      "locator": {
+        "kind": "section",
+        "value": "三、课程体系与毕业要求关系矩阵 > 主要课程"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "武汉轻工大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "whpu-nursing-2024-learning_activity",
+      "majorCode": "101101",
+      "kind": "learning_activity",
+      "content": "该校方案要求保障实验教学、实训操作和毕业实习，并说明第一、第二学年分别利用暑假进行临床及社区实践。",
+      "sourceKey": "whpu-nursing-2024",
+      "locator": {
+        "kind": "section",
+        "value": "五、培养措施 > 第2、5项"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "武汉轻工大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "whpu-nursing-2024-career_direction",
+      "majorCode": "101101",
+      "kind": "career_direction",
+      "content": "该校临床护理学方向的培养目标包括在医疗卫生、保健机构从事护理和预防保健工作；这不代表毕业即可取得执业资格或获得岗位。",
+      "sourceKey": "whpu-nursing-2024",
+      "locator": {
+        "kind": "section",
+        "value": "一、专业培养目标"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "武汉轻工大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "clinical_nursing",
+      "condition": null
+    },
+    {
+      "factKey": "hnu-mechanical-2025-curriculum",
+      "majorCode": "080202",
+      "kind": "curriculum",
+      "content": "海南大学2025级机械专业方案的核心课程包括工程制图、电路理论、理论力学、材料力学、机械原理、机械设计、智能制造技术和机械制造技术基础。",
+      "sourceKey": "hnu-mechanical-2025",
+      "locator": {
+        "kind": "section",
+        "value": "三、专业核心课程"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "海南大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "hnu-mechanical-2025-learning_activity",
+      "majorCode": "080202",
+      "kind": "learning_activity",
+      "content": "该校方案列出的实践环节包括金工实习、机械设计课程设计、机械原理课程设计、机电系统综合实践、毕业实习和专业工程训练。",
+      "sourceKey": "hnu-mechanical-2025",
+      "locator": {
+        "kind": "section",
+        "value": "六、主要实践性教学环节（主要专业实验）"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "海南大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "hnu-mechanical-2025-career_direction",
+      "majorCode": "080202",
+      "kind": "career_direction",
+      "content": "该校方案将机械工程领域的产品设计与制造列为培养方向，同时列出应用研究和运行维护；这是培养目标，不是就业保证。",
+      "sourceKey": "hnu-mechanical-2025",
+      "locator": {
+        "kind": "section",
+        "value": "一、培养目标 > 本专业人才培养目标"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "海南大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "mechanical_design",
+      "condition": null
+    },
+    {
+      "factKey": "yeu-law-2026-curriculum",
+      "majorCode": "030101K",
+      "kind": "curriculum",
+      "content": "仰恩大学2026年发布的法学方案列出的核心课程包括法理学、宪法学、刑法、民法、刑事诉讼法、民事诉讼法、国际法和法律职业伦理。",
+      "sourceKey": "yeu-law-2026",
+      "locator": {
+        "kind": "section",
+        "value": "五、核心课程"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "仰恩大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "yeu-law-2026-learning_activity",
+      "majorCode": "030101K",
+      "kind": "learning_activity",
+      "content": "该校法学方案列出的实践环节包括法律诊所、模拟法庭、法律文书、法律谈判、专业实习和毕业实习。",
+      "sourceKey": "yeu-law-2026",
+      "locator": {
+        "kind": "section",
+        "value": "六、主要实践性教学环节和主要专业实验"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "仰恩大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "yeu-law-2026-career_direction",
+      "majorCode": "030101K",
+      "kind": "career_direction",
+      "content": "该校法学方案以法律服务和法律事务处理能力为培养目标；可用于了解法律实务方向，不代表已经满足法律职业资格或律师执业条件。",
+      "sourceKey": "yeu-law-2026",
+      "locator": {
+        "kind": "section",
+        "value": "一、培养目标 > 目标2、3"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "仰恩大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "legal_assistant",
+      "condition": null
+    },
+    {
+      "factKey": "hunnu-chinese-2025-curriculum",
+      "majorCode": "050101",
+      "kind": "curriculum",
+      "content": "湖南师范大学2025版汉语言文学师范方案列出现代汉语、古代汉语、文学概论、语言学概论，以及中国古代、现代、当代文学和外国文学课程。",
+      "sourceKey": "hunnu-chinese-2025",
+      "locator": {
+        "kind": "section",
+        "value": "九、教学进程计划表 > 学科专业必修课程"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "湖南师范大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "hunnu-chinese-2025-learning_activity",
+      "majorCode": "050101",
+      "kind": "learning_activity",
+      "content": "该校师范方案的专业实践课程包括文学写作、实用写作、普通话和书法，并安排毕业论文。此处仅说明该校师范培养实例。",
+      "sourceKey": "hunnu-chinese-2025",
+      "locator": {
+        "kind": "section",
+        "value": "九、教学进程计划表 > 专业实践课程15学分"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "湖南师范大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "hunnu-chinese-2025-career_direction",
+      "majorCode": "050101",
+      "kind": "career_direction",
+      "content": "该校师范方案的培养目标是中学语文教育教学、教研及教育管理。这是师范方向实例，不代表所有汉语言文学专业都以教师岗位为目标，也不保证取得教师资格或岗位。",
+      "sourceKey": "hunnu-chinese-2025",
+      "locator": {
+        "kind": "section",
+        "value": "一、培养目标"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "湖南师范大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "language_teacher",
+      "condition": null
+    },
+    {
+      "factKey": "cqnu-math-2024-curriculum",
+      "majorCode": "070101",
+      "kind": "curriculum",
+      "content": "重庆师范大学2024年师范专业介绍的核心课程包括数学分析、高等代数、解析几何、常微分方程、概率论、数值分析、数理统计和数学教学论。",
+      "sourceKey": "cqnu-math-2024",
+      "locator": {
+        "kind": "section",
+        "value": "核心课程"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "重庆师范大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "sdust-math-2025-learning_activity",
+      "majorCode": "070101",
+      "kind": "learning_activity",
+      "content": "山东科技大学2025年介绍说明，数学与应用数学实施本科生导师制，构建数学建模培养体系，并鼓励学生参与科研与科技创新。",
+      "sourceKey": "sdust-math-2025",
+      "locator": {
+        "kind": "section",
+        "value": "培养方案 > 第2段"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "山东科技大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": null,
+      "condition": null
+    },
+    {
+      "factKey": "cqnu-math-2024-career_direction",
+      "majorCode": "070101",
+      "kind": "career_direction",
+      "content": "重庆师范大学师范专业介绍列出数学教育教学、研究和管理等方向，包括中小学数学教学。这是该校师范实例，不保证取得教师资格或岗位。",
+      "sourceKey": "cqnu-math-2024",
+      "locator": {
+        "kind": "section",
+        "value": "就业方向"
+      },
+      "scope": {
+        "level": "school",
+        "schoolName": "重庆师范大学",
+        "province": null,
+        "subjectGroup": null,
+        "admissionYear": null
+      },
+      "review": {
+        "status": "verified",
+        "reviewer": "项目维护者（本次对话确认）",
+        "reviewedAt": "2026-09-27T06:35:54.284Z",
+        "conclusion": "verified",
+        "reason": "依据已提供的本批次28条审核清单，项目维护者在本次对话明确确认“没问题直接导”；仅按本条注明学校、年份及方向发布。"
+      },
+      "validUntil": null,
+      "jobDirectionCode": "math_teacher",
+      "condition": null
+    }
+  ]
+}

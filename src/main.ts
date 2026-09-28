@@ -6,10 +6,12 @@ import './map-layout.css'
 import './recommendations.css'
 import './rank-required.css'
 import './advisor.css'
+import './advisor-cards.css'
 import './history.css'
 import './profession-dashboard.css'
 import './school-detail.css'
 import './school-major-evidence.css'
 import './admin.css'
+import './planning-theme.css'
 
 createApp(App).mount('#app')
