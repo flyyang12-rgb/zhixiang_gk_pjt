@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "type": "sprite-atlas",
+  "asset": "character.webp",
+  "frameCount": 6,
+  "columns": 3,
+  "rows": 2,
+  "cellWidth": 320,
+  "cellHeight": 320,
+  "atlasWidth": 960,
+  "atlasHeight": 640,
+  "quality": 92,
+  "lossless": false,
+  "files": [
+    "frame-000.png",
+    "frame-001.png",
+    "frame-002.png",
+    "frame-003.png",
+    "frame-004.png",
+    "frame-005.png"
+  ],
+  "targetMB": 1.0,
+  "targetMet": true,
+  "display": {
+    "width": 140,
+    "height": 140,
+    "dpr": 2.0
+  },
+  "requiredCell": {
+    "width": 280,
+    "height": 280
+  },
+  "clarityMet": true
+}

@@ -5,6 +5,7 @@ import chinaGeoJson from '../assets/china.json'
 import { getProvinceMapData, getSchools, type ProvinceMapData, type School } from '../api'
 import { toDatabaseProvinceName, toMapProvinceName } from '../province-names'
 import { formatChineseSourceDate } from '../source-date'
+import MapBasketballMotion from './MapBasketballMotion.vue'
 
 const emit = defineEmits<{ back: []; school: [number] }>()
 const chartElement = ref<HTMLElement | null>(null)
@@ -109,7 +110,7 @@ function onSearchKeydown(event:KeyboardEvent){
 
 <template>
   <div class="map-page">
-    <header class="map-head"><div><span class="kicker">全国院校库 · 2026</span><h2>从地图开始看学校</h2><p>点击省份查看院校分布，再按层次与名称缩小范围。</p></div><button class="secondary-action" @click="emit('back')">返回规划</button></header>
+    <header class="map-head"><div class="map-head-copy"><span class="kicker">全国院校库 · 2026</span><h2>从地图开始看学校</h2><p>点击省份查看院校分布，再按层次与名称缩小范围。</p></div><MapBasketballMotion /><button class="secondary-action" @click="emit('back')">返回规划</button></header>
     <div v-if="loading" class="loading-panel"><span class="spinner"></span><p>正在加载全国院校数据…</p></div>
     <div v-else-if="initialError" class="map-error-state" role="alert"><b>院校数据暂时无法加载</b><p>{{initialError}}</p><button type="button" @click="loadMap">重新加载</button></div>
     <template v-else>
