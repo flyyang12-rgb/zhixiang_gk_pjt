@@ -42,11 +42,6 @@ const form = reactive<ProfileInput>({
   planningMode: 'exploration',
 })
 
-const currentStep = computed(() => currentView.value === 'profile' ? 1 : currentView.value === 'map' ? 0 : 2)
-const progress = computed(() => currentStep.value ? Math.round(currentStep.value / 2 * 100) : 0)
-const visibleScore = computed(() => profile.value?.score ?? (form.planningMode === 'application' ? form.score : null))
-const scoreDisplay = computed(() => visibleScore.value ?? '—')
-const scoreDisplayLabel = computed(() => visibleScore.value == null ? '未记录成绩' : '分数坐标')
 const currentSubjectGroup = computed(() => profile.value?.subjectGroup || form.subjectGroup)
 const currentCoverage = computed(() => dataCoverage.value.find(item => item.province === (profile.value?.province || form.province) && item.subjectGroup === currentSubjectGroup.value))
 const currentProvinceYearStatus = computed(() => dataYearStatus.value.filter(item => item.province === (profile.value?.province || form.province)))
@@ -197,13 +192,24 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
 
     <main class="workspace">
       <header class="topbar">
-        <div class="wordmark"><strong>知向</strong><span>志愿规划工作台</span></div>
+        <div class="wordmark"><strong>知向</strong><span>{{ profile ? `${profile.studentName} · ${profile.province} · ${profile.subjectGroup}` : '志愿规划' }}</span></div>
         <div class="topbar-actions">
-          <button v-if="currentView === 'advisor'" class="history-trigger" @click="openHistory"><span>↻</span> 历史档案</button>
+          <button class="history-trigger" @click="openHistory">切换档案</button>
+          <details v-if="currentView === 'profile' || currentView === 'dashboard' || currentView === 'recommendations'" class="coverage-menu">
+            <summary>数据覆盖</summary>
+            <div class="coverage-popover data-coverage">
+              <span>当前科类可比数据</span><strong v-if="dataStatusState==='loading'">正在读取…</strong><strong v-else-if="dataStatusState==='error'">数据状态暂不可用 <button class="coverage-retry" type="button" @click="refreshDataStatus">重试</button></strong><strong v-else-if="!currentSubjectGroup">选择科类后查看可比数据</strong><strong v-else-if="currentCoverage">{{ currentCoverage.years.join(' / ') }} · {{ currentCoverage.recordCount.toLocaleString() }} 条</strong><strong v-else>尚未覆盖当前科类</strong>
+              <div class="year-status-list">
+                <a v-for="item in currentProvinceYearStatus" :key="item.year" :href="item.sourceUrl" target="_blank" rel="noreferrer">
+                  <b>{{ item.year }}</b><span>{{ item.recordCount.toLocaleString() }} 条 · {{ item.subjectGroups.join('/') }}</span><small>{{ item.publisher }} · 更新 {{ new Date(item.updatedAt).toLocaleDateString('zh-CN') }}</small>
+                </a>
+              </div>
+            </div>
+          </details>
           <div class="save-state"><i></i>{{ profile ? '已保存到公开档案' : '公开共享模式' }}</div>
         </div>
         <Transition name="notice">
-          <div v-if="currentView === 'advisor' && showHistory" class="history-popover topbar-history">
+          <div v-if="showHistory" class="history-popover topbar-history">
             <header><strong>公开历史档案</strong><button @click="showHistory = false">×</button></header>
             <p>所有访客都能查看、修改和永久删除</p>
             <div class="history-list">
@@ -220,37 +226,6 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
       </header>
 
       <div class="workspace-body" :class="{ 'map-workspace': currentView === 'map', 'advisor-workspace': currentView === 'advisor', 'dashboard-workspace': currentView === 'dashboard' }">
-        <aside v-if="currentView !== 'map' && currentView !== 'advisor'" class="steps-panel">
-          <div class="plan-label">当前规划</div>
-          <h1>{{ profile?.studentName || form.studentName || '新的学生档案' }}</h1>
-          <p>{{ profile ? `${profile.province} · ${profile.subjectGroup}` : '从真实信息开始，一步一步找到更合适的方向。' }}</p>
-          <button class="history-trigger" @click="openHistory"><span>↻</span> 历史档案</button>
-
-          <Transition name="notice">
-            <div v-if="showHistory" class="history-popover">
-              <header><strong>公开历史档案</strong><button @click="showHistory = false">×</button></header>
-              <p>所有访客都能查看、修改和永久删除</p>
-              <div class="history-list">
-                <div v-for="item in profileHistory" :key="item.id" :class="['history-item', { current: item.id === profile?.id }]">
-                  <button class="history-select" @click="switchProfile(item)">
-                    <span><b>{{ item.studentName }}</b><small>{{ item.province }} · {{ item.subjectGroup }} · {{ new Date(item.updatedAt).toLocaleString('zh-CN') }}</small></span>
-                    <strong>{{ item.score ?? '—' }}<small>{{ item.score == null ? '未记录' : '分' }}</small></strong>
-                  </button>
-                  <button class="history-delete" :aria-label="`删除 ${item.studentName} ${item.score == null ? '未记录分数' : `${item.score} 分`}档案`" title="永久删除" @click="deleteHistoryProfile(item)">删除</button>
-                </div>
-              </div>
-            </div>
-          </Transition>
-
-          <div class="progress-track"><span :style="{ width: `${progress}%` }"></span></div>
-          <small>整体进度 {{ progress }}%</small>
-
-          <ol class="steps">
-            <li :class="{ active: currentStep === 1, done: currentStep > 1 }"><b>1</b><span>基础信息<small>建立学生档案</small></span></li>
-            <li :class="{ active: currentStep === 2 }"><b>2</b><span>专业与学校<small>直接比较并查看解读</small></span></li>
-          </ol>
-        </aside>
-
         <section class="canvas" :class="{ restoring: isRestoring, 'map-canvas': currentView === 'map', 'advisor-canvas': currentView === 'advisor', 'dashboard-canvas': currentView === 'dashboard' }">
           <Transition name="panel" mode="out-in">
             <SchoolMap v-if="currentView === 'map'" key="map" @back="currentView = profile ? 'dashboard' : 'profile'" @school="openSchool" />
@@ -260,9 +235,9 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
 
             <form v-else-if="currentView === 'profile'" key="profile" class="content-panel" @submit.prevent="submitProfile">
               <div class="content-head">
-                <span class="kicker">STEP 01 · 基础信息</span>
+                <span class="kicker">第 1 步 / 共 2 步 · 基础信息</span>
                 <h2>先建立一份学生档案</h2>
-                <p>这些信息保存在网站的共享数据库中，所有访问者都能查看和修改；有可靠位次后再计算学校候选。</p>
+                <p>填好省份和选科，就能开始了解专业。有可靠位次后，再比较学校。</p>
               </div>
 
               <div class="form-grid">
@@ -295,10 +270,6 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
                     <template v-else><option>物理类</option><option>历史类</option></template>
                   </select>
                 </label>
-                <section v-if="form.planningMode === 'exploration'" class="exploration-note" role="note" aria-label="目标探索说明">
-                  <span>无需分数和位次</span>
-                  <p>先查阅已审核的课程、学习活动和职业方向，自主保存关注专业。以后记录有效全省位次，同一档案会自动开启招生比较。</p>
-                </section>
                 <label v-if="form.planningMode === 'application'" class="field">
                   <span>高考 / 模考分数</span>
                   <div class="suffix-input"><input v-model.number="form.score" type="number" min="100" max="750" placeholder="612" /><i>分</i></div>
@@ -364,22 +335,6 @@ async function returnFromAdvisor(currentFocus:AdvisorFocus|null){
           </Transition>
         </section>
 
-        <aside v-if="currentView !== 'map' && currentView !== 'advisor'" class="insight-panel">
-          <div class="score-orbit"><span>{{ scoreDisplay }}</span><small>{{ scoreDisplayLabel }}</small></div>
-          <div class="insight-card">
-            <span>{{ visibleScore == null ? '暂时没有成绩也能开始' : '为什么先填位次？' }}</span>
-            <p>{{ visibleScore == null ? '目标探索先看课程、学习活动与职业方向，资料不足时明确保留未知。' : '不同年份的试卷难度不同。位次比裸分更适合比较历年录取情况。' }}</p>
-          </div>
-          <div class="data-source"><i></i><span>数据模式<strong>公开共享</strong></span></div>
-          <div class="data-coverage">
-            <span>当前科类可比数据</span><strong v-if="dataStatusState==='loading'">正在读取…</strong><strong v-else-if="dataStatusState==='error'">数据状态暂不可用 <button class="coverage-retry" @click="refreshDataStatus">重试</button></strong><strong v-else-if="!currentSubjectGroup">选择科类后查看可比数据</strong><strong v-else-if="currentCoverage">{{ currentCoverage.years.join(' / ') }} · {{ currentCoverage.recordCount.toLocaleString() }} 条</strong><strong v-else>尚未覆盖当前科类</strong>
-            <div class="year-status-list">
-              <a v-for="item in currentProvinceYearStatus" :key="item.year" :href="item.sourceUrl" target="_blank" rel="noreferrer">
-                <b>{{ item.year }}</b><span>{{ item.recordCount.toLocaleString() }} 条 · {{ item.subjectGroups.join('/') }}</span><small>{{ item.publisher }} · 更新 {{ new Date(item.updatedAt).toLocaleDateString('zh-CN') }}</small>
-              </a>
-            </div>
-          </div>
-        </aside>
       </div>
     </main>
     <SchoolDetailDrawer v-if="selectedSchoolId" :school-id="selectedSchoolId" :profile-id="profile?.id" :student-name="profile?.studentName" @close="selectedSchoolId=null" @advisor="askSchoolAdvisor" @saved-change="handleSchoolSaved" />

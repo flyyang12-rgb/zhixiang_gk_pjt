@@ -75,3 +75,40 @@
   .advisor-page h2 { font-size: 22px; }
   .message > p, .advisor-transparency span, .advisor-layout textarea { font-size: 13px; }
 }
+
+/* 主任务只占一列。档案和来源信息保留在按需展开的位置。 */
+.workspace-body:not(.map-workspace):not(.advisor-workspace) { display: block; }
+.workspace-body:not(.map-workspace):not(.advisor-workspace) > .canvas { min-height: calc(100vh - 68px); }
+.workspace-body:not(.map-workspace):not(.advisor-workspace) > .canvas:not(.dashboard-canvas) { padding: 48px 28px 80px; }
+.content-panel { max-width: 720px; }
+.content-head { margin-bottom: 28px; }
+.content-head h2 { font-family: 'Noto Sans SC', sans-serif; font-size: 29px; }
+.form-grid { gap: 20px; }
+.field > span, .mode-picker legend { font-size: 13px; }
+.field small, .mode-picker small { font-size: 11px; line-height: 1.5; }
+.form-footer { margin-top: 30px; }
+.topbar-actions { display: flex; align-items: center; gap: 14px; }
+.wordmark { min-width: 0; }
+.wordmark span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-actions .history-trigger { margin: 0; cursor: pointer; }
+.topbar-history { top: 60px; left: auto; right: 24px; width: min(340px, calc(100vw - 90px)); }
+.coverage-menu { position: relative; }
+.coverage-menu summary { list-style: none; cursor: pointer; border: 1px solid #dce3dd; background: #fff; border-radius: 8px; padding: 7px 11px; color: #526057; font-size: 12px; }
+.coverage-menu summary::-webkit-details-marker { display: none; }
+.coverage-menu summary:hover { border-color: #315d45; color: #315d45; }
+.coverage-popover { position: absolute; top: 40px; right: 0; width: min(310px, calc(100vw - 90px)); max-height: min(480px, calc(100vh - 86px)); overflow: auto; padding: 16px; border: 1px solid #dfe5df; border-radius: 12px; background: #fff; box-shadow: 0 20px 50px #23392c25; }
+.coverage-popover.data-coverage { display: grid; }
+.topbar-actions :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.dashboard-workspace .dashboard-canvas { padding: 0; }
+.profession-dashboard { max-width: 1320px; margin: 0 auto; background: var(--paper); }
+
+@media (max-width: 760px) {
+  .workspace-body:not(.map-workspace):not(.advisor-workspace) > .canvas:not(.dashboard-canvas) { padding: 28px 18px 60px; }
+  .content-head h2 { font-size: 24px; }
+  .topbar-actions { gap: 8px; }
+  .wordmark span { display: block; max-width: 66px; }
+  .topbar-actions .history-trigger { padding: 7px 9px; font-size: 11px; }
+  .coverage-menu summary { padding: 7px 9px; font-size: 11px; }
+  .save-state { display: none; }
+  .form-footer p { line-height: 1.6; }
+}
