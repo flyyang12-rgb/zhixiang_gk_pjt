@@ -25,6 +25,8 @@ npm test -- tests/family-companion.test.ts
 
 Vitest 排除 tests/e2e，现有单元测试主要使用纯函数或数据库替身；新增测试不要在模块加载时连接或修改共享库。build 检查前端类型并编译前后端，不验证数据库数据完整性。
 
+地图人物的视线跟随可用 `npm test -- tests/mascot-gaze.test.ts` 和 `npx playwright test tests/e2e/map-motion.spec.ts` 验证。浏览器用例拦截全部 `/api/**`，只使用公共院校模拟数据，不读写学生档案。覆盖鼠标方向和眼眶边界、离开与失焦回正、重入、减少动态效果、触控、窄屏、图片失败，以及地图操作和返回入口。默认浏览器配置仍会先读取已有 API 健康检查，运行前确认 3000/5173 对应本项目。
+
 ## 准备浏览器与数据库
 
 学习证据和探索服务的 PostgreSQL 测试只接受下表的显式专用变量，先由私密环境注入连接，不把真实连接串写进命令历史。它们绝不读取应用 `.env`、DATABASE_URL/POSTGRES_URL 或默认数据库，且在连接前校验 loopback 与专用库名。独立实例须有 `anon`、`authenticated` 空角色；结构测试需要建表权限，导入测试另需本机专用测试实例中的建库权限。
