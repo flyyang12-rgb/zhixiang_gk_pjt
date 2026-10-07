@@ -15,6 +15,7 @@ export type MajorComparisonItem = {
   otherInstances: CurrentLearningFact[]
   dataGaps: string[]
   nextAction: string
+  note: string | null
 }
 
 export function validateMajorSelection(ids: number[], purpose: 'comparison' | 'brief'): number[] {
@@ -44,7 +45,7 @@ export function buildMajorComparison(details: ExplorationMajorDetail[]): MajorCo
       admission: { ...detail.admission, evidence: [...detail.admission.evidence] },
       admissionFacts: available ? [...detail.facts.admission_requirement] : [],
       otherInstances: available ? [...detail.otherInstances] : [],
-      dataGaps: [...detail.dataGaps], nextAction: detail.nextAction,
+      dataGaps: [...detail.dataGaps], nextAction: detail.nextAction, note: detail.note,
     }
   })
 }

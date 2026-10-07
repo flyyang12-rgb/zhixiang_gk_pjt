@@ -13,5 +13,6 @@ import './school-detail.css'
 import './school-major-evidence.css'
 import './admin.css'
 import './planning-theme.css'
+import './comparison-ui.css'
 
 createApp(App).mount('#app')

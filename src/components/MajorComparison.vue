@@ -4,10 +4,12 @@ import { getMajorExplorationDetail } from '../api'
 import { buildMajorComparison, validateMajorSelection, type MajorComparisonItem } from '../major-comparison'
 import { interactionError } from '../interaction-errors'
 import LearningFactList from './LearningFactList.vue'
+import ComparisonPdfButton from './ComparisonPdfButton.vue'
 
 const props = defineProps<{ profileId: string; majorIds: number[] }>()
 const emit = defineEmits<{ close: [] }>()
 const items = ref<MajorComparisonItem[]>([]), loading = ref(false), error = ref(''), refreshedAt = ref('')
+const dimensions = ['学什么', '怎么学', '学习准备与课程先修', '职业方向与门槛', '选科证据', '另外的学校或年份实例', '资料缺口', '家庭原始备注']
 let request = 0, alive = true
 onBeforeUnmount(() => { alive = false; request++ })
 watch(() => `${props.profileId}|${props.majorIds.join(',')}`, () => { void load() }, { immediate: true })
@@ -29,30 +31,28 @@ async function load() {
 
 <template>
   <section class="major-comparison" aria-label="专业比较" :aria-busy="loading">
-    <header><button type="button" aria-label="返回收藏" @click="emit('close')">← 返回收藏</button><button type="button" :disabled="loading" @click="load">刷新比较材料</button></header>
-    <h3>专业比较</h3><p class="comparison-context">并排看学习与职业证据；顺序按你的选择，不能据此判断个人适合度。</p>
+    <header class="comparison-toolbar"><button type="button" class="comparison-back" aria-label="返回收藏" @click="emit('close')">← 返回收藏</button><div class="comparison-tools"><button type="button" class="comparison-refresh" :disabled="loading" @click="load">刷新比较材料</button><ComparisonPdfButton :profile-id="profileId" kind="major" :ids="majorIds" :disabled="loading || !!error || !items.length" /></div></header>
+    <span class="comparison-eyebrow">学习与职业证据</span><h3>专业比较</h3><p class="comparison-context">按维度并排看 {{ majorIds.length }} 个专业。选择顺序不表示个人适合度。</p>
     <p v-if="loading" role="status">正在读取当前专业材料…</p>
     <div v-else-if="error" class="comparison-failure" role="alert"><p>{{ error }}</p><button type="button" @click="load">重试专业比较</button></div>
     <template v-else-if="items.length">
-      <p class="comparison-context">本次读取：{{ refreshedAt }}。材料年份逐条标明；重新读取后不沿用已撤回材料。</p>
-      <div class="major-comparison-grid" :style="{ '--major-columns': items.length }">
-        <article v-for="item in items" :key="item.identity.id" :data-major-id="item.identity.id">
-          <header><small>{{ item.identity.category }} · {{ item.identity.code }}</small><h4>{{ item.identity.name }}</h4></header>
-          <p v-if="item.status !== 'available'" class="comparison-context">{{ item.status === 'pending' ? '资料待补充' : '当前材料已不可用，需重新核验' }}。仍可比较明确的缺口。</p>
-          <section><h5>学什么</h5><LearningFactList :facts="item.curriculum" empty-text="课程材料待补充，不根据专业名称猜课程。" /></section>
-          <section><h5>怎么学</h5><LearningFactList :facts="item.activities" empty-text="学习活动材料待补充。" /></section>
-          <section v-if="item.learningPrerequisites.length || item.coursePrerequisites.length"><h5>学习准备与课程先修</h5><p class="comparison-context">这是学习或大学课程条件，不是高考选科资格。</p><LearningFactList :facts="[...item.learningPrerequisites, ...item.coursePrerequisites]" /></section>
-          <section><h5>职业方向与门槛</h5><p v-if="!item.careers.length" class="comparison-context">职业方向材料待补充，不拼凑毕业去向。</p><div v-for="career in item.careers" :key="career.id" class="comparison-career"><h6>{{ career.name }}</h6><LearningFactList :facts="career.evidence" /><p class="comparison-context">读研、考证或职业准入</p><LearningFactList :facts="career.requirements" empty-text="门槛材料待补充，不能认定本科可直接进入。" /></div></section>
-          <section><h5>选科证据</h5><p class="comparison-context">{{ item.admission.reason }}。招生年 {{ item.admission.admissionYear }}，材料年另行标明。</p><LearningFactList :facts="item.admissionFacts" empty-text="当前范围的选科材料待核验，未知不表示不限。" /></section>
-          <section v-if="item.otherInstances.length"><h5>另外的学校或年份实例</h5><p class="comparison-context">这些材料不替代指定范围的缺口。</p><LearningFactList :facts="item.otherInstances" /></section>
-          <section><h5>资料缺口</h5><ul v-if="item.dataGaps.length"><li v-for="gap in item.dataGaps" :key="gap">{{ gap }}</li></ul><p v-else class="comparison-context">当前字段有材料；仍需核对实际学习意愿与当年招生计划。</p><p class="comparison-next">下一步只做：{{ item.nextAction }}</p></section>
-        </article>
+      <details class="comparison-updated"><summary>导出时重新读取当前有效资料与已保存备注</summary><p>当前比较读取于 {{ refreshedAt }}</p></details>
+      <p class="comparison-scroll-hint">左右滑动查看全部 {{ items.length }} 个专业；同一行比较同一维度。</p>
+      <div class="comparison-table-wrap" tabindex="0" role="region" aria-label="可横向滚动的专业比较表">
+        <table class="comparison-table" :style="{ '--comparison-columns': items.length }">
+          <thead><tr><th scope="col" class="comparison-dimension">比较维度</th><th v-for="item in items" :key="item.identity.id" scope="col" :data-major-id="item.identity.id"><small>{{ item.identity.category }} · {{ item.identity.code }}</small><h4>{{ item.identity.name }}</h4><span class="comparison-material-status">{{ item.status === 'available' ? '有已核验资料' : item.status === 'pending' ? '资料待补充' : '资料需重新核验' }}</span></th></tr></thead>
+          <tbody><tr v-for="(dimension, index) in dimensions" :key="dimension"><th scope="row">{{ dimension }}</th><td v-for="item in items" :key="item.identity.id">
+            <LearningFactList v-if="index === 0" :facts="item.curriculum" empty-text="课程材料待补充，不根据专业名称猜课程。" />
+            <LearningFactList v-else-if="index === 1" :facts="item.activities" empty-text="学习活动材料待补充。" />
+            <template v-else-if="index === 2"><p class="comparison-context">学习或大学课程条件，不是高考选科资格。</p><LearningFactList :facts="[...item.learningPrerequisites, ...item.coursePrerequisites]" empty-text="学习准备材料待补充。" /></template>
+            <template v-else-if="index === 3"><p v-if="!item.careers.length" class="comparison-context">职业方向材料待补充。</p><div v-for="career in item.careers" :key="career.id" class="comparison-career"><h5>{{ career.name }}</h5><LearningFactList :facts="career.evidence" /><p class="comparison-context">读研、考证或职业准入</p><LearningFactList :facts="career.requirements" empty-text="门槛材料待补充，不能认定本科可直接进入。" /></div></template>
+            <template v-else-if="index === 4"><p>{{ item.admission.reason }}</p><p class="comparison-context">{{ item.admission.admissionYear }} 年招生，材料年另行标明。</p><LearningFactList :facts="item.admissionFacts" empty-text="当前范围选科材料待核验，未知不表示不限。" /></template>
+            <template v-else-if="index === 5"><p class="comparison-context">不替代当前指定范围的缺口。</p><LearningFactList :facts="item.otherInstances" empty-text="没有另外的有效实例。" /></template>
+            <template v-else-if="index === 6"><ul v-if="item.dataGaps.length" class="comparison-gaps"><li v-for="gap in item.dataGaps" :key="gap">{{ gap }}</li></ul><p v-else>当前字段有材料，仍需核对当年招生计划。</p><p class="comparison-next"><b>下一步只做</b>{{ item.nextAction }}</p></template>
+            <p v-else class="comparison-note">{{ item.note ?? '未添加家庭讨论备注' }}</p>
+          </td></tr></tbody>
+        </table>
       </div>
     </template>
   </section>
 </template>
-
-<style scoped>
-.major-comparison{color:#253e2f;line-height:1.7}.major-comparison>header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:8px 32px 20px 0}.major-comparison button{font:inherit;min-height:36px;padding:6px 11px;border:1px solid #cbd8ce;border-radius:7px;background:#fff;color:#285b40;cursor:pointer}.major-comparison button:disabled{opacity:.55;cursor:default}.major-comparison :focus-visible{outline:2px solid #46785a;outline-offset:3px}.major-comparison>h3{margin:0;font-size:24px}.comparison-context{font-size:12px;color:#687b6d;line-height:1.8;margin:7px 0 12px;overflow-wrap:anywhere}.comparison-failure{color:#873c2d;font-size:13px}.major-comparison-grid{display:grid;grid-template-columns:repeat(var(--major-columns),minmax(0,1fr));gap:20px;margin-top:20px}.major-comparison-grid>article{min-width:0;overflow-wrap:anywhere}.major-comparison-grid>article>header{border-bottom:1px solid #d3dfd2;padding-bottom:12px}.major-comparison-grid small{font-size:11px;color:#708274}.major-comparison-grid h4{font-size:18px;margin:4px 0}.major-comparison-grid section{padding:17px 0;border-bottom:1px solid #e1e8dc}.major-comparison-grid h5{font-size:14px;margin:0 0 10px}.major-comparison-grid h6{font-size:13px;margin:5px 0 9px}.major-comparison-grid ul{padding-left:18px;font-size:12px;color:#766d52}.comparison-next{font-size:12px;margin:10px 0 0;color:#435f48}.comparison-career+.comparison-career{margin-top:16px}
-@media(max-width:700px){.major-comparison-grid{grid-template-columns:1fr;gap:26px}.major-comparison-grid>article>header{border-top:1px solid #cbd9ca;padding-top:14px}.major-comparison>header{margin-right:30px}.major-comparison>h3{font-size:21px}}
-</style>

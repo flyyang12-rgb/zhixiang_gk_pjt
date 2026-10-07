@@ -29,6 +29,8 @@ Vitest 排除 tests/e2e，现有单元测试主要使用纯函数或数据库替
 
 ## 准备浏览器与数据库
 
+对比 PDF 可用 `npm test -- tests/comparison-reports.test.ts tests/major-comparison.test.ts` 与 `npx playwright test tests/e2e/comparison-pdf.spec.ts` 验证。单元/API 用数据库和服务替身覆盖数量、重复、非法 ID、404、503、当前资料重读、撤回、原始备注与 HTML/链接安全。浏览器用例拦截全部 `/api/**`，仅使用合成档案；以真实 Chromium 生成的 PDF 验证下载、生成与失败状态、撤回后刷新、备注保存/失败/刷新持久化、收藏移除失败、390px 横向比较、Esc 与焦点恢复、减少动态效果及无效下载拒绝。用例不接触共享数据库。PDF 中文、长备注、完整来源和分页还需渲染成图片检查；测试中的合成材料不是正式业务证据。
+
 学习证据和探索服务的 PostgreSQL 测试只接受下表的显式专用变量，先由私密环境注入连接，不把真实连接串写进命令历史。它们绝不读取应用 `.env`、DATABASE_URL/POSTGRES_URL 或默认数据库，且在连接前校验 loopback 与专用库名。独立实例须有 `anon`、`authenticated` 空角色；结构测试需要建表权限，导入测试另需本机专用测试实例中的建库权限。
 
 | 测试 | 显式变量与允许目标 | 隔离与清理 |

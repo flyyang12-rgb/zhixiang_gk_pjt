@@ -8,6 +8,7 @@ import { schoolsRouter } from './schools.js'
 import { recommendationsRouter } from './recommendations.js'
 import { advisorRouter } from './advisor.js'
 import { reportsRouter } from './reports.js'
+import { comparisonReportsRouter } from './comparison-reports.js'
 import { employmentRouter } from './employment.js'
 import { professionDashboardRouter } from './profession-dashboard.js'
 import { majorExplorationRouter } from './major-exploration-routes.js'
@@ -38,6 +39,7 @@ app.use('/api', schoolsRouter)
 app.use('/api', recommendationsRouter)
 app.use('/api', advisorRouter)
 app.use('/api', reportsRouter)
+app.use('/api', comparisonReportsRouter)
 app.use('/api', employmentRouter)
 app.use('/api', professionDashboardRouter)
 app.use('/api', majorExplorationRouter)

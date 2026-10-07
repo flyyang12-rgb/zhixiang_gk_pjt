@@ -69,10 +69,13 @@ PRD 0.4 的完整度分类、资料待补/不存在/已关注资料撤回路径�
 | POST | `/api/profiles/:id/recommendations/generate` | 按当前规划位次重新生成并覆盖该档案最新推荐快照 |
 | GET | `/api/profiles/:id/recommendations` | 已保存快照或 null |
 | GET | `/api/profiles/:id/report.pdf` | 基础档案与已保存快照的 PDF |
+| POST | `/api/profiles/:id/comparison.pdf` | `{ kind: 'major' 或 'school', ids: [正整数ID] }`；专业 2—3 个、院校 2—4 所，不重复，按选择顺序生成当前比较 PDF |
 
 itemType 为 major/school，state 为 saved/excluded/target，itemId 为正整数。note 保留原始空格与换行，按原长度限制最多 500 字；PUT 不传 note 时保留已有备注，传 null 时清除。备注不参与推荐规则。PATCH 只接受 note 字段。
 
 `POST /api/profiles/:id/recommendations` 不是生成接口；必须带 `/generate`。家庭简报由前端根据学校详情与收藏生成，没有单独的公开分享接口。
+
+对比 PDF 只接受 kind、ids，不接受 HTML、事实、AI 分析或未保存备注。服务端确认档案存在后，重新读取统一专业有效材料或学校详情，并读取该档案已保存的原始备注；不写数据库，不调用 AI，不重新推荐。成功返回 `application/pdf`、attachment 和 `Cache-Control: no-store`；无效参数 422、不存在档案/对象 404、生成异常 503 均返回统一 JSON 错误体，不泄露内部诊断。浏览器检查状态、类型与 PDF 文件头后下载，失败保留比较与选择。
 
 ## 专业探索
 

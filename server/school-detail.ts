@@ -8,6 +8,16 @@ export class SchoolDetailLookupError extends Error {
   constructor(public readonly status: 404, message:string) { super(message) }
 }
 
+export type SchoolAdmissionContext = {
+  profileProvince: string; subjectGroup: string; provinceRank: number | null; currentProvinceRank: number | null;
+  planningCoordinate: Awaited<ReturnType<typeof loadPlanningCoordinate>>; years: number[];
+  records: Array<{ id: number; year: number; educationLevel: string; admissionCategory: string; batch: string; planType: string;
+    eligibilityRequirement: string | null; recommendationEligible: boolean; recommendationExclusionReason: string | null;
+    unitType: string; unitName: string; unitCode: string | null; subjectRequirement: string | null;
+    minScore: number | null; minRank: number | null; risk: '冲' | '稳' | '保' | null; confidence: string;
+    sourceUrl: string | null; publisher: string | null }>
+}
+
 export async function loadSchoolDetail(schoolId:number,profileId?:string) {
   const [schoolRows] = await database.query<RowDataPacket[]>(
     `SELECT s.id,s.name,p.name province,s.city,s.level,s.school_type schoolType,s.features,
@@ -29,7 +39,7 @@ export async function loadSchoolDetail(schoolId:number,profileId?:string) {
      WHERE ap.school_id=? AND ap.unit_type='exact_major' AND ap.recommendation_eligible=1
      GROUP BY ap.major_name ORDER BY yearCount DESC,latestYear DESC,ap.major_name LIMIT 18`,[schoolId],
   )
-  let admissionContext:null|Record<string,unknown>=null
+  let admissionContext:SchoolAdmissionContext|null=null
   let isSaved=false
   if(profileId){
     const [profileRows]=await database.query<RowDataPacket[]>(

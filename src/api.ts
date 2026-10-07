@@ -158,6 +158,32 @@ export type SchoolComparisonAnalysis={content:string;mode:'ai'|'local'}
 export async function getSchoolComparisonAnalysis(profileId:string,schoolIds:number[]){return request<SchoolComparisonAnalysis>(`/api/profiles/${profileId}/advisor/comparison`,{method:'POST',body:JSON.stringify({schoolIds})})}
 export function downloadReport(profileId:string){ window.location.href=`/api/profiles/${profileId}/report.pdf` }
 
+export async function downloadComparisonPdf(profileId: string, kind: 'major' | 'school', ids: number[], signal?: AbortSignal) {
+  const timeout = AbortSignal.timeout(60000)
+  let response: Response
+  try {
+    response = await fetch(`/api/profiles/${profileId}/comparison.pdf`, { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, ids }),
+      signal: signal ? AbortSignal.any([signal, timeout]) : timeout })
+  } catch (error) {
+    if (signal?.aborted) throw error
+    throw new Error(timeout.aborted ? '生成 PDF 超时，请稍后重试；当前选择仍保留' : '网络连接失败，请检查网络后重试；当前选择仍保留')
+  }
+  if (!response.ok || !response.headers.get('content-type')?.includes('application/pdf')) {
+    const result = await response.json().catch(() => null) as ApiResponse<null> | null
+    throw new Error(result?.error ?? '对比 PDF 生成失败，请稍后重试；当前选择仍保留')
+  }
+  const blob = await response.blob()
+  if (blob.size < 5 || await blob.slice(0, 5).text() !== '%PDF-') throw new Error('下载内容不是有效 PDF，请重试')
+  if (signal?.aborted) throw new DOMException('下载已取消', 'AbortError')
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url; link.download = `知向-${kind === 'major' ? '专业' : '院校'}对比-${new Date().toISOString().slice(0, 10)}.pdf`
+  document.body.append(link); link.click(); link.remove()
+  // Give the browser time to consume the download before releasing its URL.
+  setTimeout(() => URL.revokeObjectURL(url), 10000)
+}
+
 export type EvidenceReference = { title:string;publisher:string;sourceUrl:string;sourceYear:number;reviewedAt:string;validUntil:string }
 export type ProfessionFactor = { value:number|null;weight:number;evidence:string;reference?:EvidenceReference }
 export type ProfessionJob = { id:number;name:string;employmentCategory:string;requiresPostgraduate:boolean;requiresCertificate:boolean;directEntry:boolean }
